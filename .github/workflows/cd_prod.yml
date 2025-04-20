@@ -1,0 +1,34 @@
+name: Deploy to staging
+on: 
+  push:
+    branches:
+      - "main"
+    
+jobs:
+  redeploy_everything:
+    name: Deploy Everything to production
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/ssh_key
+          chmod 600 ~/ssh_key
+
+      - name: SSH into server and deploy
+        run: |
+          ssh -i ~/ssh_key -o StrictHostKeyChecking=no ubuntu@13.202.126.159 << 'EOF'
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+            nvm use 14
+            cd Deploy
+            git pull origin main
+            npm install
+            npm run build
+            pm2 restart all
+          EOF

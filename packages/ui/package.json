@@ -1,0 +1,37 @@
+{
+  "name": "@repo/ui",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./SortFilter": "./src/filterSort.tsx",
+    "./Footer": "./src/footer.tsx",
+    "./Home": "./src/homePage.tsx",
+    "./ImageUpload": "./src/imagesUpload.tsx",
+    "./MainFooter": "./src/mainfooter.tsx",
+    "./Navbar": "./src/navbar.tsx",
+    "./ComboBox": "./src/searchBox.tsx",
+    "./SideDetail": "./src/sidedetails.tsx"
+  },
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "generate:component": "turbo gen react-component",
+    "check-types": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@turbo/gen": "^2.4.0",
+    "@types/node": "^22.13.0",
+    "@types/react": "19.0.8",
+    "@types/react-dom": "19.0.3",
+    "eslint": "^9.20.0",
+    "typescript": "5.7.3"
+  },
+  "dependencies": {
+    "@mui/material": "^6.4.3",
+    "@mui/styled-engine-sc": "^6.4.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "styled-components": "^6.1.15"
+  }
+}

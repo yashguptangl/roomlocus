@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Agent" ADD COLUMN     "walletRs" INTEGER NOT NULL DEFAULT 0;

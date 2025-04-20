@@ -1,0 +1,310 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+model User {
+    id              Int      @id @default(autoincrement())  
+    username        String
+    email           String
+    mobile          String     @unique
+    password        String   
+    otp             Int
+    isPhoneVerified Boolean @default(false)
+    contactLogs     ContactLog[]
+    wishlists       Wishlist[]
+}
+  
+model Owner {
+    id                Int       @id @default(autoincrement())  
+    username          String
+    email             String
+    mobile            String     @unique
+    password          String   
+    otp               Int
+    isPhoneVerified   Boolean   @default(false)
+    FlatInfo          FlatInfo[]
+    PgInfo            PgInfo[]
+    RoomInfo          RoomInfo[]
+    points            Int       @default(10)  // Initial points assigned
+    isKYCVerified     Boolean   @default(false)
+    contactLogs       ContactLog[]
+    verificationRequests VerificationRequest[]
+    RoomDayNight    RoomDayNight[]
+
+}
+
+model Agent {
+    id                 Int        @id @default(autoincrement())
+    username           String
+    email              String     @unique
+    mobile             String     @unique
+    password           String
+    otp                Int
+    isPhoneVerified    Boolean    @default(false)
+    agentId            String     @unique
+    isVerifiedByAdmin  Boolean    @default(false)
+    isKYCVerified      Boolean    @default(false)
+    personverifiedName String
+    walletRs           Int       @default(0)  // Initial wallet amount
+    Agentprogress      Agentprogress[]
+    VerificationRequests VerificationRequest[]
+}
+
+model Agentprogress{
+    id               Int       @id @default(autoincrement())
+    agentId          String    @unique
+    agent            Agent     @relation(fields: [agentId], references: [agentId])
+    step             String
+    data             Json
+    createdAt        DateTime   @default(now())
+    updatedAt        DateTime   @updatedAt 
+}
+  
+model FlatInfo {
+    id                  Int        @id @default(autoincrement())
+    ownerId             Int
+    Type                String     @default("Flat")
+    owner               Owner      @relation(fields: [ownerId], references: [id])
+    city                String
+    townSector          String
+    location            String
+    landmark            String
+    BHK                 String
+    MaxPrice            String
+    MinPrice            String
+    Offer               String      
+    security            String
+    maintenance         String
+    totalFlat           Int
+    Adress              String
+    ageofProperty       String
+    waterSupply         String
+    powerBackup         String
+    noticePeriod        String
+    furnishingType      String
+    accomoType          String
+    parking             String[]
+    preferTenants       String[]
+    petsAllowed         Boolean
+    genderPrefer        String
+    flatType            String
+    careTaker           String
+    listingShowNo       String
+    flatInside          String[]
+    flatOutside         String[]
+    isVerified          Boolean   @default(false)
+    verificationPending Boolean   @default(true)
+    paymentDone         Boolean   @default(false)
+    isVisible           Boolean   @default(true) // Control visibility manually
+    isDraft             Boolean   
+    updatedByOwner      DateTime  @updatedAt
+    verifiedByAdminOrAgent   DateTime  @updatedAt
+}
+
+model PgInfo {
+    id                  Int        @id @default(autoincrement())
+    ownerId             Int
+    Type                String     @default("Pg")
+    owner               Owner      @relation(fields: [ownerId], references: [id])
+    city                String
+    townSector          String
+    location            String
+    landmark            String
+    BHK                 String
+    MinPrice            String
+    MaxPrice            String
+    adress              String
+    Offer               String
+    security            String
+    maintenance         String
+    totalPG             Int
+    ageofProperty       String
+    waterSupply         String
+    PGType              String
+    bedCount            Int
+    powerBackup         String
+    noticePeriod        String
+    furnishingType      String
+    accomoType          String
+    foodAvailable       Boolean
+    parking             String[]
+    preferTenants       String[]
+    genderPrefer        String
+    timeRestrict        Boolean
+    PGInside          String[]
+    PGOutside         String[]
+    careTaker           String
+    listingShowNo       String
+    isVerified          Boolean   @default(false)
+    verificationPending Boolean   @default(true)
+    paymentDone         Boolean   @default(false)
+    isVisible           Boolean   @default(true) // Control visibility manually
+    isDraft             Boolean
+    updatedByOwner      DateTime  @updatedAt
+    verifiedByAdminOrAgent   DateTime  @updatedAt
+}
+  
+model RoomInfo {
+    id                  Int        @id @default(autoincrement())
+    ownerId             Int
+    Type                String     @default("Room")
+    owner               Owner      @relation(fields: [ownerId], references: [id])
+    city                String
+    townSector          String
+    location            String
+    BHK                 String
+    landmark            String
+    MinPrice            String
+    MaxPrice            String
+    Offer               String
+    adress              String
+    security            String
+    maintenance         String
+    totalRoom           Int
+    ageofProperty       String
+    powerBackup         String
+    noticePeriod        String
+    waterSupply         String
+    furnishingType      String
+    accomoType          String
+    parking             String[]
+    preferTenants       String[]
+    genderPrefer        String
+    roomType            String
+    roomInside          String[]
+    roomOutside         String[]
+    careTaker           String
+    listingShowNo       String
+    RoomAvailable       String
+    isVerified          Boolean   @default(false)
+    verificationPending Boolean   @default(true)
+    paymentDone         Boolean   @default(false)
+    isVisible           Boolean   @default(true) // Control visibility manually
+    isDraft             Boolean
+    updatedByOwner      DateTime  @updatedAt
+    verifiedByAdminOrAgent   DateTime  @updatedAt
+}
+
+model RoomDayNight {
+    id              Int      @id @default(autoincrement())
+    ownerId         Int
+    Type            String   @default("RoomDayNight")
+    city            String
+    townSector      String
+    location        String
+    landmark        String
+    palaceName      String
+    BedCount        Int
+    MinPrice        String
+    MaxPrice        String
+    adress          String
+    totalRoom       Int
+    noofGuests      Int
+    furnishingType  String
+    accomoType      String
+    acType          String
+    parking         String[]
+    foodAvailable   Boolean
+    preferTenants   String[]
+    genderPrefer    String
+    roomType        String
+    roomInside      String[]
+    roomOutside     String[]
+    manager         String
+    ManagerConact   String
+    owner               Owner      @relation(fields: [ownerId], references: [id])  
+    isVerified          Boolean   @default(false)
+    verificationPending Boolean   @default(true)
+    paymentDone         Boolean   @default(false)
+    isVisible           Boolean   @default(true)
+    isDraft             Boolean
+    updatedByOwner      DateTime  @updatedAt
+    verifiedByAdminOrAgent   DateTime  @updatedAt
+}
+  
+model ContactLog {
+    id            Int      @id @default(autoincrement())
+    ownerId       Int
+    userId        Int
+    ownerName    String
+    user          User     @relation(fields: [userId], references: [id])
+    owner         Owner    @relation(fields: [ownerId], references: [id])
+    listingId     Int
+    customerName  String
+    customerPhone String
+    ownerPhone    String
+    adress        String
+    accessDate    DateTime  
+    expiryDate    DateTime 
+    propertyType  String
+    isExpired     Boolean  @default(false) // Automatically expires after 30 days
+}
+
+model VerificationRequest {
+  id                   String   @id @default(uuid())
+  listingType          String   // "Flat" | "Room" | "PG"
+  ownerId              Int
+  owner                Owner      @relation(fields: [ownerId], references: [id])
+  agent                Agent?     @relation(fields: [agentId], references: [agentId])
+  agentId              String?
+  listingId            Int
+  verificationType     VerifyType @default(SELF) // "Self" | "Agent"
+  status               StatusType @default(PENDING) // "Pending" | "Confirmed" | "Cancelled"
+  imagesUploaded       Boolean    @default(false)
+  createdAt            DateTime   @default(now())
+  adress               String?
+  listingShowNo        String?
+  updatedAt            DateTime   @updatedAt
+  @@index([agentId])
+}
+
+enum StatusType { 
+  PENDING
+  CONFIRMED
+  CANCELLED
+  DONE
+  INPROGRESS
+}
+
+enum VerifyType {
+  SELF
+  AGENT
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  listingId Int
+  type      String  // "flat", "pg", "room"
+  createdAt DateTime @default(now())
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+}
+
+model Admin {
+  id       Int      @id @default(autoincrement())
+  username String   
+  email    String   @unique
+  password String
+  role     Role     @default(EMPLOYEE)
+  verified Boolean  @default(false)
+  
+}
+
+enum Role {
+  EMPLOYEE
+  ADMIN
+}
