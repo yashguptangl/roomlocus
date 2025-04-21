@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import banglore from "../assets/Banglore.jpg";
 import dehradun from "../assets/dehradun.jpg";
@@ -20,7 +20,12 @@ export default function Home() {
   const [lookingFor, setLookingFor] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedTownSector, setSelectedTownSector] = useState("");
+  const [isMounted, setIsMounted] = useState(false); // Track if the component is mounted
   const router = useRouter();
+
+  useEffect(() => {
+    setIsMounted(true); // Set mounted state to true after the component mounts
+  }, []);
 
   const handleTownChange = (townSector: string) => {
     setSelectedTownSector(townSector);
@@ -34,6 +39,15 @@ export default function Home() {
   const handleSearch = () => {
     router.push(`/${lookingFor}?look=${lookingFor}&city=${selectedCity}&townSector=${selectedTownSector}`);
   };
+
+  if (!isMounted) {
+    return (
+      <div>
+        {/* Render a placeholder or skeleton UI to avoid mismatches */}
+        <p>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -50,11 +64,10 @@ export default function Home() {
               fill
               priority
               className="object-cover snap-start "
-            />  
+            />
           </div>
         ))}
       </div>
-
 
       <div className="flex flex-col items-center justify-center mt-14 space-y-4 text-black-300 px-4">
         <p className="bg-gray-500 px-3 py-1 rounded text-left relative font-medium ssm:mr-[11.5rem] mod:mr-[15.5rem] ml:mr-[18.5rem] sm:mr-[18rem] top-4">
@@ -66,7 +79,7 @@ export default function Home() {
             value={lookingFor}
             onChange={(e) => setLookingFor(e.target.value)}
           >
-            <option value="" disabled selected>
+            <option value="" disabled>
               Looking for
             </option>
             <option value="pg">PG</option>
