@@ -38,7 +38,7 @@ export default function Signup() {
   const onSubmit = async (data: SignupFormValues) => {
     try {
       console.log("Data being sent to API:", data); // Logs the form data
-      const response = await axios.post("http://localhost:3001/api/v1/user/signup", {
+      const response = await axios.post(`${process.env.BACKEND_URL}/v1/user/signup`, {
 
         username: data.username,
         mobile: data.mobile,

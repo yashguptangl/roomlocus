@@ -30,7 +30,7 @@ export default function Verify() {
     try {
       console.log("Data being sent to API:", data);
       const response = await axios.post(
-        "http://localhost:3001/api/v1/agent/verify-otp",
+        `${process.env.BACKEND_URL}/v1/agent/verify-otp`,
 
         {
           mobile: data.mobile,
@@ -48,7 +48,7 @@ export default function Verify() {
     try {
       setResendLoading(true);
       const response = await axios.post(
-        "http://localhost:3001/api/v1/agent/resend-otp",
+        `${process.env.BACKEND_URL}/v1/agent/resend-otp`,
         {
           mobile: data.mobile,
         }

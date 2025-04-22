@@ -37,7 +37,7 @@ export default function Signup() {
       try {
         localStorage.clear();
         console.log("Data being sent to API:", data); // Logs the form data
-        const response = await axios.post("http://localhost:3001/api/v1/agent/signup", {
+        const response = await axios.post(`${process.env.BACKEND_URL}/v1/agent/signup`, {
           username: data.username,
           mobile: data.mobile,
           email: data.email,

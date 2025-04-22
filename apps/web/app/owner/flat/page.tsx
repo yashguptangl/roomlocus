@@ -43,7 +43,7 @@ export default function FlatListingForm() {
         townSector: selectedTown,
       };
       const response = await axios.post(
-        "http://localhost:3001/api/v1/owner/flat",
+        `${process.env.BACKEND_URL}/v1/owner/flat`,
         formData,
         {
           headers: {

@@ -42,7 +42,7 @@ export default function Dashboard() {
       async function ownerDeatils() {
         try {
           const response = await axios.get(
-            `http://localhost:3001/api/v1/owner/details-owner`,
+            `${process.env.BACKEND_URL}/v1/owner/details-owner`,
             { headers: { token } }
           );
           console.log("Owner Details:", response.data);
@@ -56,7 +56,7 @@ export default function Dashboard() {
       async function usedLeadData(token: string, ownerId: string) {
         try {
           const leadResponse = await axios.get(
-            `http://localhost:3001/api/v1/owner/contact-logs/${ownerId}`,
+            `${process.env.BACKEND_URL}/v1/owner/contact-logs/${ownerId}`,
             { headers: { token } }
           );
           setUsedLeads(leadResponse.data);
@@ -69,7 +69,7 @@ export default function Dashboard() {
       async function fetchImagesForListing(type: string, listingId: string) {
         try {
           const res = await axios.get(
-            `http://localhost:3001/api/v1/owner/images/${type}/${listingId}`,
+            `${process.env.BACKEND_URL}/v1/owner/images/${type}/${listingId}`,
             { headers: { token } }
           );
           return res.data; // assuming array of image URLs or objects
@@ -82,7 +82,7 @@ export default function Dashboard() {
       const fetchListings = async (token: string, ownerId: string) => {
         try {
           const response = await axios.get(
-            `http://localhost:3001/api/v1/owner/${ownerId}/listings`,
+            `${process.env.BACKEND_URL}/v1/owner/${ownerId}/listings`,
             { headers: { token } }
           );
       
@@ -149,7 +149,7 @@ export default function Dashboard() {
       }
   
       const response = await axios.post(
-        "http://localhost:3001/api/v1/owner/publish",
+        `${process.env.BACKEND_URL}/v1/owner/publish`,
         { listingId, type, isVisible },
         { headers: { token } }
       );
@@ -178,7 +178,7 @@ export default function Dashboard() {
         return;
       }
   
-      const response = await axios.delete("http://localhost:3001/api/v1/owner/listing", {
+      const response = await axios.delete(`${process.env.BACKEND_URL}/v1/owner/listing`, {
         headers: { token },
         data: { listingId, type },
       });

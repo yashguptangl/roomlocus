@@ -7,7 +7,7 @@ export default function MainFooter() {
   return (
     <div className="flex flex-col items-center bg-gray-400 w-full gap-4 mt-32 relative bottom-0 ">
       <p className="text-sm sm:text-base">English</p>
-      <p className="text-sm sm:text-base">+91-9719507080</p>
+      <p className="text-sm sm:text-base">+91-9045668197</p>
       <p className="text-sm sm:text-base">info@roomlocus.com</p>
 
       <div className="relative flex justify-center gap-5">

@@ -33,7 +33,7 @@ export default function LoginSignUp() {
         localStorage.clear();
         try {
             const response = await axios.post(
-                "http://localhost:3001/api/v1/owner/login",
+                `${process.env.BACKEND_URL}/v1/owner/login`,
                 data,
                 {
                     headers: {

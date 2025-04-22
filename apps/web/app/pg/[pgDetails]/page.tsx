@@ -42,7 +42,7 @@ export default function ListingDetail() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/v1/owner/contact-owner/`, {
+      const response = await fetch(`${process.env.BACKEND_URL}/v1/owner/contact-owner/`, {
         method: 'POST',
         headers: {
           'token': token,
@@ -73,7 +73,7 @@ export default function ListingDetail() {
   async function contactAlreadyShow(token: string, userId: number) {
     try {
       const alreadyContact = await axios.get(
-        `http://localhost:3001/api/v1/listing/contact-logs/${userId}`,
+        `${process.env.BACKEND_URL}/v1/listing/contact-logs/${userId}`,
         { headers: { 'token': token, 'Content-Type': 'application/json' } }
       );
       setAlreadyContactData(alreadyContact.data || null);

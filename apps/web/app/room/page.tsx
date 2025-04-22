@@ -32,7 +32,7 @@ function Listing() {
   useEffect(() => {
       async function fetchData() {
         try {
-          const response = await fetch(`http://localhost:3001/api/v1/listing/search/?looking_for=${lookingFor}&city=${city}&townSector=${townSector}`);
+          const response = await fetch(`${process.env.BACKEND_URL}/v1/listing/search/?looking_for=${lookingFor}&city=${city}&townSector=${townSector}`);
           if (response.status === 402) {
             setNoListings(true);
           } else {
@@ -70,7 +70,7 @@ function Listing() {
   const handleWishlist = async ({ userId, listingId }: WishlistProps) => {
     try {
       if (!saved) {
-        await axios.post("http://localhost:3001/api/v1/user/wishlist", {
+        await axios.post(`${process.env.BACKEND_URL}/v1/user/wishlist`, {
           userId: userId,
           listingId: listingId,
           type: "flat"
@@ -82,7 +82,7 @@ function Listing() {
         });
         setSaved(true);
       } else {
-        await axios.delete(`http://localhost:3001/api/v1/user/wishlist/${listingId}`, {
+        await axios.delete(`${process.env.BACKEND_URL}/v1/user/wishlist/${listingId}`, {
           headers: {
             'token': token,
             "Content-Type": "application/json",

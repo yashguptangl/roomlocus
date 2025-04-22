@@ -68,7 +68,7 @@ function Content({ ownerId, token }: { ownerId: number | null; token: string | n
 
       // Step 1: Send a request to update the verification status and get presigned URLs
       const { data } = await axios.post(
-        `http://localhost:3001/api/v1/agent/agent-accept-request/?requestId=${requestId}&agentId=${agentId}`,
+        `${process.env.BACKEND_URL}/v1/agent/agent-accept-request/?requestId=${requestId}&agentId=${agentId}`,
         {},
         {
           headers: {

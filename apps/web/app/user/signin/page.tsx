@@ -30,7 +30,7 @@ export default function LoginSignup() {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await axios.post(
-        "http://localhost:3001/api/v1/user/login",
+        `${process.env.BACKEND_URL}/v1/user/login`,
         data,
         { headers: { "Content-Type": "application/json" } }
       );

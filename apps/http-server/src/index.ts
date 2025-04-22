@@ -9,22 +9,18 @@ import  verificationRequestRouteByAgent  from "./routes/agentVerification";
 import cors from 'cors';
 import "./cronJob";
 import userDashboard from "./routes/user.dashboard";
-// import { setupWebSocketServer } from "ws/setupWebSocketServer";
-import http from "http";
-import agentVerification from "./routes/agentVerification";
 import selfVerification from "./routes/selfVerification";
 
-
 const app = express();
-const server = http.createServer(app);
+
 app.use(express.json());
 app.options('*', cors()); // Handle preflight requests for all routes
 
 
 // Use CORS middleware
 app.use(cors({
-    origin : ["http://localhost:3000"],
-    methods : ['GET','POST','PUT','DELETE'],
+    origin: ["https://roomlocus.com"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
 
@@ -38,7 +34,7 @@ app.use("/api/v1/agent", agentProfileRouter);
 app.use("/api/v1/agent" , verificationRequestRouteByAgent);
 app.use("/api/v1/owner/self", selfVerification)
 
-app.get("/",(req,res) => {
+app.get("/api/health",(req,res) => {
     res.send("Hello World");
 })
 
