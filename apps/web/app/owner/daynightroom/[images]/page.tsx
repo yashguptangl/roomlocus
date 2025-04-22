@@ -26,7 +26,7 @@ export default function Upload() {
 
       // Fetch presigned URLs from the backend
       const { data } = await axios.post(
-        `${process.env.BACKEND_URL}/v1/owner/daynightroom/images/presigned-urls`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/daynightroom/images/presigned-urls`,
         { daynightroomId },
         {
           headers: {

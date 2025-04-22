@@ -44,7 +44,7 @@ export default function PGListingForm() {
         ...data, city: selectedCity, townSector: selectedTown,
 
       };
-      const response = await axios.post(`${process.env.BACKEND_URL}/v1/owner/pg`,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/pg`,
         formData,
         {
           headers: {

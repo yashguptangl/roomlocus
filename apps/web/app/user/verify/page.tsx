@@ -30,7 +30,7 @@ export default function Verify() {
     const onSubmit = async (data: VerifyFormValues) => {
         try {
             console.log("Data being sent to API:", data);
-            const response = await axios.post(`${process.env.BACKEND_URL}/v1/user/verify-otp`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/verify-otp`, {
                 mobile: data.mobile,
                 otp: data.otp,
             });
@@ -44,7 +44,7 @@ export default function Verify() {
     const handleResendOTP = async (data: VerifyFormValues) => {
         try {
             setResendLoading(true); // Set loading state
-            const response = await axios.post(`${process.env.BACKEND_URL}/v1/user/resend-otp`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resend-otp`, {
                 mobile: data.mobile,
             });
             alert(response.data.message || "OTP sent successfully!");

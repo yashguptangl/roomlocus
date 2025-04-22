@@ -39,7 +39,7 @@ export default function Signup() {
       try {
         localStorage.clear();
         console.log("Data being sent to API:", data); // Logs the form data
-        const response = await axios.post(`${process.env.BACKEND_URL}/v1/owner/signup`, {
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/signup`, {
           username: data.username,
           mobile: data.mobile,
           email: data.email,

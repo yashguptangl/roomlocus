@@ -68,7 +68,7 @@ export default function Dashboard() {
       const getProgress = async () => {
         try {
           const response = await fetch(
-            `${process.env.BACKEND_URL}/v1/agent/progress/${decodedToken.agentId}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/progress/${decodedToken.agentId}`, // Corrected BACKEND_URL
             {
               method: "GET",
               headers: {
@@ -107,7 +107,7 @@ export default function Dashboard() {
           }
 
           const agentData = await axios.get(
-            `${process.env.BACKEND_URL}/v1/agent/agent/${decodedToken.agentId}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent/${decodedToken.agentId}`, // Corrected BACKEND_URL
             {
               headers: {
                 token: token,
@@ -130,7 +130,7 @@ export default function Dashboard() {
       if (decodedToken) {
         try {
           const response = await axios.get(
-            `${process.env.BACKEND_URL}/v1/agent/agent-requests/${decodedToken.agentId}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-requests/${decodedToken.agentId}`, // Corrected BACKEND_URL
             {
               headers: {
                 token: token,
@@ -158,7 +158,7 @@ export default function Dashboard() {
       if (decodedToken) {
         try {
           const response = await axios.get(
-            `${process.env.BACKEND_URL}/v1/agent/agent-verified-properties/${decodedToken.agentId}?sort=${sortOrder}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-verified-properties/${decodedToken.agentId}?sort=${sortOrder}`, // Corrected BACKEND_URL
             {
               headers: {
                 token: token,

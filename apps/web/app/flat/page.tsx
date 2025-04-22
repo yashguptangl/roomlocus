@@ -34,7 +34,7 @@ function Listing() {
     setToken(token);
     async function fetchData() {
       try {
-        const response = await fetch(`${process.env.BACKEND_URL}/v1/listing/search/?looking_for=${lookingFor}&city=${city}&townSector=${townSector}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing/search/?looking_for=${lookingFor}&city=${city}&townSector=${townSector}`);
         if (response.status === 402) {
           setNoListings(true);
         } else {
@@ -72,7 +72,7 @@ function Listing() {
   const handleWishlist = async ({ userId, listingId }: WishlistProps) => {
     try {
       if (!saved) {
-        await axios.post(`${process.env.BACKEND_URL}/v1/user/wishlist`, {
+        await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist`, {
           userId: userId,
           listingId: listingId,
           type: "flat"
@@ -84,7 +84,7 @@ function Listing() {
         });
         setSaved(true);
       } else {
-        await axios.delete(`${process.env.BACKEND_URL}/v1/user/wishlist/${listingId}`, {
+        await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist/${listingId}`, {
           headers: {
             'token': token,
             "Content-Type": "application/json",

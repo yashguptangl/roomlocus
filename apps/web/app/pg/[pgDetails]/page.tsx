@@ -42,7 +42,7 @@ export default function ListingDetail() {
     }
 
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/v1/owner/contact-owner/`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-owner/`, {
         method: 'POST',
         headers: {
           'token': token,

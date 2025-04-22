@@ -31,7 +31,7 @@ export default function BankDetails() {
 
   const onSubmit = async (data: BankDetailsFormValues) => {
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/v1/agent/bank-details`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/bank-details`, {
         method: "POST",
         headers: {
           token: token,

@@ -69,7 +69,7 @@ function Content({ ownerId }: { ownerId: number | null }) {
 
       // Step 1: Create the verification request
       const response = await axios.post(
-        `${process.env.BACKEND_URL}/v1/owner/self/verification-request`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verification-request`,
         {
           listingId: parseInt(searchParams.get("id") as string),
           listingType: searchParams.get("listingType"),

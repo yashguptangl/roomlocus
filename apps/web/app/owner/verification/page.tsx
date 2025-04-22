@@ -54,7 +54,7 @@ function Content({
     const fetchData = async () => {
       try {
         const response = await fetch(
-          `${process.env.BACKEND_URL}/v1/owner/self/verified-requests?listingId=${listingId}&listingType=${listingType}`,
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verified-requests?listingId=${listingId}&listingType=${listingType}`,
           {
             method: "GET",
             headers: {
@@ -100,7 +100,7 @@ function Content({
     if (existingRequest) {
       // Update existing verification request
       try {
-        const response = await fetch(`${process.env.BACKEND_URL}/v1/owner/self/owner-update-verification/${existingRequest.id}`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/owner-update-verification/${existingRequest.id}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ function Content({
         router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}`);
       } else if (selectedOption === 'agent' && agentId) {
         try {
-          const response = await fetch(`${process.env.BACKEND_URL}/v1/agent/verification-request`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/verification-request`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

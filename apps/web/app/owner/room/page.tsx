@@ -43,7 +43,7 @@ export default function RoomListingForm() {
         ...data, city: selectedCity, townSector: selectedTown,
 
       };
-      const response = await axios.post(`${process.env.BACKEND_URL}/v1/owner/room`,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/room`,
         formData,
         {
           headers: {

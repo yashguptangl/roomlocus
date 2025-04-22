@@ -34,7 +34,7 @@ export default function User() {
     const fetchWishlist = async () => {
       try {
         const { data: wishListData } = await axios.get(
-          `${process.env.BACKEND_URL}/v1/user/wishlist}`
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist}`
         );
         setWishlist(wishListData);
       } catch (err) {

@@ -53,7 +53,7 @@ export default function UploadDocuments() {
 
       // Fetch presigned URLs from the backend
       const { data } = await axios.post(
-        `${process.env.BACKEND_URL}/v1/owner/owner-kyc`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/owner-kyc`,
         { ownerId },
         {
           headers: {

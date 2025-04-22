@@ -30,7 +30,7 @@ export default function Verify() {
     try {
       console.log("Data being sent to API:", data);
       const response = await axios.post(
-        `${process.env.BACKEND_URL}/v1/agent/verify-otp`,
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/verify-otp`,
 
         {
           mobile: data.mobile,

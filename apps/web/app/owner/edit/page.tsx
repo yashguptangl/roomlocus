@@ -36,7 +36,7 @@ function EditFormContent() {
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/v1/owner/edit-listing`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/edit-listing`, {
         method: "PUT",
         headers: {
           token: token || "",

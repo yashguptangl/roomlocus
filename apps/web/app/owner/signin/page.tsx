@@ -31,9 +31,10 @@ export default function LoginSignUp() {
     // Handle form submission
     const onSubmit = async (data: LoginFormValues) => {
         localStorage.clear();
+        console.log(process.env.NEXT_PUBLIC_BACKEND_URL);
         try {
             const response = await axios.post(
-                `${process.env.BACKEND_URL}/v1/owner/login`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/login`,
                 data,
                 {
                     headers: {

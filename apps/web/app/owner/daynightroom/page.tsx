@@ -43,7 +43,7 @@ export default function RoomDayNightForm() {
         ...data, city: selectedCity, townSector: selectedTown,
 
       };
-      const response = await axios.post(`${process.env.BACKEND_URL}/v1/owner/daynightroom`,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/daynightroom`,
         formData,
         {
           headers: {

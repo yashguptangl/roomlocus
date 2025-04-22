@@ -41,7 +41,7 @@ export default function PersonalDetails() {
     setSubmitting(true);
     try {
       const agentId = localStorage.getItem("agentId");
-      const response = await fetch(`${process.env.BACKEND_URL}/v1/agent/details`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/details`, {
         method: "POST",
         headers: {
           token: token,
