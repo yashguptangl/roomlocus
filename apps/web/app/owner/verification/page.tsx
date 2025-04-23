@@ -75,7 +75,7 @@ function Content({
             setSelectedOption("agent");
             setAgentId(verificationRequest.agentId || "");
           }else if (verificationRequest.status === "DONE"){
-            alert("Property is verified within 4 - 5 working days");
+            alert("Property is verified");
             router.push(`/owner/dashboard`);
           }
         }
