@@ -50,17 +50,14 @@ export default function Dashboard() {
           setDecodedToken({ agentId: payload.agentId });
           localStorage.setItem("agentId", payload.agentId);
         } else {
-          console.error("Invalid token payload");
+          console.log("Invalid token payload");
           router.push("/agent/signin");
         }
       } catch (err) {
-        console.error("Error decoding token:", err);
+        console.log("Error decoding token:", err);
         router.push("/agent/signin");
       }
-    } else {
-      console.error("Token not found");
-      router.push("/agent/signin");
-    }
+    } 
   }, [token, router]);
 
   useEffect(() => {
