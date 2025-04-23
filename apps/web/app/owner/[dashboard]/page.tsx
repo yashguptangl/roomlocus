@@ -434,6 +434,10 @@ export default function Dashboard() {
                         alert("Please complete your KYC first."); // Optional alert for better UX
                         router.push(`/owner/owner-kyc`); // Redirect to Owner KYC page
                       }
+                      if(listing.isDraft){
+                        alert("Please complete your listing first.");
+                        router.push(`/owner/dashboard`);
+                      }
                       }}
                     >
                       {listing.isVerified ? "Verified" : "Pending Verification"}
