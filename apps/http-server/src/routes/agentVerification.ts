@@ -98,8 +98,8 @@ verificationRequestRouteByAgent.post('/agent-accept-request', authenticate, asyn
                 where: { id: updatedData.listingId },
                 data: { isVerified: true, verifiedByAdminOrAgent: new Date() }
             });
-        } else if (updatedData.listingType === "daynightroom") {
-            await prisma.roomDayNight.update({
+        } else if (updatedData.listingType === "hourlyroom") {
+            await prisma.hourlyInfo.update({
                 where: { id: updatedData.listingId },
                 data: { isVerified: true, verifiedByAdminOrAgent: new Date() }
             });

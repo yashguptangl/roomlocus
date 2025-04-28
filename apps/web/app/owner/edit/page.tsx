@@ -159,7 +159,7 @@ function EditFormContent() {
                     </div>
                 )}
 
-                {listingType === "daynightroom" && (
+                {listingType === "hourlyroom" && (
                     <div className="flex flex-col gap-4 mt-4">
                         {[
                             { label: "Min Price", name: "minPrice", type: "text" },

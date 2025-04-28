@@ -107,10 +107,10 @@ export default function PGListingForm() {
             { label: "BHK" , name: "Bhk", type: "text" },
             { label: "Maximum Price", name: "maxprice", type: "text" },
             { label: "Minimum Price", name: "minprice", type: "text" },
-            { label: "Age of Property", name: "ageOfProperty", type: "text" },
-            { label: "Water Supply", name: "waterSupply", type: "text" },
-            { label: "Power Backup", name: "powerBackup", type: "text" },
-            { label: "Notice Period", name: "noticePeriod", type: "text" },
+            { label: "Total Floor", name: "totalFloor", type: "text" },
+            { label: "Water Supply in hr", name: "waterSupply", type: "text" },
+            { label: "Power Backup in hr", name: "powerBackup", type: "text" },
+            { label: "Notice Period in M", name: "noticePeriod", type: "text" },
             { label: "Security", name: "security", type: "text" },
             { label: "Maintenance", name: "maintenance", type: "text" },
             { label: "Total PG", name: "totalPG", type: "number" },
@@ -270,13 +270,16 @@ export default function PGListingForm() {
 
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
-          <button
+            <button
             disabled={isSubmitting}
-            type="submit"
+            type="button"
+            onClick={handleSubmit(onSubmit)}
             className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded">
             {isSubmitting ? "Next..." : "Next"}
-          </button>
-          <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+            </button>
+          <button 
+          onClick={() => router.push("/owner/dashboard")}
+          className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
             Cancel
           </button>
         </div>

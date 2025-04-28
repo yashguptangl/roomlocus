@@ -41,8 +41,7 @@ model Owner {
     isKYCVerified     Boolean   @default(false)
     contactLogs       ContactLog[]
     verificationRequests VerificationRequest[]
-    RoomDayNight    RoomDayNight[]
-
+    HourlyInfo         hourlyInfo[]
 }
 
 model Agent {
@@ -89,7 +88,7 @@ model FlatInfo {
     maintenance         String
     totalFlat           Int
     Adress              String
-    ageofProperty       String
+    totalFloor          String
     waterSupply         String
     powerBackup         String
     noticePeriod        String
@@ -130,7 +129,7 @@ model PgInfo {
     security            String
     maintenance         String
     totalPG             Int
-    ageofProperty       String
+    totalFloor          String
     waterSupply         String
     PGType              String
     bedCount            Int
@@ -173,7 +172,7 @@ model RoomInfo {
     security            String
     maintenance         String
     totalRoom           Int
-    ageofProperty       String
+    totalFloor          String
     powerBackup         String
     noticePeriod        String
     waterSupply         String
@@ -197,10 +196,10 @@ model RoomInfo {
     verifiedByAdminOrAgent   DateTime  @updatedAt
 }
 
-model RoomDayNight {
+model hourlyInfo {
     id              Int      @id @default(autoincrement())
     ownerId         Int
-    Type            String   @default("RoomDayNight")
+    Type            String   @default("hourlyroom")
     city            String
     townSector      String
     location        String
@@ -211,6 +210,7 @@ model RoomDayNight {
     MaxPrice        String
     adress          String
     totalRoom       Int
+    totalFloor      String
     noofGuests      Int
     furnishingType  String
     accomoType      String
@@ -290,6 +290,7 @@ model Wishlist {
   type      String  // "flat", "pg", "room"
   createdAt DateTime @default(now())
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
 
 
 }
@@ -301,6 +302,7 @@ model Admin {
   password String
   role     Role     @default(EMPLOYEE)
   verified Boolean  @default(false)
+  createdAt DateTime @default(now())
   
 }
 

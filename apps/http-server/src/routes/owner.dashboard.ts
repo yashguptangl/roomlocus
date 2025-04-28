@@ -80,7 +80,7 @@ ownerDashboard.post("/contact-owner",authenticate , async (req: AuthenticatedReq
                 data: { isVisible: false },
             });
 
-            await prisma.roomDayNight.updateMany({
+            await prisma.hourlyInfo.updateMany({
                 where: { ownerId: ownerId },
                 data: { isVisible: false },
             });
@@ -115,7 +115,7 @@ ownerDashboard.get("/:id/listings", authenticate, async (req: AuthenticatedReque
     try {
         const ownerWithListings = await prisma.owner.findUnique({
             where: { id: Number(id) },
-            include: { FlatInfo: true, RoomInfo: true, PgInfo: true , RoomDayNight : true }
+            include: { FlatInfo: true, RoomInfo: true, PgInfo: true , HourlyInfo : true }
         });
         if (!ownerWithListings) {
             res.status(404).json({ message: "Listing not found" });
@@ -148,7 +148,7 @@ ownerDashboard.get("/images/:type/:id", authenticate, async (req: AuthenticatedR
             pg: ["inside"],
             room: ["inside"],
             flat: ["inside"],
-            daynightroom: ["inside"],
+            hourlyroom: ["inside"],
         };
 
         if (!imageCategories[type]) {
@@ -158,7 +158,7 @@ ownerDashboard.get("/images/:type/:id", authenticate, async (req: AuthenticatedR
 
         // Fetch signed URLs for each category from S3
         const categories = imageCategories[type][0];
-        const key = `images/${type}/${id},/${categories}.jpeg`; // Adjust the key based on your S3 folder structure
+        const key = `images/${type}/${id}/${categories}.jpeg`; // Adjust the key based on your S3 folder structure
         const imageUrl = await getObjectURL(key); // Fetch presigned URL using getObjectURL
 
         res.json({ images: imageUrl });
@@ -214,8 +214,8 @@ ownerDashboard.post("/publish", authenticate, async (req: AuthenticatedRequest, 
             where: { id: listingId, ownerId },
             data: { isVisible: !isVisible },
             });
-        } else if (type === "daynightroom") {
-            await prisma.roomDayNight.updateMany({
+        } else if (type === "hourlyroom") {
+            await prisma.hourlyInfo.updateMany({
             where: { id: listingId, ownerId },
             data: { isVisible: isVisible },
             });
@@ -280,8 +280,8 @@ ownerDashboard.delete("/listing", authenticate, async (req: AuthenticatedRequest
             await prisma.pgInfo.deleteMany({
                 where: { id: listingId, ownerId },
             });
-        } else if (type === "daynightroom") {
-            await prisma.roomDayNight.deleteMany({
+        } else if (type === "hourlyroom") {
+            await prisma.hourlyInfo.deleteMany({
                 where: { id: listingId, ownerId },
             });
         } else {
@@ -315,8 +315,8 @@ ownerDashboard.put("/edit-listing", authenticate, async (req: AuthenticatedReque
             listing = await prisma.pgInfo.findFirst({
                 where: { id: parseInt(listingId), ownerId },
             });
-        } else if (listingType === "daynightroom") {
-            listing = await prisma.roomDayNight.findFirst({
+        } else if (listingType === "hourlyroom") {
+            listing = await prisma.hourlyInfo.findFirst({
                 where: { id: parseInt(listingId), ownerId },
             });
         } else {
@@ -352,8 +352,8 @@ ownerDashboard.put("/edit-listing", authenticate, async (req: AuthenticatedReque
                 where: { id: parseInt(listingId), ownerId },
                 data: { ...data, updatedByOwner: new Date() },
             });
-        } else if (listingType === "roomdaynight") {
-            await prisma.roomDayNight.updateMany({
+        } else if (listingType === "hourlyroom") {
+            await prisma.hourlyInfo.updateMany({
                 where: { id: parseInt(listingId), ownerId },
                 data: { ...data, updatedByOwner: new Date() },
             });
@@ -365,7 +365,6 @@ ownerDashboard.put("/edit-listing", authenticate, async (req: AuthenticatedReque
         res.status(500).json({ message: "Server error" });
     }
 });
-
 
 ownerDashboard.get("/details-owner" , authenticate , async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.user; // Corrected destructuring

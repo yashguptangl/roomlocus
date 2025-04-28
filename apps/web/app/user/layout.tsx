@@ -6,7 +6,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <>
       <Navbar />
       {children}
+    <div className="fixed bottom-0 w-full" data-footer="true">
       <Footer />
+    </div>
+     
     </>
   );
 }

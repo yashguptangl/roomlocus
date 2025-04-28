@@ -69,7 +69,7 @@ cron.schedule("0 * * * *", async () => {
             },
         });
 
-        const updatedProperties4 = await prisma.roomDayNight.updateMany({
+        const updatedProperties4 = await prisma.hourlyInfo.updateMany({
             where: {
             isVerified: true,
             verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
@@ -82,10 +82,10 @@ cron.schedule("0 * * * *", async () => {
             },
         });
 
-        console.log(`🗑 Updated ${updatedProperties.count} expired contact logs.`);
-        console.log(`🗑 Updated ${updatedProperties2.count} expired contact logs.`)
-        console.log(`🗑 Updated ${updatedProperties3.count} expired contact logs.`)
-        console.log(`🗑 Updated ${updatedProperties4.count} expired contact logs.`);
+        console.log(`🗑 Updated ${updatedProperties.count} expired verified property`);
+        console.log(`🗑 Updated ${updatedProperties2.count} expired verified property`)
+        console.log(`🗑 Updated ${updatedProperties3.count} expired verified property`)
+        console.log(`🗑 Updated ${updatedProperties4.count} expired verified property`);
     }
     catch (error) {
         console.error("❌ Error deleting expired logs:", error);

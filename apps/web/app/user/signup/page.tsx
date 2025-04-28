@@ -48,9 +48,13 @@ export default function Signup() {
 
       console.log("Signup successful:", response.data); // Logs the response from the server
       router.push("/user/verify");
+
+    
     } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
-            alert(error.response.data?.message || "Error resending OTP.");
+            alert("Mobile number already exist");
+            router.push("/user/signin");
+            return;
         } else {
             alert("An error occurred during signup.");
         }

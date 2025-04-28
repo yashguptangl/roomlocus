@@ -4,11 +4,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
 import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import { useForm } from "react-hook-form";
 
 export default function UploadDocuments() {
   const [ownerId, setOwnerId] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
-
+  const { handleSubmit, formState: { isSubmitting } } = useForm();
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -30,12 +31,12 @@ export default function UploadDocuments() {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <Content ownerId={ownerId} token={token} />
+      <Content ownerId={ownerId} token={token} handleSubmit={handleSubmit} isSubmitting={isSubmitting} />
     </Suspense>
   );
 }
 
-function Content({ ownerId, token }: { ownerId: number | null; token: string | null }) {
+function Content({ ownerId, token, handleSubmit, isSubmitting }: { ownerId: number | null; token: string | null; handleSubmit : any ; isSubmitting: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File | null }>({});
@@ -120,20 +121,23 @@ function Content({ ownerId, token }: { ownerId: number | null; token: string | n
         <h2 className="text-xl font-semibold mb-4 text-center text-blue-500">
           Upload Documents
         </h2>
-        <ImageUpload
-          label="Selfie With Owner"
-          onFileChange={(file) => handleFileChange("selfieWithOwner", file)} // Fixed key name
-        />
-        <ImageUpload
-          label="Other ID"
-          onFileChange={(file) => handleFileChange("frontbuildingview", file)} // Fixed key name
-        />
-        <button
-          onClick={handleUpload}
-          className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
-        >
-          Upload
-        </button>
+        <form onSubmit={handleSubmit(handleUpload)}>
+          <ImageUpload
+        label="Selfie With Owner"
+        onFileChange={(file) => handleFileChange("selfieWithOwner", file)} // Fixed key name
+          />
+          <ImageUpload
+        label="Other ID"
+        onFileChange={(file) => handleFileChange("frontbuildingview", file)} // Fixed key name
+          />
+          <button
+        type="submit"
+        disabled={isSubmitting}
+        className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
+          >
+        {isSubmitting ? "Uploading..." : "Upload"}
+          </button>
+        </form>
       </div>
     </div>
   );

@@ -35,7 +35,7 @@ export default function Home() {
     setSelectedCity(city);
     setSelectedTownSector("");
   };
-
+  
   const handleSearch = () => {
     router.push(`/${lookingFor}?look=${lookingFor}&city=${selectedCity}&townSector=${selectedTownSector}`);
   };
@@ -85,7 +85,7 @@ export default function Home() {
             <option value="pg">PG</option>
             <option value="room">Room</option>
             <option value="flat">Flat</option>
-            <option value="officespace">Office Space</option>
+            <option value="hourlyroom">Hourly Room</option>
           </select>
         </div>
 

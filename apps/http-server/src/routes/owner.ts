@@ -194,7 +194,7 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, landmark, maxprice , minprice, offer ,Bhk,  security, maintenance, totalFlat , adress , ageOfProperty, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants, petsAllowed, genderPrefer, flatType, insideFacilities, outsideFacilities, careTaker , careTakerNo , listingShowNo } = req.body;
+            city , townSector , location, landmark, maxprice , minprice, offer ,Bhk,  security, maintenance, totalFlat , adress , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants, petsAllowed, genderPrefer, flatType, insideFacilities, outsideFacilities, careTaker , careTakerNo , listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -221,7 +221,7 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
                 maintenance: maintenance,
                 Adress: adress,
                 totalFlat: parseInt(totalFlat),
-                ageofProperty: String(ageOfProperty),
+                totalFloor: String(totalFloor),
                 waterSupply: waterSupply,
                 powerBackup: powerBackup,
                 noticePeriod: noticePeriod,
@@ -250,7 +250,7 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, landmark,Bhk, maxprice , minprice, offer ,  security, maintenance, totalRoom , adress , ageOfProperty, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants,RoomAvailable,  genderPrefer, roomType, insideFacilities, outsideFacilities, careTaker, listingShowNo } = req.body;
+            city , townSector , location, landmark,Bhk, maxprice , minprice, offer ,  security, maintenance, totalRoom , adress , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants,RoomAvailable,  genderPrefer, roomType, insideFacilities, outsideFacilities, careTaker, listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -277,7 +277,7 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
                 maintenance: maintenance,
                 adress: adress,
                 totalRoom: parseInt(totalRoom),
-                ageofProperty: String(ageOfProperty),
+                totalFloor: String(totalFloor),
                 waterSupply: waterSupply,
                 powerBackup: powerBackup,
                 noticePeriod: noticePeriod,
@@ -306,7 +306,7 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, Bhk, landmark, maxprice , minprice, offer ,  security, maintenance, totalPG , adress , ageOfProperty, waterSupply, powerBackup, noticePeriod, PGType , bedCount,timeRestriction ,   foodAvailable , furnishingType, accomoType, parking, preferTenants, genderPrefer, insideFacilities, outsideFacilities, careTaker  , listingShowNo } = req.body;
+            city , townSector , location, Bhk, landmark, maxprice , minprice, offer ,  security, maintenance, totalPG , adress , totalFloor, waterSupply, powerBackup, noticePeriod, PGType , bedCount,timeRestriction ,   foodAvailable , furnishingType, accomoType, parking, preferTenants, genderPrefer, insideFacilities, outsideFacilities, careTaker  , listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -333,7 +333,7 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
                 maintenance: maintenance,
                 adress: adress,
                 totalPG: parseInt(totalPG),
-                ageofProperty: String(ageOfProperty),
+                totalFloor: String(totalFloor),
                 waterSupply: waterSupply,
                 bedCount: parseInt(bedCount),
                 timeRestrict: Boolean(timeRestriction),
@@ -361,17 +361,17 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
 
 })
 
-ownerRouter.post("/daynightroom" , authenticate , async (req: AuthenticatedRequest , res: Response) => {
+ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest , res: Response) => {
     const ownerId = req.user?.id;
     try {
-        const {city , townSector , palaceName , location , landmark , Bhk , maxprice , minprice , adress ,totalRoom ,bedcount,noofGuests,furnishingType , accomoType , foodAvailable ,acType, preferTenants, genderPrefer , roomType , insideFacilities , outsideFacilities , parking , manager , listingShowNo } = req.body;
+        const {city , townSector , palaceName , location , landmark , maxprice , minprice , adress ,totalRoom ,totalFloor , bedcount,noofGuests,furnishingType , accomoType , foodAvailable ,acType, preferTenants, genderPrefer , roomType , insideFacilities , outsideFacilities , parking , manager , listingShowNo } = req.body;
         
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
         const filteredRoomDayNightInside: string[] = insideFacilities ? insideFacilities.filter((item: string) => item !== undefined) : [];
         const filteredRoomDayNightOutside: string[] = outsideFacilities ? outsideFacilities.filter((item: string) => item !== undefined) : [];
 
-        const roomDayNight = await prisma.roomDayNight.create({
+        const hourlyroom = await prisma.hourlyInfo.create({
             data : {
                 owner : {
                     connect : {
@@ -388,6 +388,7 @@ ownerRouter.post("/daynightroom" , authenticate , async (req: AuthenticatedReque
                 MinPrice : minprice,
                 adress : adress,
                 totalRoom : parseInt(totalRoom),
+                totalFloor : String(totalFloor),
                 furnishingType : furnishingType,
                 accomoType : accomoType,
                 acType : acType,
@@ -405,24 +406,25 @@ ownerRouter.post("/daynightroom" , authenticate , async (req: AuthenticatedReque
             }
         })
 
-        res.status(200).json({ message: "Day Night Room  uploaded successfully", roomDayNight });
+        res.status(200).json({ message: "Day Night Room  uploaded successfully", hourlyroom });
     } catch (err) {
         console.error("Error during Day Night Room upload:", err);
         res.status(500).json({ message: "Failed to upload Day Night Room" });
     }
 })
 
-ownerRouter.post("/flat/images/presigned-urls",authenticate,async (req: AuthenticatedRequest, res: Response) => {
+ownerRouter.post("/flat/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { flatId } = req.body;
         const parsedFlatId = parseInt(flatId); // Ensure flatId is an integer
+
         if (!flatId) {
             res.status(400).json({ message: "Flat ID is required" });
             return;
         }
 
         // Define specific categories for images
-        const categories = ["front", "lobby","inside", "kitchen", "bathroom", "toilet" , "caretaker"];
+        const categories = ["front", "lobby", "inside" ,"kitchen", "toilet", "bathroom", "careTaker"];
         const urls: { [key: string]: string } = {};
 
         for (const category of categories) {
@@ -437,6 +439,7 @@ ownerRouter.post("/flat/images/presigned-urls",authenticate,async (req: Authenti
             data: { isDraft: false }, // Update the isDraft field to false
         });
 
+
          res.json({ presignedUrls: urls });
          return;
     } catch (err) {
@@ -446,8 +449,7 @@ ownerRouter.post("/flat/images/presigned-urls",authenticate,async (req: Authenti
         });
         return;
     }
-}
-);
+});
 
 ownerRouter.post("/room/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -524,13 +526,13 @@ ownerRouter.post("/pg/images/presigned-urls", authenticate , async (req: Authent
     }
 });
 
-ownerRouter.post("/daynightroom/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
+ownerRouter.post("/hourlyroom/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { daynightroomId } = req.body;
-        const parsedaynightroomId = parseInt(daynightroomId); // Ensure roomDayNightId is an integer
+        const { hourlyroomId } = req.body; // Updated variable name
+        const parsedHourlyroomId = parseInt(hourlyroomId); // Ensure hourlyroomId is an integer
 
-        if (!daynightroomId) {
-            res.status(400).json({ message: "Room Day Night ID is required" });
+        if (!hourlyroomId) {
+            res.status(400).json({ message: "Hourly Room ID is required" });
             return;
         }
 
@@ -541,12 +543,12 @@ ownerRouter.post("/daynightroom/images/presigned-urls", authenticate , async (re
         for (const category of categories) {
             // Generate presigned URL for each category
             urls[category] = await putObject(
-                `daynightroom/${daynightroomId}/${category}.jpeg`,
+                `hourlyroom/${hourlyroomId}/${category}.jpeg`,
                 "image/jpeg"
             );
         }
-        await prisma.roomDayNight.update({
-            where: { id: parsedaynightroomId },
+        await prisma.hourlyInfo.update({
+            where: { id: parsedHourlyroomId },
             data: { isDraft: false }, // Update the isDraft field to false
         });
 
@@ -559,7 +561,7 @@ ownerRouter.post("/daynightroom/images/presigned-urls", authenticate , async (re
              message: "Failed to generate presigned URLs. Please try again later." 
         });
         return;
-    }
+    }``
 })
 
 ownerRouter.post("/logout", (req: AuthenticatedRequest, res: Response) => {

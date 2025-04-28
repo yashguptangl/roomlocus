@@ -81,7 +81,7 @@ function Listing() {
 
   const handleListingClick = (listing: ListingData) => {
     sessionStorage.setItem("selectedListing", JSON.stringify(listing));
-    router.push(`/flat/${listing.id}`);
+    router.push(`/hourlyroom/${listing.id}`);
   };
 
   const handleWishlistToggle = async (listingId: number) => {
@@ -102,7 +102,7 @@ function Listing() {
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist/delete`,
           {
             headers: { token: token, "Content-Type": "application/json" },
-            data: { id: listingId, type: "Flat" },
+            data: { id: listingId, type: "Hourly Room" },
           }
         );
 
@@ -116,14 +116,14 @@ function Listing() {
           {
             userId: userId,
             listingId: listingId,
-            type: "Flat",
+            type: "Hourly Room",
           },
           {
             headers: { token: token, "Content-Type": "application/json" },
           }
         );
 
-        setWishlistItems((prev) => [...prev, { listingId, type: "Flat" }]);
+        setWishlistItems((prev) => [...prev, { listingId, type: "Hourly Room" }]);
       }
     } catch (error) {
       console.error("Error updating wishlist:", error);
@@ -135,7 +135,7 @@ function Listing() {
       navigator.share({
         title: "Check this listing",
         text: `${listing.location}, ${listing.city}`,
-        url: `${window.location.origin}/flat/${listing.id}`,
+        url: `${window.location.origin}/hourlyroom/${listing.id}`,
       });
     } else {
       alert("Sharing is not supported on your device.");
@@ -200,7 +200,7 @@ function Listing() {
                           ? listing.images[0]
                           : "/images/placeholder.png"
                       }
-                      alt="Flat"
+                      alt="Hourly Room"
                       fill
                       className="object-cover"
                     />
@@ -223,7 +223,7 @@ function Listing() {
                         {listing.MaxPrice.toLocaleString()}
                       </p>
                       <p className="text-sm text-gray-600 text-center">
-                        All Flat Prices Vary
+                        All Hourly Room Prices Vary
                       </p>
                     </div>
                   </div>

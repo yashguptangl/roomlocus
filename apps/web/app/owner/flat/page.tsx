@@ -104,7 +104,7 @@ export default function FlatListingForm() {
             { label: "BHK", name: "Bhk", type: "text" },
             { label: "Maximum Price", name: "maxprice", type: "text" },
             { label: "Minimum Price", name: "minprice", type: "text" },
-            { label: "Age of Property in Month", name: "ageOfProperty", type: "text" },
+            { label: "Total Floor", name: "totalFloor", type: "text" },
             { label: "Water Supply in Hours", name: "waterSupply", type: "text" },
             { label: "Power Backup in Hours", name: "powerBackup", type: "text" },
             { label: "Notice Period in Months", name: "noticePeriod", type: "text" },
@@ -246,16 +246,20 @@ export default function FlatListingForm() {
 
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
-          <button
+            <button
             disabled={isSubmitting}
             type="submit"
             className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded"
-          >
+            onClick={handleSubmit(onSubmit)}
+            >
             {isSubmitting ? "Next..." : "Next"}
-          </button>
-          <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+            </button>
+            <button
+            onClick={() => router.push("/owner/dashboard")}
+            className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+            >
             Cancel
-          </button>
+            </button>
         </div>
       </form>
     </div>

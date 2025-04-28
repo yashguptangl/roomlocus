@@ -26,21 +26,27 @@ listingRouter.get("/search", async (req: Request, res: Response): Promise<any> =
     switch (looking_for.toLowerCase()) {
       case "room":
         listings = await prisma.roomInfo.findMany({
-          where: { city, townSector },
+          where: { 
+            city, 
+            townSector, 
+            isVisible: true, 
+            isDraft: false 
+          },
         });
         break;
       case "pg":
         listings = await prisma.pgInfo.findMany({
-          where: { city, townSector },
+          where: { city, townSector , isVisible: true, isDraft: false },
         });
         break;
       case "flat":
         listings = await prisma.flatInfo.findMany({
-          where: { city, townSector },
+          where: { city, townSector , isVisible: true, isDraft: false },
         });
-      case "roomDayNight":
-        listings = await prisma.roomDayNight.findMany({
-          where: { city, townSector },
+        break;
+      case "hourlyroom":
+        listings = await prisma.hourlyInfo.findMany({
+          where: { city, townSector , isVisible: true, isDraft: false },
         });
         break;
       default:
@@ -59,7 +65,7 @@ listingRouter.get("/search", async (req: Request, res: Response): Promise<any> =
       listings.map(async (listing) => {
         const imageUrls = await Promise.all(
           imageCategories.map(async (category) => {
-            const key = `images/${looking_for}/${listing.id},/${category}.jpeg`;
+            const key = `images/${looking_for}/${listing.id}/${category}.jpeg`;
             return await getObjectURL(key); // Fetch signed URL from S3
           })
         );
@@ -76,7 +82,6 @@ listingRouter.get("/search", async (req: Request, res: Response): Promise<any> =
 
 listingRouter.get("/contact-logs/:id", authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
   const { id } = req.params;
-
   try {
     const logs = await prisma.contactLog.findMany({
       where: { userId: Number(id) },
@@ -91,5 +96,7 @@ listingRouter.get("/contact-logs/:id", authenticate, async (req: AuthenticatedRe
     return;
   }
 })
+
+
 
 export { listingRouter };

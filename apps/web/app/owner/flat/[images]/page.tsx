@@ -9,20 +9,33 @@ export default function Upload() {
   const [uploadedFiles, setUploadedFiles] = useState<{
     [key: string]: File | null;
   }>({});
-  const flatId = useState(localStorage.getItem("flatId"));
+  const [flatId] = useState(localStorage.getItem("flatId"));
   const [token, setToken] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false); // To disable button during upload
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setToken(token);
     console.log(token?.toString());
   }, []);
+
   const handleUpload = async () => {
     try {
+      // Check if all required images are uploaded
+      const requiredCategories = ["front", "lobby", "inside", "kitchen", "bathroom", "toilet"];
+      const missingCategories = requiredCategories.filter((category) => !uploadedFiles[category]);
+
+      if (missingCategories.length > 0) {
+        alert(`Please upload images for: ${missingCategories.join(", ")}`);
+        return;
+      }
+
       if (!flatId) {
         console.log("Flat ID is missing");
         return;
       }
+
+      setIsUploading(true); // Disable button during upload
 
       // Fetch presigned URLs from the backend
       const { data } = await axios.post(
@@ -54,6 +67,8 @@ export default function Upload() {
     } catch (error) {
       console.error("Error uploading images:", error);
       alert("Failed to upload images. Please try again.");
+    } finally {
+      setIsUploading(false); // Re-enable button after upload
     }
   };
 
@@ -100,13 +115,18 @@ export default function Upload() {
       <ImageUpload
         label="Care Taker if any"
         onFileChange={(file) => handleFileChange("caretaker", file)}
-        />
-      <button
-        onClick={handleUpload}
-        className="mt-6 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-      >
-        Upload Images
-      </button>
+      />
+      <center>
+        <button
+          onClick={handleUpload}
+          disabled={isUploading} // Disable button during upload
+          className={`mt-6 py-2 px-4 rounded text-white ${
+            isUploading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {isUploading ? "Uploading..." : "Upload Images"}
+        </button>
+      </center>
     </div>
   );
 }

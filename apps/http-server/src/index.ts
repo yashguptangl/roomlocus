@@ -19,7 +19,7 @@ app.options('*', cors()); // Handle preflight requests for all routes
 
 // Use CORS middleware
 app.use(cors({
-    origin: ["https://roomlocus.com"],
+    origin: ["http://localhost:3000"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 

@@ -7,11 +7,19 @@ export interface ListingData {
     location: string;
     city: string;
     townSector: string;
+    adress : string; 
     MinPrice: string,
     MaxPrice: string;
     security: string;
+    PGType: string;
+    totalPG: string;
+    bedCount : number;
+    foodAvailable : boolean;
     maintenance: string;
     noticePeriod: string;
+    RoomAvailable: string;
+    totalRoom: string;
+    roomType: string;
     furnishingType: string;
     accomoType: string;
     genderPrefer: string;
@@ -23,12 +31,22 @@ export interface ListingData {
     Offer: string;
     BHK: string;
     Type: string;
+    palaceName: string;
+    BedCount : number;
+    acType: string;
+    noofGuests: string;
+    totalFloor : string;
     Adress: string;
     landmark: string;
     parking: string[]
     preferTenants: string[];
     flatInside: string[];
     flatOutside: string[];
+    roomInside: string[];
+    roomOutside: string[];
+    PGInside: string[];
+    PGOutside: string[];
+    isVerified: boolean;
     listing?: ListingData[];
 }
 

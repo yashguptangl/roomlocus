@@ -43,7 +43,7 @@ export default function RoomDayNightForm() {
         ...data, city: selectedCity, townSector: selectedTown,
 
       };
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/daynightroom`,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/hourlyroom`,
         formData,
         {
           headers: {
@@ -53,12 +53,12 @@ export default function RoomDayNightForm() {
       );
       console.log(response);
       if (response.status === 200) {
-        localStorage.setItem("daynightroomId", response.data.roomDayNight.id);
-        router.push("/owner/daynightroom/images");
+        localStorage.setItem("hourlyroomId", response.data.hourlyroom.id);
+        router.push("/owner/hourlyroom/images");
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to list Day Night Room. Please try again.");
+      alert("Failed to list hourly Room. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,7 +69,7 @@ export default function RoomDayNightForm() {
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
       <h2 className="text-xl sm:text-3xl font-semibold text-blue-500 mb-4 text-center">
-        I&apos;m listing my Day Night Room
+        I&apos;m listing my Hourly Room
       </h2>
       <h3 className="text-lg sm:text-2xl font-semibold">I&apos;m Owner</h3>
 
@@ -105,6 +105,7 @@ export default function RoomDayNightForm() {
             { label: "Landmark", name: "landmark", type: "text" },
             { label: "Bedcount" , name: "bedcount", type: "number" },
             { label: "No of Guest Allowed", name: "noofGuests", type: "number" },
+            { label: "Total Floor" , name: "totalFloor", type: "text" },
             { label: "Minimum Price", name: "minprice", type: "text" },
             { label: "Maximum Price", name: "maxprice", type: "text" },
             { label: "Palace Name", name: "palaceName", type: "text" },
@@ -253,13 +254,16 @@ export default function RoomDayNightForm() {
 
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
-          <button
+            <button
             disabled={isSubmitting}
             type="submit"
+            onClick={handleSubmit(onSubmit)}
             className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded">
             {isSubmitting ? "Next..." : "Next"}
-          </button>
-          <button className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+            </button>
+          <button
+          onClick={() => router.push("/owner/dashboard")}
+          className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
             Cancel
           </button>
         </div>

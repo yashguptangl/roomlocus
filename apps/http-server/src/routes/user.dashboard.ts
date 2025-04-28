@@ -1,12 +1,11 @@
 import express from "express";
 import { prisma } from "@repo/db/prisma"
-import { Response } from "express";
+import  { Response } from "express";
 import { authenticate, AuthenticatedRequest } from "../middleware/auth";
-
+import { getObjectURL } from "../utils/s3client";
 
 const userDashboard = express.Router();
 
-// Add to Wishlist
 userDashboard.post("/wishlist", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { userId, listingId, type } = req.body;
@@ -23,11 +22,20 @@ userDashboard.post("/wishlist", authenticate, async (req: AuthenticatedRequest, 
 });
 
 // Remove from Wishlist
-userDashboard.delete("/wishlist/:id", authenticate, async (req: AuthenticatedRequest, res: Response) => {
+userDashboard.delete("/wishlist/delete", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { id } = req.params;
+        const { id , type} = req.body;
+        const wishlistItem = await prisma.wishlist.findFirst({
+            where: { listingId: Number(id), type: type },
+        });
 
-        await prisma.wishlist.delete({ where: { id: Number(id) } });
+        if (!wishlistItem) {
+            res.status(404).json({ success: false, message: "Wishlist item not found" });
+            return;
+        }
+
+        await prisma.wishlist.delete({ where: { id: wishlistItem.id } });
+
 
         res.status(200).json({ success: true, message: "Removed from wishlist" });
     } catch (error) {
@@ -35,7 +43,6 @@ userDashboard.delete("/wishlist/:id", authenticate, async (req: AuthenticatedReq
     }
 });
 
-// Get User Wishlist
 userDashboard.get("/wishlist/:userId", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { userId } = req.params;
@@ -50,51 +57,116 @@ userDashboard.get("/wishlist/:userId", authenticate, async (req: AuthenticatedRe
     }
 });
 
-userDashboard.get("/:type/:id", authenticate, async (req: AuthenticatedRequest, res: Response) : Promise<any> => {
+userDashboard.get("/dashboard", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { id, type } = req.params;
-        let listing;
-        if (type === "flat") {
-            listing = await prisma.flatInfo.findUnique({ where: { id : Number(id) } });
-        } else if (type === "pg") {
-            listing = await prisma.pgInfo.findUnique({ where: { id : Number(id) } });
-        } else if (type === "room") {
-            listing = await prisma.roomInfo.findUnique({ where: { id : Number(id) } });
+        const userId = req.user?.id;
+
+        if (!userId) {
+             res.status(401).json({ success: false, message: "Unauthorized" });
+             return;
         }
 
-        if (!listing) return res.status(404).json({ message: "Listing not found" });
-
-        res.status(200).json({ listing });
-    } catch (err) {
-        console.error("Error fetching image URLs:", err);
-        res.status(500).json({
-            message: "Failed to fetch images. Please try again later.",
+        // 1. Fetch all wishlist items for the user
+        const wishlistItems = await prisma.wishlist.findMany({
+            where: { userId: Number(userId) },
+            orderBy: { createdAt: "desc" } // Newest first
         });
-    }
-})
+        console.log("Wishlist items:", wishlistItems);
 
+        // 2. Fetch details for each property in wishlist
+        const wishlistWithDetails = await Promise.all(
+            wishlistItems.map(async (item) => {
+                let property;
+                const type = item.type.toLowerCase();
+                
+                try {
+                    // Fetch property based on type
+                    switch(type) {
+                        case 'flat':
+                            property = await prisma.flatInfo.findUnique({
+                                where: { id: item.listingId }
+                            });
+                            break;
+                        case 'pg':
+                            property = await prisma.pgInfo.findUnique({
+                                where: { id: item.listingId }
+                            });
+                            break;
+                        case 'room':
+                            property = await prisma.roomInfo.findUnique({
+                                where: { id: item.listingId }
+                            });
+                            break;
+                        case 'hourlyroom':
+                            property = await prisma.hourlyInfo.findUnique({
+                                where: { id: item.listingId }
+                            });
+                            break;
+                    }
 
+                    // Skip if property not found
+                    if (!property) return null;
 
-userDashboard.get("/contact-logs/:userId", authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
-    try {
-        const { userId } = req.params;
+                    // Get image URL
+                    let imageUrl = '';
+                    try {
+                        const key = `images/${type}/${item.listingId}/inside.jpeg`;
+                        imageUrl = await getObjectURL(key);
+                    } catch (error) {
+                        console.error(`Error fetching image for ${type} ${item.listingId}:`, error);
+                    }
 
-        // Fetch recent contacts (valid for 30 days)
-        const logs = await prisma.contactLog.findMany({
+                    return {
+                        id: item.listingId.toString(),
+                        type: item.type,
+                        listing: {
+                            ...property,
+                            imageUrl: imageUrl || null
+                        }
+                    };
+                } catch (error) {
+                    console.error(`Error processing wishlist item ${item.id}:`, error);
+                    return null;
+                }
+            })
+        );
+
+        // Filter out null values (deleted properties)
+        const validWishlist = wishlistWithDetails.filter(item => item !== null);
+
+        // 3. Fetch recent contacts (last 30 days)
+        const recentContacts = await prisma.contactLog.findMany({
             where: {
-                ownerId: Number(userId),
+                OR: [
+                    { userId: Number(userId) },  // User initiated contacts
+                    { ownerId: Number(userId) }  // Owner received contacts
+                ],
                 isExpired: false,
-                accessDate: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }, // Last 30 days
+                accessDate: { 
+                    gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) 
+                }
             },
             orderBy: { accessDate: "desc" },
+            take: 20 // Increased limit
         });
 
-        return res.status(200).json({ logs });
+        res.status(200).json({
+            success: true,
+            data: {
+                wishlist: validWishlist,
+                recentContacts
+            }
+        });
+
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: "Server error" });
+        console.error("Dashboard error:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Error fetching dashboard data",
+        });
     }
 });
+
 
 
 export default userDashboard;

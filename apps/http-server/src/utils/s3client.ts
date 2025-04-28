@@ -25,7 +25,7 @@ async function putObject(filename : string, mimeType : string) : Promise<string>
         Key: `images/${filename}`,
         ContentType: mimeType,
     })
-    const url = await getSignedUrl(s3client, command , {expiresIn: 3600});
+    const url = await getSignedUrl(s3client, command, { expiresIn: 600 });
     return url;
 }
 export  { getObjectURL, putObject , s3client};

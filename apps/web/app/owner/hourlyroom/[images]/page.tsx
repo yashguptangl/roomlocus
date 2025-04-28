@@ -9,25 +9,38 @@ export default function Upload() {
   const [uploadedFiles, setUploadedFiles] = useState<{
     [key: string]: File | null;
   }>({});
-  const daynightroomId = useState(localStorage.getItem("daynightroomId"));
+  const [hourlyroomId] = useState(localStorage.getItem("hourlyroomId"));
   const [token, setToken] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false); // To disable button during upload
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setToken(token);
     console.log(token?.toString());
   }, []);
+
   const handleUpload = async () => {
     try {
-      if (!daynightroomId) {
+      // Check if all required images are uploaded
+      const requiredCategories = ["front", "inside", "anotherinsideview", "bathroom", "toilet"];
+      const missingCategories = requiredCategories.filter((category) => !uploadedFiles[category]);
+
+      if (missingCategories.length > 0) {
+        alert(`Please upload images for: ${missingCategories.join(", ")}`);
+        return;
+      }
+
+      if (!hourlyroomId) {
         console.log("Room ID is missing");
         return;
       }
 
+      setIsUploading(true); // Disable button during upload
+
       // Fetch presigned URLs from the backend
       const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/daynightroom/images/presigned-urls`,
-        { daynightroomId },
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/hourlyroom/images/presigned-urls`,
+        { hourlyroomId },
         {
           headers: {
             token: token,
@@ -54,6 +67,8 @@ export default function Upload() {
     } catch (error) {
       console.error("Error uploading images:", error);
       alert("Failed to upload images. Please try again.");
+    } finally {
+      setIsUploading(false); // Re-enable button after upload
     }
   };
 
@@ -70,7 +85,7 @@ export default function Upload() {
   return (
     <div className="p-8">
       <h1 className="text-3xl font-semibold text-blue-500 text-center mb-10">
-        Upload Day Night Room Images
+        Upload Hourly Room Images
       </h1>
 
       <ImageUpload
@@ -82,7 +97,7 @@ export default function Upload() {
         onFileChange={(file) => handleFileChange("inside", file)}
       />
       <ImageUpload
-        label=" Another Inside View"
+        label="Another Inside View"
         onFileChange={(file) => handleFileChange("anotherinsideview", file)}
       />
       <ImageUpload
@@ -93,12 +108,21 @@ export default function Upload() {
         label="Toilet"
         onFileChange={(file) => handleFileChange("toilet", file)}
       />
-      <center><button
-        onClick={handleUpload}
-        className="mt-6 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-      >
-        Upload Images
-      </button></center>
+      <ImageUpload
+        label="manager"
+        onFileChange={(file) => handleFileChange("manager", file)}
+      />
+      <center>
+        <button
+          onClick={handleUpload}
+          disabled={isUploading} // Disable button during upload
+          className={`mt-6 py-2 px-4 rounded text-white ${
+            isUploading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+          }`}
+        >
+          {isUploading ? "Uploading..." : "Upload Images"}
+        </button>
+      </center>
     </div>
   );
 }

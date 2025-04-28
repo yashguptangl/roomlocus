@@ -9,7 +9,7 @@ const SortFilter: React.FC = () => {
   };
 
   return (
-    <div className="relative w-full">
+    <div className=" w-full">
       {/* Toggle Button for Small Screens */}
       <div className="w-full fixed top-14 left-0 bg-gray-200 z-50">
         <p
