@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter , useSearchParams } from "next/navigation";
 // Define validation schema using Zod
 const loginSchema = z.object({
   mobile: z.string().regex(/^\d{10}$/, "Mob no must be 10 digits"),
@@ -18,6 +18,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginSignup() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -47,8 +48,15 @@ export default function LoginSignup() {
       localStorage.setItem("token", token);
       localStorage.setItem("role", "user");
       alert("Login successful!");
-  
-      router.push("/");
+
+      // --- Redirect logic start ---
+      const redirect = searchParams.get("redirect");
+      if (redirect) {
+        router.push(redirect);
+      } else {
+        router.push("/");
+      }
+      // --- Redirect logic end ---
     } catch (error) {
       console.error("Error logging in:", error);
   

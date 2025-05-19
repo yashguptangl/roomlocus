@@ -212,7 +212,7 @@ function Content({
             <label className="block text-gray-700 text-sm sm:text-base mb-1 sm:mb-2">
               {existingRequest ? "Enter New Agent ID:" : "Enter Agent ID:"}
             </label>
-            <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <input
                 type="text"
                 value={agentId}
@@ -221,12 +221,7 @@ function Content({
                 autoFocus
                 placeholder={existingRequest ? existingRequest.agentId : ""}
               />
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                className="px-3 sm:px-4 py-1 sm:py-2 bg-blue-500 text-white text-sm sm:text-base rounded-lg hover:bg-blue-600 transition duration-200"
-              >
-                {isEditing ? "Save" : "Edit"}
-              </button>
+              
             </div>
             {existingRequest && (
               <p className="text-xs text-gray-500 mt-1">

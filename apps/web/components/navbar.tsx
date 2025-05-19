@@ -81,7 +81,7 @@ export default function Navbar() {
           aria-haspopup="true"
           aria-expanded={showDropdown}
         >
-          <Image src={userIcon} fill className="object-contain rounded-full border-2 border-white" alt="User Profile" />
+          <Image src={userIcon} fill className="object-contain rounded-full " alt="User Profile" />
         </div>
 
         {showDropdown && (

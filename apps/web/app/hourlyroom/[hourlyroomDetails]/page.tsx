@@ -86,9 +86,11 @@ export default function ListingDetail() {
   }
 
   const handleWishlistToggle = async () => {
+    if (!token || !listing) {
+      router.push(`/user/signin?redirect=/hourlyroom/${hourlyroomId}`);
+      return;
+    }
     try {
-      if (!token || !listing) return;
-
       const payloadBase64 = token.split(".")[1];
       const tokenPayload = JSON.parse(atob(payloadBase64 || ""));
       const userId = tokenPayload.id;
@@ -168,7 +170,7 @@ export default function ListingDetail() {
   // Contact owner and get details
   async function contactOwner() {
     if (!token || !listing) {
-      router.push("/user/signin");
+      router.push(`/user/signin?redirect=/hourlyroom/${hourlyroomId}`);
       return;
     }
     try {
@@ -176,7 +178,7 @@ export default function ListingDetail() {
       const payload = JSON.parse(atob(payloadBase64 || ""));
       if (payload?.role !== "user") {
         alert("Please login by user id");
-        router.push("/user/signin");
+        router.push(`/user/signin?redirect=/hourlyroom/${hourlyroomId}`);
         return;
       }
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-owner`, {

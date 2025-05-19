@@ -86,10 +86,13 @@ export default function ListingDetail() {
     }
   }
 
-  const handleWishlistToggle = async () => {
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!token || !listing) {
+      router.push(`/user/signin?redirect=/room/${roomId}`);
+      return;
+    }
     try {
-      if (!token || !listing) return;
-
       const payloadBase64 = token.split(".")[1];
       const tokenPayload = JSON.parse(atob(payloadBase64 || ""));
       const userId = tokenPayload.id;
@@ -167,7 +170,7 @@ export default function ListingDetail() {
   // Contact owner and get details
   async function contactOwner() {
     if (!token || !listing) {
-      router.push("/user/signin");
+      router.push(`/user/signin?redirect=/room/${roomId}`);
       return;
     }
     try {
@@ -175,7 +178,7 @@ export default function ListingDetail() {
       const payload = JSON.parse(atob(payloadBase64 || ""));
       if (payload?.role !== "user") {
         alert("Please login by user id");
-        router.push("/user/signin");
+        router.push(`/user/signin?redirect=/room/${roomId}`);
         return;
       }
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-owner`, {
@@ -255,10 +258,7 @@ export default function ListingDetail() {
                   {/* Wishlist and Share buttons */}
                   <div className="absolute top-0 right-2 flex flex-col items-center space-y-2 z-20">
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleWishlistToggle();
-                      }}
+                      onClick={handleWishlistToggle}
                       className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
                     >
                       {isSaved ? (
@@ -269,10 +269,7 @@ export default function ListingDetail() {
                     </button>
 
                     <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleShare();
-                      }}
+                      onClick={handleShare}
                       className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
                     >
                       <FaShareAlt className="text-gray-700 text-lg" />

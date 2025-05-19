@@ -87,8 +87,13 @@ export default function ListingDetail() {
 
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!token || !listing) {
+      router.push(`/user/signin?redirect=/flat/${flatId}`);
+      return;
+    }
+
     try {
-      if (!token || !listing) return;
+     
       const payloadBase64 = token.split(".")[1];
       const tokenPayload = JSON.parse(atob(payloadBase64 || ""));
       const userId = tokenPayload.id;
@@ -159,7 +164,7 @@ export default function ListingDetail() {
 
   async function contactOwner() {
     if (!token || !listing) {
-      router.push("/user/signin");
+      router.push(`/user/signin?redirect=/flat/${flatId}`);
       return;
     }
     try {
@@ -167,7 +172,7 @@ export default function ListingDetail() {
       const payload = JSON.parse(atob(payloadBase64 || ""));
       if (payload?.role !== "user") {
         alert("Please login by user id");
-        router.push("/user/signin");
+        router.push(`/user/signin?redirect=/flat/${flatId}`);
         return;
       }
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-owner`, {
