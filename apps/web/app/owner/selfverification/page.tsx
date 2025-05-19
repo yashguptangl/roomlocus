@@ -4,6 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
 import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
+import imageCompression from "browser-image-compression";
+import { useForm } from "react-hook-form";
 
 interface UploadedFiles {
   selfiewithaadhar: File | null;
@@ -46,6 +48,8 @@ function Content({ ownerId }: { ownerId: number | null }) {
     selfiewithaadhar: null,
     frontbuildingview: null,
   });
+  const { handleSubmit } = useForm();
+
 
   const handleUpload = async () => {
     try {
@@ -112,16 +116,24 @@ function Content({ ownerId }: { ownerId: number | null }) {
     }
   };
 
-  const handleFileChange = (key: keyof UploadedFiles, file: File) => {
+  const handleFileChange = async (key: keyof UploadedFiles, file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
       alert("Only JPEG and PNG files are allowed!");
       return;
     }
-    setUploadedFiles((prev) => ({
-      ...prev,
-      [key]: file,
-    }));
+       try {
+         const compressedFile = await imageCompression(file, {
+           maxSizeMB: 0.5, // reduce to under 500KB
+           maxWidthOrHeight: 1024, // resize dimensions if needed
+           useWebWorker: true,
+         });
+   
+         setUploadedFiles((prev) => ({ ...prev, [key]: compressedFile }));
+       } catch (error) {
+         console.error("Image compression error:", error);
+         alert("Failed to compress image.");
+       }
   };
 
   return (
@@ -135,15 +147,17 @@ function Content({ ownerId }: { ownerId: number | null }) {
           onFileChange={(file) => handleFileChange("selfiewithaadhar", file)}
         />
         <ImageUpload
-          label="Front Building View"
+          label="Front Building Photo"
           onFileChange={(file) => handleFileChange("frontbuildingview", file)}
         />
-        <button
-          onClick={handleUpload}
-          className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
-        >
-          Upload
-        </button>
+        <form onSubmit={handleSubmit(handleUpload)}>
+          <button
+            type="submit"
+            className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
+          >
+            Upload
+          </button>
+        </form>
       </div>
     </div>
   );

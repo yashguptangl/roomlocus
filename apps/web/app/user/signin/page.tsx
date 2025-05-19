@@ -45,6 +45,7 @@ export default function LoginSignup() {
   
       // Store the JWT token in local storage
       localStorage.setItem("token", token);
+      localStorage.setItem("role", "user");
       alert("Login successful!");
   
       router.push("/");
@@ -112,9 +113,9 @@ export default function LoginSignup() {
           </form>
 
           <div className="text-center mt-4">
-            <Link href="#">
-              <span className="font-normal">Forgot</span> &nbsp;
-              <span className="hover:underline text-blue-600 font-semibold">UserName/Password</span>
+            <Link href="/user/forgot" className="hover:underline font-semibold text-blue-600">
+              <span className="font-normal text-black">Forgot</span> &nbsp;
+              <span className="hover:underline text-blue-600 font-semibold">Password</span>
             </Link>
           </div>
           <div className="text-center mt-2">

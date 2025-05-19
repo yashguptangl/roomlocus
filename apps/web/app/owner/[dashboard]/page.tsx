@@ -9,6 +9,7 @@ import { LeadLog } from "../../../types/lead";
 import { ListingItem } from "../../../types/listing";
 import { useRouter } from "next/navigation";
 import { Menu, Transition } from "@headlessui/react"; // Add this for dropdown
+import { FaShareAlt } from "react-icons/fa";
 
 type Tab = "guide" | "myRental" | "usedLead";
 
@@ -72,7 +73,6 @@ export default function Dashboard() {
             { headers: { token } }
           );
           return res.data; // assuming array of image URLs or objects
-
         } catch (err) {
           console.error(`Error fetching images for listing ${listingId}:`, err);
           return []; // fallback to empty array
@@ -88,32 +88,41 @@ export default function Dashboard() {
 
           const data = response.data;
 
-          const flatListings = data.listings.FlatInfo?.map((item: ListingItem) => ({
-            ...item,
-            type: "flat",
-            listingId: item.id,
-          })) || [];
+          const flatListings =
+            data.listings.FlatInfo?.map((item: ListingItem) => ({
+              ...item,
+              type: "flat",
+              listingId: item.id,
+            })) || [];
 
-          const pgListings = data.listings.PgInfo?.map((item: ListingItem) => ({
-            ...item,
-            type: "pg",
-            listingId: item.id,
-          })) || [];
+          const pgListings =
+            data.listings.PgInfo?.map((item: ListingItem) => ({
+              ...item,
+              type: "pg",
+              listingId: item.id,
+            })) || [];
 
-          const roomListings = data.listings.RoomInfo?.map((item: ListingItem) => ({
-            ...item,
-            type: "room",
-            listingId: item.id,
-          })) || [];
+          const roomListings =
+            data.listings.RoomInfo?.map((item: ListingItem) => ({
+              ...item,
+              type: "room",
+              listingId: item.id,
+            })) || [];
 
-          const hourlyroomListings = data.listings.HourlyInfo?.map((item: ListingItem) => ({
-            ...item,
-            type: "hourlyroom",
-            listingId: item.id,
-          })) || [];
+          const hourlyroomListings =
+            data.listings.HourlyInfo?.map((item: ListingItem) => ({
+              ...item,
+              type: "hourlyroom",
+              listingId: item.id,
+            })) || [];
           console.log("Hourly Room Listings:", hourlyroomListings);
 
-          const allListings = [...flatListings, ...pgListings, ...roomListings, ...hourlyroomListings];
+          const allListings = [
+            ...flatListings,
+            ...pgListings,
+            ...roomListings,
+            ...hourlyroomListings,
+          ];
 
           console.log("All Listings:", allListings);
 
@@ -123,8 +132,15 @@ export default function Dashboard() {
               if (listing.isDraft) {
                 return { ...listing, images: { images: Bedroom.src } }; // Use fallback image
               }
-              console.log("Fetching images for:", listing.type, listing.listingId);
-              const images = await fetchImagesForListing(listing.type, listing.listingId);
+              console.log(
+                "Fetching images for:",
+                listing.type,
+                listing.listingId
+              );
+              const images = await fetchImagesForListing(
+                listing.type,
+                listing.listingId
+              );
               return { ...listing, images };
             })
           );
@@ -135,8 +151,7 @@ export default function Dashboard() {
           console.error("Error fetching listings:", e);
           alert("Failed to load listings. Please try again.");
         }
-      }
-
+      };
 
       usedLeadData(token, ownerId);
       fetchListings(token, ownerId);
@@ -144,7 +159,11 @@ export default function Dashboard() {
     }
   }, []);
 
-  const toggleButton = async (listingId: string, type: string, isVisible: boolean) => {
+  const toggleButton = async (
+    listingId: string,
+    type: string,
+    isVisible: boolean
+  ) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -162,7 +181,9 @@ export default function Dashboard() {
         alert(response.data.message);
         setListings((prevListings) =>
           prevListings.map((listing) =>
-            listing.id === listingId ? { ...listing, isVisible: !isVisible } : listing
+            listing.id === listingId
+              ? { ...listing, isVisible: !isVisible }
+              : listing
           )
         );
       } else {
@@ -182,10 +203,13 @@ export default function Dashboard() {
         return;
       }
 
-      const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/listing`, {
-        headers: { token },
-        data: { listingId, type },
-      });
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/listing`,
+        {
+          headers: { token },
+          data: { listingId, type },
+        }
+      );
 
       if (response.status === 200) {
         alert(response.data.message);
@@ -232,7 +256,9 @@ export default function Dashboard() {
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
-            <h2 className="text-xl font-semibold mb-4 text-center">Buy Leads</h2>
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Buy Leads
+            </h2>
             <div className="mb-2">
               <label className="block text-sm font-medium mb-2">
                 Enter Number of Leads (Min 10):
@@ -269,28 +295,31 @@ export default function Dashboard() {
       <div className="flex justify-between border-b border-gray-300 bg-blue-400">
         <button
           onClick={() => setActiveTab("guide")}
-          className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
+          className={`flex-1 text-center py-2 font-semibold ${
+            activeTab === "guide"
               ? "text-blue-500 border-b-3 border-blue-500"
               : "text-white"
-            }`}
+          }`}
         >
           Guide
         </button>
         <button
           onClick={() => setActiveTab("myRental")}
-          className={`flex-1 text-center py-2 font-semibold ${activeTab === "myRental"
+          className={`flex-1 text-center py-2 font-semibold ${
+            activeTab === "myRental"
               ? "text-blue-500 border-b-3 border-blue-500"
               : "text-white"
-            }`}
+          }`}
         >
           My Rentals
         </button>
         <button
           onClick={() => setActiveTab("usedLead")}
-          className={`flex-1 text-center py-2 font-semibold ${activeTab === "usedLead"
+          className={`flex-1 text-center py-2 font-semibold ${
+            activeTab === "usedLead"
               ? "text-blue-500 border-b-2 border-blue-500"
               : "text-white"
-            }`}
+          }`}
         >
           Used Lead
         </button>
@@ -319,6 +348,28 @@ export default function Dashboard() {
                   className="bg-white flex flex-col w-72 rounded-md shadow-md overflow-hidden mb-4"
                 >
                   <div className="relative mod:w-72 mod:h-36 ssm:h-36 ssm:w-72 md:h-40 md:w-72 w-full sm:w-44 h-40">
+                    <button
+                      className="absolute top-3 right-3 z-10 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+                      onClick={async (e) => {
+                      e.stopPropagation();
+                      const shareUrl = `${window.location.origin}/${listing.type}/${listing.id}`;
+                      if (navigator.share) {
+                        try {
+                        await navigator.share({
+                          title: "Check out this rental listing",
+                          url: shareUrl,
+                        });
+                        } catch (err) {
+                        // User cancelled or error
+                        }
+                      } else {
+                        await navigator.clipboard.writeText(shareUrl);
+                        alert("Link copied to clipboard!");
+                      }
+                      }}
+                    >
+                      <FaShareAlt className="text-gray-700 text-lg" />
+                    </button>
                     <Image
                       src={listing.images.images}
                       fill
@@ -330,14 +381,24 @@ export default function Dashboard() {
                     />
                   </div>
                   <div className="flex justify-center items-center gap-2 p-2">
-                    <label htmlFor={`publish-${listing.id}`} className="text-sm">
+                    <label
+                      htmlFor={`publish-${listing.id}`}
+                      className="text-sm"
+                    >
                       Publish
                     </label>
                     <button
-                      onClick={() => toggleButton(listing.id, listing.type, listing.isVisible)}
+                      onClick={() =>
+                        toggleButton(
+                          listing.id,
+                          listing.type,
+                          listing.isVisible
+                        )
+                      }
                       id={`publish-${listing.id}`}
-                      className={`px-1 py-0.5 rounded-lg text-white text-xs w-8 ${listing.isVisible ? "bg-green-500" : "bg-red-500"
-                        }`}
+                      className={`px-1 py-0.5 rounded-lg text-white text-xs w-8 ${
+                        listing.isVisible ? "bg-green-500" : "bg-red-500"
+                      }`}
                     >
                       {listing.isVisible ? "on" : "off"}
                     </button>
@@ -365,11 +426,19 @@ export default function Dashboard() {
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button
-                                      className={`${active ? "bg-blue-500 text-white" : "text-gray-900"
-                                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                      className={`${
+                                        active
+                                          ? "bg-blue-500 text-white"
+                                          : "text-gray-900"
+                                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                       onClick={() => {
-                                        router.push(`/owner/${listing.type}/images`);
-                                        localStorage.setItem(`${listing.type}Id`, listing.id);
+                                        router.push(
+                                          `/owner/${listing.type}/images`
+                                        );
+                                        localStorage.setItem(
+                                          `${listing.type}Id`,
+                                          listing.id
+                                        );
                                       }}
                                     >
                                       Complete Listing
@@ -379,9 +448,17 @@ export default function Dashboard() {
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button
-                                      className={`${active ? "bg-red-500 text-white" : "text-gray-900"
-                                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
-                                      onClick={() => handleDeleteListing(listing.id, listing.type)}
+                                      className={`${
+                                        active
+                                          ? "bg-red-500 text-white"
+                                          : "text-gray-900"
+                                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                      onClick={() =>
+                                        handleDeleteListing(
+                                          listing.id,
+                                          listing.type
+                                        )
+                                      }
                                     >
                                       Delete Listing
                                     </button>
@@ -392,11 +469,19 @@ export default function Dashboard() {
                               <Menu.Item>
                                 {({ active }) => (
                                   <button
-                                    className={`${active ? "bg-blue-500 text-white" : "text-gray-900"
-                                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                    className={`${
+                                      active
+                                        ? "bg-blue-500 text-white"
+                                        : "text-gray-900"
+                                    } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                     onClick={() => {
-                                      router.push(`/owner/edit?listingType=${listing.type}&listingId=${listing.id}`);
-                                      localStorage.setItem(`${listing.type}Id`, listing.id);
+                                      router.push(
+                                        `/owner/edit?listingType=${listing.type}&listingId=${listing.id}`
+                                      );
+                                      localStorage.setItem(
+                                        `${listing.type}Id`,
+                                        listing.id
+                                      );
                                     }}
                                   >
                                     Edit Listing
@@ -411,33 +496,46 @@ export default function Dashboard() {
                   </div>
                   <div className="px-3 pb-3">
                     <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
-                      {listing.BHK} BHK  {listing.type} | Security {listing.security}{" "}
+                      {listing.BHK} BHK {listing.type} | Security{" "}
+                      {listing.security}{" "}
                     </h2>
                     <p className="text-green-600 font-medium text-sm">
                       Rent : {listing.MinPrice} - {listing.MaxPrice}
                     </p>
                     <p className="text-sm ">
-                      {listing.isVisible ? "Listing is shown on web" : "Listing is off"}
+                      {listing.isVisible
+                        ? "Listing is shown on web"
+                        : "Listing is off"}
                     </p>
 
                     <button
                       className={`mt-1.5 rounded-md text-white text-sm ssm:text-sm ssm:p-2 w-full ${
-                        listing.isDraft ? "bg-blue-600" : listing.isVerified ? "bg-blue-600" : "bg-red-600"
+                        listing.isDraft
+                          ? "bg-blue-600"
+                          : listing.isVerified
+                            ? "bg-blue-600"
+                            : "bg-red-600"
                       }`}
                       onClick={() => {
-                        if(listing.isDraft) {
+                        if (listing.isDraft) {
                           alert("Please complete your listing first.");
                           router.push(`/owner/${listing.type}/images`);
                           localStorage.setItem(`${listing.type}Id`, listing.id);
                         } else if (isKycVerified) {
-                          router.push(`/owner/verification?listingId=${listing.id}&listingType=${listing.type}&listingShowNo=${listing.listingShowNo}`); // Redirect to Verification page
+                          router.push(
+                            `/owner/verification?listingId=${listing.id}&listingType=${listing.type}&listingShowNo=${listing.listingShowNo}`
+                          ); // Redirect to Verification page
                         } else {
                           alert("Please complete your KYC first."); // Optional alert for better UX
                           router.push(`/owner/owner-kyc`); // Redirect to Owner KYC page
                         }
                       }}
                     >
-                      {listing.isDraft ? "Complete Listing" : listing.isVerified ? "Verified" : "Pending Verification"}
+                      {listing.isDraft
+                        ? "Complete Listing"
+                        : listing.isVerified
+                          ? "Verified"
+                          : "Pending Verification"}
                     </button>
                   </div>
                 </div>
@@ -457,21 +555,32 @@ export default function Dashboard() {
               <p className="text-center">No leads available</p>
             ) : (
               usedLeads.logs.map((lead: LeadLog) => (
-                <div key={lead.id} className="bg-white rounded-md shadow-md p-4 mb-4">
+                <div
+                  key={lead.id}
+                  className="bg-white rounded-md shadow-md p-4 mb-4"
+                >
                   <p className="p-1 text-base flex items-center justify-center">
                     Address: {lead.adress}
                   </p>
                   <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">
                     <div className="flex items-center gap-20">
                       <div className="flex item-center gap-4">
-                     
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold">Name: {lead.customerName}</span>
-                        <span className="text-xs text-gray-600">Mob No.: {lead.customerPhone}</span>
-                        <span className="text-xs text-gray-600">Date: {new Date(lead.accessDate).toLocaleDateString('en-CA')}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold">
+                            Name: {lead.customerName}
+                          </span>
+                          <span className="text-xs text-gray-600">
+                            Mob No.: {lead.customerPhone}
+                          </span>
+                          <span className="text-xs text-gray-600">
+                            Date:{" "}
+                            {new Date(lead.accessDate).toLocaleDateString(
+                              "en-CA"
+                            )}
+                          </span>
+                        </div>
                       </div>
-                      </div>
-                     
+
                       <div className="flex items-center space-x-2">
                         <button className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
                           Call
@@ -486,7 +595,6 @@ export default function Dashboard() {
                         />
                       </div>
                     </div>
-
                   </div>
                 </div>
               ))
@@ -498,20 +606,34 @@ export default function Dashboard() {
         {isRentalListOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
-              <h2 className="text-xl font-semibold mb-4 text-center">Add Rental</h2>
+              <h2 className="text-xl font-semibold mb-4 text-center">
+                Add Rental
+              </h2>
 
               {/* Links to Rentals */}
               <div className="space-y-4 text-center flex flex-col">
-                <Link className="text-blue-500 hover:underline" href="/owner/flat">
+                <Link
+                  className="text-blue-500 hover:underline"
+                  href="/owner/flat"
+                >
                   FLAT
                 </Link>
-                <Link className="text-blue-500 hover:underline" href="/owner/room">
+                <Link
+                  className="text-blue-500 hover:underline"
+                  href="/owner/room"
+                >
                   ROOM
                 </Link>
-                <Link className="text-blue-500 hover:underline" href="/owner/pg">
+                <Link
+                  className="text-blue-500 hover:underline"
+                  href="/owner/pg"
+                >
                   PG
                 </Link>
-                <Link className="text-blue-500 hover:underline" href="/owner/hourlyroom">
+                <Link
+                  className="text-blue-500 hover:underline"
+                  href="/owner/hourlyroom"
+                >
                   HOURLY ROOM
                 </Link>
               </div>

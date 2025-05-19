@@ -53,6 +53,7 @@ export default function LoginSignUp() {
             const { token } = response.data;
 
             localStorage.setItem("token", token);
+            localStorage.setItem("role" , "owner");
 
             alert("Login successful!");
             // Redirect to dashboard
@@ -131,7 +132,7 @@ export default function LoginSignUp() {
                         </form>
 
                         <div className="text-center mt-4">
-                            <a href="#"><span className='font-normal' >Forgot</span> &nbsp;<span className='hover:underline text-blue-600 font-semibold'>UserName/Password</span></a>
+                            <Link href="/owner/forgot"><span className='font-normal'>Forgot</span> &nbsp;<span className='hover:underline text-blue-600 font-semibold'>Password</span></Link>
                         </div>
                         <div className="text-center mt-2">
                             <span className="font-normal">Create an Account &nbsp; </span>

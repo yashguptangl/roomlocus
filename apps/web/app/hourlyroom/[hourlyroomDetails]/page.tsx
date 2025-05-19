@@ -1,8 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import ListingData from "../../../types/listing";
-import contactInfo from "../../../types/contactData";
-import { useRouter } from "next/navigation";
+import { useRouter , useParams } from "next/navigation";
 import axios from "axios";
 import Navbar from "../../../components/navbar";
 import Footer from "../../../components/footer";
@@ -15,40 +14,61 @@ interface WishlistItem {
   type: string;
 }
 
+interface Log {
+  listingId: number;
+  propertyType: string;
+  ownerName: string;
+  ownerPhone: string;
+}
+
 export default function ListingDetail() {
   const router = useRouter();
+  const params = useParams();
+  const hourlyroomId = params.hourlyroomDetails as string;
   const [listing, setListing] = useState<ListingData | null>(null);
-  const [newownerData, setNewOwnerData] = useState<contactInfo | null>(null);
-  const [alreadyContactData, setAlreadyContactData] = useState<contactInfo | null>(null);
-  const [showContact, setShowContact] = useState(false);
+  const [ownerContact, setOwnerContact] = useState<{ ownerName: string; ownerMobile: string } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [images, setImages] = useState<string[]>([]);
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [token, setToken] = useState<string | null>(null);
 
+// Fetch hourly room details from backend
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
-
-    const storedListing = sessionStorage.getItem("selectedListing");
-
-    if (storedListing) {
-      const parsedListing = JSON.parse(storedListing);
-      setListing(parsedListing);
-      if (parsedListing?.images?.length > 0) {
-        setImages(parsedListing.images);
+    async function fetchHourlyRoom() {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing/hourlyroom/${hourlyroomId}`,
+        );
+        setListing(res.data.hourlyroom);
+        setImages(res.data.images || []);
+      } catch (error) {
+        console.error("Error fetching hourly room details:", error);
       }
     }
+    fetchHourlyRoom();
 
-    if (storedToken) {
-      const payloadBase64 = storedToken.split(".")[1];
+    const token = localStorage.getItem("token");
+    setToken(token);
+    if (token) {
+      const payloadBase64 = token.split(".")[1];
       const payload = JSON.parse(atob(payloadBase64 || ""));
-      if (payload?.id) {
-        contactAlreadyShow(storedToken, payload.id);
-        fetchWishlist(storedToken, payload.id);
+      if (payload?.id && payload?.role === "user") {
+        fetchWishlist(token, payload.id);
       }
     }
-  }, []);
+  }, [hourlyroomId]);
+
+  // Check contact log after listing is set
+  useEffect(() => {
+    if (!token || !listing) return;
+    const payloadBase64 = token.split(".")[1];
+    const payload = JSON.parse(atob(payloadBase64 || ""));
+    if (payload?.id && payload?.role === "user") {
+      checkContactLog(token, payload.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listing, token]);
+
 
   async function fetchWishlist(token: string, userId: number) {
     try {
@@ -62,60 +82,6 @@ export default function ListingDetail() {
       }
     } catch (error) {
       console.error("Error fetching wishlist:", error);
-    }
-  }
-
-  async function contact() {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/user/signin");
-      return;
-    }
-
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-owner`, {
-        method: 'POST',
-        headers: {
-          'token': token,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          propertyId: listing?.id,
-          propertyType: listing?.Type,
-          ownerId: listing?.ownerId,
-          address: listing?.adress,
-        }),
-      });
-
-      if (response.status === 401) {
-        localStorage.removeItem("token");
-        router.push("/user/signin");
-        return;
-      }
-
-      if (response.status === 403) {
-        alert("You are owner of this listing, you can't contact yourself.");
-        router.push("/")
-        return;
-      }
-
-      const data = await response.json();
-      setNewOwnerData(data);
-      setShowContact(true);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function contactAlreadyShow(token: string, userId: number) {
-    try {
-      const alreadyContact = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing/contact-logs/${userId}`,
-        { headers: { 'token': token, 'Content-Type': 'application/json' } }
-      );
-      setAlreadyContactData(alreadyContact.data || null);
-    } catch (err) {
-      console.error("Failed:", err);
     }
   }
 
@@ -181,6 +147,67 @@ export default function ListingDetail() {
       });
     }
   };
+  // Check if user has already contacted for this property
+  async function checkContactLog(token: string, userId: number) {
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing/contact-logs/${userId}`,
+        { headers: { token, "Content-Type": "application/json" } }
+      );
+      const logs = res.data?.logs || [];
+      const matched = logs.find(
+        (log: Log) => log.listingId === listing?.id && log.propertyType === listing?.Type
+      );
+      if (matched) {
+        setOwnerContact({ ownerName: matched.ownerName, ownerMobile: matched.ownerPhone });
+      }
+    } catch (err) {
+      console.error("Failed to fetch contact logs:", err);
+    }
+  }
+  // Contact owner and get details
+  async function contactOwner() {
+    if (!token || !listing) {
+      router.push("/user/signin");
+      return;
+    }
+    try {
+      const payloadBase64 = token.split(".")[1];
+      const payload = JSON.parse(atob(payloadBase64 || ""));
+      if (payload?.role !== "user") {
+        alert("Please login by user id");
+        router.push("/user/signin");
+        return;
+      }
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-owner`, {
+        method: "POST",
+        headers: {
+          token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          propertyId: listing.id,
+          propertyType: listing.Type,
+          ownerId: listing.ownerId,
+          address: listing.Adress,
+        }),
+      });
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        router.push("/user/signin");
+        return;
+      }
+      const data = await response.json();
+      if (data?.contactInfo) {
+        setOwnerContact({
+          ownerName: data.contactInfo.ownerName,
+          ownerMobile: data.contactInfo.ownerMobile,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   const handleNextImage = () => {
     setCurrentImageIndex((prevIndex) =>
@@ -207,9 +234,6 @@ export default function ListingDetail() {
   }
 
   const isSaved = wishlistItems.some(item => item.listingId === listing.id);
-  const matchedLog = alreadyContactData?.logs?.find(
-    (log: { listingId: number; propertyType: string; }) => log.listingId === listing.id && log.propertyType === listing.Type
-  );
 
   return (
     <>
@@ -226,8 +250,8 @@ export default function ListingDetail() {
                     <div className="absolute top-2 left-2 z-10 flex ">
                       <span
                         className={`px-2 py-1 text-xs font-medium rounded-full ${listing.isVerified
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
                           }`}
                       >
                         {listing.isVerified ? "Verified" : "Not Verified"}
@@ -428,11 +452,10 @@ export default function ListingDetail() {
                   </div>
                 </div>
               </div>
-
               <div className="pt-4">
-                {!matchedLog ? (
+                {!ownerContact ? (
                   <button
-                    onClick={contact}
+                    onClick={contactOwner}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                   >
                     Contact Owner
@@ -440,19 +463,12 @@ export default function ListingDetail() {
                 ) : (
                   <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
                     <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                    <p className="text-gray-700">Name: {matchedLog.ownerName}</p>
-                    <p className="text-gray-700">Phone: {matchedLog.ownerPhone}</p>
-                  </div>
-                )}
-
-                {showContact && newownerData && (
-                  <div className="border border-green-200 bg-green-50 p-4 rounded-lg mt-4">
-                    <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                    <p className="text-gray-700">Name: {newownerData?.logs?.ownerName}</p>
-                    <p className="text-gray-700">Phone: {newownerData?.logs?.ownerMobile}</p>
+                    <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
+                    <p className="text-gray-700">Phone: {ownerContact.ownerMobile}</p>
                   </div>
                 )}
               </div>
+
             </div>
           </div>
         </div>

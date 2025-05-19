@@ -45,6 +45,7 @@ export default function LoginSignup() {
   
       // Store the JWT token in local storage
       localStorage.setItem("token", token);
+      localStorage.setItem("role", "agent");
       alert("Login successful!");
   
       router.push("/agent/dashboard");

@@ -97,6 +97,100 @@ listingRouter.get("/contact-logs/:id", authenticate, async (req: AuthenticatedRe
   }
 })
 
+listingRouter.get("/:listing/:id" , async ( req : Request, res : Response) => {
+  try{
+    const { listing, id } = req.params;
+
+    if (!listing) {
+      res.status(400).json({ message: "Listing type is required" });
+      return;
+    }
+
+    switch(listing.toLowerCase()){
+      case "room":
+        const room = await prisma.roomInfo.findUnique({
+          where : { id : Number(id) }
+        });
+        if(!room){
+          res.status(404).json({message : "Room not found"});
+          return;
+        }
+
+        const roomImages = await Promise.all(
+          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+            const key = `images/room/${id}/${category}.jpeg`;
+            return await getObjectURL(key); // Fetch signed URL from S3
+          })
+        );
+        res.json({room , images : roomImages});
+        break;
+
+      case "pg":
+        const pg = await prisma.pgInfo.findUnique({
+          where : { id : Number(id) }
+        });
+        if(!pg){
+          res.status(404).json({message : "PG not found"});
+          return;
+        }
+        const pgImages = await Promise.all(
+          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+            const key = `images/pg/${id}/${category}.jpeg`;
+            return await getObjectURL(key); // Fetch signed URL from S3
+          })
+        );
+        res.json({pg , images : pgImages});
+        break;
+
+      case "flat":
+        const flat = await prisma.flatInfo.findUnique({
+          where : { id : Number(id) }
+        });
+        if(!flat){
+          res.status(404).json({message : "Flat not found"});
+          return;
+        }
+
+        const flatImages = await Promise.all(
+          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+            const key = `images/flat/${id}/${category}.jpeg`;
+            return await getObjectURL(key); // Fetch signed URL from S3
+          })
+        );
+        res.json({flat , images : flatImages});
+        break;
+
+      case "hourlyroom":
+        const hourly = await prisma.hourlyInfo.findUnique({
+          where : { id : Number(id) }
+        });
+        if(!hourly){
+          res.status(404).json({message : "Hourly room not found"});
+          return;
+        }
+
+        const hourlyImages = await Promise.all(
+          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+            const key = `images/hourlyroom/${id}/${category}.jpeg`;
+            return await getObjectURL(key); // Fetch signed URL from S3
+          })
+        );
+        res.json({hourly , images : hourlyImages});
+        break;
+
+      default:
+        res.status(400).json({message : "Invalid listing type"});
+        return;
+    }
+  }catch(e){
+    console.log(e);
+    res.status(500).json({message : "Failed to fetch listing"});
+  }
+})
+
+
+
+
 
 
 export { listingRouter };

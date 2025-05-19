@@ -1,5 +1,4 @@
 import express from 'express';
-
 const selfVerification = express.Router();
 import { prisma } from '@repo/db/prisma';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';

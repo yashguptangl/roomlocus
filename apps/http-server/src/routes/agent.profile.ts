@@ -49,7 +49,7 @@ agentProfileRouter.post("/upload-agent-doc",  authenticate, async (req: Request,
     const { agentId  } = req.body;
 
     try {
-      const categories = ["agentImage", "aadharFront", "aadharBack", "panCard"];
+      const categories = ["agentImage", "aadharFront", "aadharBack", "panCard" , "passbook"];
       const urls: { [key: string]: string } = {};
 
       // Upload files and validate formats
@@ -95,12 +95,11 @@ agentProfileRouter.get("/progress/:id", authenticate, async (req: Request, res: 
 });
 
 
-
 agentProfileRouter.get("/agent/:agentId", authenticate, async (req: Request, res: Response) => {
   try {
     const { agentId } = req.params;
 
-    const agent = await prisma.agent.findMany({
+    const agent = await prisma.agent.findUnique({
       where: { agentId },
     });
     res.status(200).json({ agent });
@@ -111,4 +110,5 @@ agentProfileRouter.get("/agent/:agentId", authenticate, async (req: Request, res
   }
 }
 );
+
 export { agentProfileRouter };

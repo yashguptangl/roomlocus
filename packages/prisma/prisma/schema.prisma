@@ -21,6 +21,7 @@ model User {
     mobile          String     @unique
     password        String   
     otp             Int
+    role            String   @default("user")
     isPhoneVerified Boolean @default(false)
     contactLogs     ContactLog[]
     wishlists       Wishlist[]
@@ -34,6 +35,7 @@ model Owner {
     password          String   
     otp               Int
     isPhoneVerified   Boolean   @default(false)
+    role             String   @default("owner")
     FlatInfo          FlatInfo[]
     PgInfo            PgInfo[]
     RoomInfo          RoomInfo[]
@@ -52,6 +54,7 @@ model Agent {
     password           String
     otp                Int
     isPhoneVerified    Boolean    @default(false)
+    role               String     @default("agent")
     agentId            String     @unique
     isVerifiedByAdmin  Boolean    @default(false)
     isKYCVerified      Boolean    @default(false)
@@ -107,7 +110,8 @@ model FlatInfo {
     verificationPending Boolean   @default(true)
     paymentDone         Boolean   @default(false)
     isVisible           Boolean   @default(true) // Control visibility manually
-    isDraft             Boolean   
+    isDraft             Boolean 
+    postPropertyByAdmin Boolean   @default(false)  
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
 }
@@ -151,6 +155,7 @@ model PgInfo {
     paymentDone         Boolean   @default(false)
     isVisible           Boolean   @default(true) // Control visibility manually
     isDraft             Boolean
+    postPropertyByAdmin Boolean   @default(false)
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
 }
@@ -192,6 +197,7 @@ model RoomInfo {
     paymentDone         Boolean   @default(false)
     isVisible           Boolean   @default(true) // Control visibility manually
     isDraft             Boolean
+    postPropertyByAdmin Boolean   @default(false)
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
 }
@@ -230,6 +236,7 @@ model hourlyInfo {
     paymentDone         Boolean   @default(false)
     isVisible           Boolean   @default(true)
     isDraft             Boolean
+    postPropertyByAdmin Boolean   @default(false)
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
 }
@@ -290,8 +297,6 @@ model Wishlist {
   type      String  // "flat", "pg", "room"
   createdAt DateTime @default(now())
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-
 
 }
 

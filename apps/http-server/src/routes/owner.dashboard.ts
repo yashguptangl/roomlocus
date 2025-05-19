@@ -16,100 +16,6 @@ const verifyToken = (token: string) => {
     }
 };
 
-ownerDashboard.post("/contact-owner",authenticate , async (req: AuthenticatedRequest, res: Response): Promise<any> => {
-    try {
-        const { propertyId, propertyType, ownerId, address  } = req.body;
-        const token = req.headers.token as string;
-        console.log(token)
-        console.log(req.body);
-        if (!token) {
-            return res.status(401).json({ message: 'Unauthorized: Token is missing' });
-        }
-
-        // Verify JWT token and extract user details
-        const decoded = verifyToken(token);
-        console.log(decoded);
-        if (!decoded) {
-            return res.status(403).json({ message: "Invalid token" });
-        }
-        if(decoded.id === ownerId){
-            return res.status(403).json({ message: "You can't contact yourself" });
-        }
-        
-        const { username, mobile } = decoded;
-
-        // Fetch Owner Details
-        const owner = await prisma.owner.findUnique({ where: { id: Number(ownerId) } });
-        if (!owner) {
-            return res.status(404).json({ message: 'Owner not found' });
-        }
-
-        // Create a contact log entry with 30-day validity
-        await prisma.contactLog.create({
-            data: {
-                ownerId,
-                userId: decoded.id,
-                listingId : propertyId,
-                customerName: username,
-                customerPhone: mobile,
-                adress : address,
-                accessDate: new Date(),
-                isExpired: false,
-                propertyType,
-                ownerName: owner.username,
-                ownerPhone: owner.mobile,
-                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 30 days
-            },
-        });
-
-        // Reduce owner's points by 
-        if (owner.points <= 0) {
-
-            await prisma.flatInfo.updateMany({
-                where: { ownerId: ownerId },
-                data: { isVisible: false },
-            });
-
-            await prisma.roomInfo.updateMany({
-                where: { ownerId: ownerId },
-                data: { isVisible: false },
-            });
-
-            await prisma.pgInfo.updateMany({
-                where: { ownerId: ownerId },
-                data: { isVisible: false },
-            });
-
-            await prisma.hourlyInfo.updateMany({
-                where: { ownerId: ownerId },
-                data: { isVisible: false },
-            });
-
-        }else{
-            await prisma.owner.update({
-                where: { id: ownerId },
-                data: {
-                    points: { decrement: owner.points > 0 ? 1 : 0 },
-                },
-            });
-        }
-        
-
-        // Return Owner’s Contact Info for User
-        return res.status(200).json({
-            message: 'Contact logged successfully',
-            contactInfo: {
-                ownerName: owner.username,
-                ownerMobile: owner.mobile,
-                expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 30 days
-            },
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error' });
-    }
-});
-
 ownerDashboard.get("/:id/listings", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.params;
     try {
@@ -385,5 +291,95 @@ ownerDashboard.get("/details-owner" , authenticate , async (req: AuthenticatedRe
     }
 });
 
+ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+    try {
+        const { propertyId, propertyType, ownerId, address  } = req.body;
+        const token = req.headers.token as string;
+        console.log(token);
+        console.log(req.body);
+        if (!token) {
+            return res.status(401).json({ message: 'Unauthorized: Token is missing' });
+        }
+
+        // Verify JWT token and extract user details
+        const decoded = verifyToken(token);
+        console.log(decoded);
+        if (!decoded) {
+            return res.status(403).json({ message: "Invalid token" });
+        }
+        
+        
+        const { username, mobile } = decoded;
+
+        // Fetch Owner Details
+        const owner = await prisma.owner.findUnique({ where: { id: Number(ownerId) } });
+        if (!owner) {
+            return res.status(404).json({ message: 'Owner not found' });
+        }
+
+        // Create a contact log entry with 30-day validity
+        await prisma.contactLog.create({
+            data: {
+                ownerId,
+                userId: decoded.id,
+                listingId : propertyId,
+                customerName: username,
+                customerPhone: mobile,
+                adress : address,
+                accessDate: new Date(),
+                isExpired: false,
+                propertyType,
+                ownerName: owner.username,
+                ownerPhone: owner.mobile,
+                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 30 days
+            },
+        });
+
+        // Reduce owner's points by 1
+        if (owner.points <= 0) {
+
+            await prisma.flatInfo.updateMany({
+                where: { ownerId: ownerId },
+                data: { isVisible: false },
+            });
+
+            await prisma.roomInfo.updateMany({
+                where: { ownerId: ownerId },
+                data: { isVisible: false },
+            });
+
+            await prisma.pgInfo.updateMany({
+                where: { ownerId: ownerId },
+                data: { isVisible: false },
+            });
+
+            await prisma.hourlyInfo.updateMany({
+                where: { ownerId: ownerId },
+                data: { isVisible: false },
+            });
+
+        }else{
+            await prisma.owner.update({
+                where: { id: ownerId },
+                data: {
+                    points: { decrement: owner.points > 0 ? 1 : 0 },
+                },
+            });
+        }
+        
+        // Return Owner’s Contact Info for User
+        return res.status(200).json({
+            message: 'Contact logged successfully',
+            contactInfo: {
+                ownerName: owner.username,
+                ownerMobile: owner.mobile,
+                expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 30 days
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error' });
+    }
+});
 
 export { ownerDashboard };

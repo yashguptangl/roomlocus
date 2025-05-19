@@ -5,11 +5,14 @@ import ImageUpload from "../../../components/imagesUpload";
 import axios from "axios";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { useForm } from "react-hook-form";
+import imageCompression from "browser-image-compression";
 
 export default function UploadDocuments() {
   const [ownerId, setOwnerId] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
+
   const { handleSubmit, formState: { isSubmitting } } = useForm();
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -40,7 +43,7 @@ function Content({ ownerId, token, handleSubmit, isSubmitting }: { ownerId: numb
   const router = useRouter();
   const searchParams = useSearchParams();
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File | null }>({});
-
+  const {handleSubmit: formSubmit} = useForm();
   const handleUpload = async () => {
     try {
       console.log("Uploaded Files:", uploadedFiles); // Debugging log
@@ -102,17 +105,25 @@ function Content({ ownerId, token, handleSubmit, isSubmitting }: { ownerId: numb
     }
   };
 
-  const handleFileChange = (key: string, file: File) => {
+  const handleFileChange = async (key: string, file: File) => {
     const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
       alert("Only JPEG and PNG files are allowed!");
       return;
     }
-    setUploadedFiles((prev) => {
-      const updatedFiles = { ...prev, [key]: file };
-      console.log("Updated uploadedFiles state:", updatedFiles); // Debugging log
-      return updatedFiles;
-    });
+
+        try {
+          const compressedFile = await imageCompression(file, {
+            maxSizeMB: 0.5, // reduce to under 500KB
+            maxWidthOrHeight: 1024, // resize dimensions if needed
+            useWebWorker: true,
+          });
+    
+          setUploadedFiles((prev) => ({ ...prev, [key]: compressedFile }));
+        } catch (error) {
+          console.error("Image compression error:", error);
+          alert("Failed to compress image.");
+        }
   };
 
   return (
@@ -127,16 +138,16 @@ function Content({ ownerId, token, handleSubmit, isSubmitting }: { ownerId: numb
         onFileChange={(file) => handleFileChange("selfieWithOwner", file)} // Fixed key name
           />
           <ImageUpload
-        label="Other ID"
+        label="Front Building Photo"
         onFileChange={(file) => handleFileChange("frontbuildingview", file)} // Fixed key name
           />
-          <button
-        type="submit"
-        disabled={isSubmitting}
-        className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
-          >
-        {isSubmitting ? "Uploading..." : "Upload"}
-          </button>
+              <button
+              type="submit"
+              className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
+              disabled={isSubmitting}
+              >
+              {isSubmitting ? "Uploading..." : "Upload"}
+              </button>
         </form>
       </div>
     </div>

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
 import axios from "axios";
+import imageCompression from "browser-image-compression";
 
 export default function UploadDocuments() {
   const router = useRouter();
@@ -69,12 +70,23 @@ export default function UploadDocuments() {
 
   const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
 
-  const handleFileChange = (key: string, file: File) => {
+  const handleFileChange = async (key: string, file: File) => {
     if (!allowedTypes.includes(file.type)) {
       alert("Only JPEG and PNG files are allowed!");
       return;
     }
-    setUploadedFiles((prev) => ({ ...prev, [key]: file }));
+        try {
+          const compressedFile = await imageCompression(file, {
+            maxSizeMB: 0.5, // reduce to under 500KB
+            maxWidthOrHeight: 1024, // resize dimensions if needed
+            useWebWorker: true,
+          });
+    
+          setUploadedFiles((prev) => ({ ...prev, [key]: compressedFile }));
+        } catch (error) {
+          console.error("Image compression error:", error);
+          alert("Failed to compress image.");
+        }
   };
 
   return (
@@ -98,6 +110,10 @@ export default function UploadDocuments() {
         <ImageUpload
           label="Pan Card"
           onFileChange={(file) => handleFileChange("panCard", file)}
+        />
+        <ImageUpload
+          label="Bank Passbook"
+          onFileChange={(file) => handleFileChange("passbook", file)}
         />
         <button
           onClick={handleUpload}

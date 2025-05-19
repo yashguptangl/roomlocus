@@ -149,12 +149,7 @@ export default function UserDashboard() {
           {wishlist.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <p className="text-gray-500 text-lg">Your wishlist is empty</p>
-              <button 
-                onClick={() => router.push("/search")}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Browse Properties
-              </button>
+            
             </div>
           ) : (
             wishlist.map((item) => (

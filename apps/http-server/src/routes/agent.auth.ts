@@ -162,7 +162,7 @@ agentRouter.post("/login", async (req: Request, res: Response) => {
       return;
     }
 
-    const token = jwt.sign({ id: agent.id, mobile: agent.mobile, username: agent.username, agentId: agent.agentId , walletRs : agent.walletRs }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: agent.id, mobile: agent.mobile, username: agent.username, agentId: agent.agentId ,  role : agent.role }, JWT_SECRET, { expiresIn: "1h" });
     res.status(200).json({
       message: "Login Successfully",
       token: token,
@@ -170,6 +170,112 @@ agentRouter.post("/login", async (req: Request, res: Response) => {
   } catch (e) {
     console.log(e);
     res.status(500).json({ message: "Failed to login" });
+  }
+});
+
+ 
+//FORGOT PASSWORD ROUTE
+agentRouter.post("/forgot-password", async (req: Request, res: Response) => {
+     try {
+         const { mobile } = req.body;
+ 
+         if (!mobile) {
+             res.status(400).json({ message: "Mobile number is required" });
+             return;
+         }
+ 
+         // Check if the agent exists
+         const agent = await prisma.agent.findUnique({
+             where: {
+                 mobile: mobile,
+             },
+         });
+ 
+         if (!agent) {
+             res.status(404).json({ message: "Agent not found" });
+             return;
+         }
+ 
+         // Generate a new OTP
+         const otp = generateOTP();
+ 
+         // Update the OTP in the database
+         await prisma.agent.update({
+             where: {
+                 mobile: mobile,
+             },
+             data: {
+                 otp: parseInt(otp),
+             },
+         });
+ 
+         // Simulate sending OTP (replace with actual SMS service in production)
+         console.log(`OTP sent to ${mobile}: ${otp}`);
+ 
+         res.status(200).json({ message: "OTP has been sent to the registered mobile number" });
+     } catch (e) {
+         console.error("Error during forgot password process:", e);
+         res.status(500).json({ message: "Failed to send OTP. Please try again later." });
+     }
+});
+
+//RESET PASSWORD ROUTE
+agentRouter.post("/reset-password", async (req: Request, res: Response) => {
+     try {
+         const { mobile, newPassword, otp } = req.body;
+ 
+         if (!mobile || !newPassword || !otp) {
+             res.status(400).json({ message: "Mobile number, new password, and OTP are required" });
+             return;
+         }
+ 
+         // Check if the user exists
+         const agent = await prisma.agent.findUnique({
+             where: {
+                 mobile: mobile,
+             },
+         });
+ 
+         if (!agent) {
+             res.status(404).json({ message: "Agent not found" });
+             return;
+         }
+ 
+         // Verify the OTP
+         if (agent.otp !== parseInt(otp)) {
+             res.status(400).json({ message: "Invalid OTP" });
+             return;
+         }
+ 
+         // Hash the new password
+         const hashedPassword = await bcrypt.hash(newPassword, 8);
+ 
+         // Update the agent password and reset the OTP
+         await prisma.agent.update({
+             where: {
+                 mobile: mobile,
+             },
+             data: {
+                 password: hashedPassword,
+                 otp: 0, // Reset OTP after successful password reset
+             },
+         });
+ 
+         res.status(200).json({ message: "Password has been reset successfully" });
+     } catch (e) {
+         console.error("Error during reset password process:", e);
+         res.status(500).json({ message: "Failed to reset password. Please try again later." });
+     }
+});
+
+agentRouter.post("/logout", async (req: Request, res: Response) => {
+  try {
+    localStorage.removeItem("token");
+    localStorage.clear();
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    console.log("Error during logout:", error);
+    res.status(500).json({ message: "Failed to logout" });
   }
 });
 

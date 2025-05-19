@@ -3,18 +3,21 @@ import React, { useState, useEffect } from "react";
 import ImageUpload from "../../../../components/imagesUpload";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import imageCompression from "browser-image-compression";
 
 export default function Upload() {
   const router = useRouter();
   const [uploadedFiles, setUploadedFiles] = useState<{
     [key: string]: File | null;
   }>({});
-  const [pgId] = useState(localStorage.getItem("pgId"));
+  const [pgId, setPgId] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false); // To disable button during upload
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const pgId = localStorage.getItem("pgId");
+    setPgId(pgId ? parseInt(pgId) : null);
     setToken(token);
     console.log(token?.toString());
   }, []);
@@ -74,12 +77,23 @@ export default function Upload() {
 
   const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
 
-  const handleFileChange = (key: string, file: File) => {
+  const handleFileChange = async (key: string, file: File) => {
     if (!allowedTypes.includes(file.type)) {
       alert("Only JPEG and PNG files are allowed!");
       return;
     }
-    setUploadedFiles((prev) => ({ ...prev, [key]: file }));
+    try {
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 0.5, // reduce to under 500KB
+        maxWidthOrHeight: 1024, // resize dimensions if needed
+        useWebWorker: true,
+      });
+
+      setUploadedFiles((prev) => ({ ...prev, [key]: compressedFile }));
+    } catch (error) {
+      console.error("Image compression error:", error);
+      alert("Failed to compress image.");
+    }
   };
 
   return (
@@ -120,9 +134,8 @@ export default function Upload() {
         <button
           onClick={handleUpload}
           disabled={isUploading} // Disable button during upload
-          className={`mt-6 py-2 px-4 rounded text-white ${
-            isUploading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
-          }`}
+          className={`mt-6 py-2 px-4 rounded text-white ${isUploading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+            }`}
         >
           {isUploading ? "Uploading..." : "Upload Images"}
         </button>

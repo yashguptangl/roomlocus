@@ -117,7 +117,10 @@ export default function BankDetails() {
           </div>
 
           {/* Submit Button */}
-          <button type="submit" className="bg-blue-500 text-white p-2 rounded">
+          <button 
+          onClick={handleSubmit(onSubmit)}
+           
+          type="submit" className="bg-blue-500 text-white p-2 rounded">
             Submit
           </button>
         </div>

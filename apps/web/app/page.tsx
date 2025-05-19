@@ -88,7 +88,7 @@ export default function Home() {
             <option value="hourlyroom">Hourly Room</option>
           </select>
         </div>
-
+        {/* <ComboBox options={["PG", "Room", "Flat", "Hourly Room"]} placeholder="Looking for" onChange={setLookingFor} /> */}
         <ComboBox options={Object.keys(citiesData)} placeholder="City" onChange={handleCityChange} />
         <ComboBox options={selectedCity && citiesData[selectedCity] ? citiesData[selectedCity] : []} placeholder="Town & Sector" onChange={handleTownChange} />
 

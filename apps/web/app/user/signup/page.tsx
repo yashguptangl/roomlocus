@@ -130,12 +130,6 @@ export default function Signup() {
 
             <div className="mt-4 text-center">
               <p className="font-normal">
-                Forgot{" "}
-                <span className="text-blue-600 font-semibold ml-3 cursor-pointer hover:underline">
-                  Username/Password
-                </span>
-              </p>
-              <p className="font-normal">
                 Already a User?{" "}
                 <Link
                   href="/user/signin"

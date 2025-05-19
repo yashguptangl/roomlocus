@@ -3,25 +3,26 @@ import React, { useState, useEffect } from "react";
 import ImageUpload from "../../../../components/imagesUpload";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import imageCompression from "browser-image-compression";
 
 export default function Upload() {
   const router = useRouter();
   const [uploadedFiles, setUploadedFiles] = useState<{
     [key: string]: File | null;
   }>({});
-  const [flatId] = useState(localStorage.getItem("flatId"));
+  const [flatId , setFlatId] = useState<number | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false); // To disable button during upload
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const flatId = localStorage.getItem("flatId");
+    setFlatId(flatId ? parseInt(flatId) : null);
     setToken(token);
-    console.log(token?.toString());
   }, []);
 
   const handleUpload = async () => {
     try {
-      // Check if all required images are uploaded
       const requiredCategories = ["front", "lobby", "inside", "kitchen", "bathroom", "toilet"];
       const missingCategories = requiredCategories.filter((category) => !uploadedFiles[category]);
 
@@ -35,9 +36,8 @@ export default function Upload() {
         return;
       }
 
-      setIsUploading(true); // Disable button during upload
+      setIsUploading(true);
 
-      // Fetch presigned URLs from the backend
       const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/flat/images/presigned-urls`,
         { flatId },
@@ -49,7 +49,6 @@ export default function Upload() {
       );
       const { presignedUrls } = data;
 
-      // Upload each file using its corresponding presigned URL
       const uploadPromises = Object.keys(presignedUrls).map(async (category) => {
         const file = uploadedFiles[category];
         if (file) {
@@ -68,18 +67,30 @@ export default function Upload() {
       console.error("Error uploading images:", error);
       alert("Failed to upload images. Please try again.");
     } finally {
-      setIsUploading(false); // Re-enable button after upload
+      setIsUploading(false);
     }
   };
 
   const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
 
-  const handleFileChange = (key: string, file: File) => {
+  const handleFileChange = async (key: string, file: File) => {
     if (!allowedTypes.includes(file.type)) {
       alert("Only JPEG and PNG files are allowed!");
       return;
     }
-    setUploadedFiles((prev) => ({ ...prev, [key]: file }));
+
+    try {
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 0.5, // reduce to under 500KB
+        maxWidthOrHeight: 1024, // resize dimensions if needed
+        useWebWorker: true,
+      });
+
+      setUploadedFiles((prev) => ({ ...prev, [key]: compressedFile }));
+    } catch (error) {
+      console.error("Image compression error:", error);
+      alert("Failed to compress image.");
+    }
   };
 
   return (
@@ -88,38 +99,18 @@ export default function Upload() {
         Upload Flat Images
       </h1>
 
-      <ImageUpload
-        label="Front"
-        onFileChange={(file) => handleFileChange("front", file)}
-      />
-      <ImageUpload
-        label="Lobby"
-        onFileChange={(file) => handleFileChange("lobby", file)}
-      />
-      <ImageUpload
-        label="Inside"
-        onFileChange={(file) => handleFileChange("inside", file)}
-      />
-      <ImageUpload
-        label="Kitchen"
-        onFileChange={(file) => handleFileChange("kitchen", file)}
-      />
-      <ImageUpload
-        label="Bathroom"
-        onFileChange={(file) => handleFileChange("bathroom", file)}
-      />
-      <ImageUpload
-        label="Toilet"
-        onFileChange={(file) => handleFileChange("toilet", file)}
-      />
-      <ImageUpload
-        label="Care Taker if any"
-        onFileChange={(file) => handleFileChange("caretaker", file)}
-      />
+      <ImageUpload label="Front" onFileChange={(file) => handleFileChange("front", file)} />
+      <ImageUpload label="Lobby" onFileChange={(file) => handleFileChange("lobby", file)} />
+      <ImageUpload label="Inside" onFileChange={(file) => handleFileChange("inside", file)} />
+      <ImageUpload label="Kitchen" onFileChange={(file) => handleFileChange("kitchen", file)} />
+      <ImageUpload label="Bathroom" onFileChange={(file) => handleFileChange("bathroom", file)} />
+      <ImageUpload label="Toilet" onFileChange={(file) => handleFileChange("toilet", file)} />
+      <ImageUpload label="Care Taker if any" onFileChange={(file) => handleFileChange("caretaker", file)} />
+
       <center>
         <button
           onClick={handleUpload}
-          disabled={isUploading} // Disable button during upload
+          disabled={isUploading}
           className={`mt-6 py-2 px-4 rounded text-white ${
             isUploading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
           }`}

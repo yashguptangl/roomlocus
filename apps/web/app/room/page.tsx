@@ -53,83 +53,12 @@ function Listing() {
         setNoListings(true);
       }
     }
-
-    async function fetchWishlist() {
-      if (storedToken) {
-        try {
-          const payloadBase64 = storedToken.split(".")[1];
-          const tokenPayload = JSON.parse(atob(payloadBase64 || ""));
-          const userId = tokenPayload.id;
-
-          const wishlistResponse = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist/${userId}`,
-            {
-              headers: { token: storedToken },
-            }
-          );
-
-          if (wishlistResponse.data.success) {
-            setWishlistItems(wishlistResponse.data.wishlist);
-          }
-        } catch (error) {
-          console.error("Error fetching wishlist:", error);
-        }
-      }
-    }
-
     fetchData();
-    fetchWishlist();
   }, [lookingFor, city, townSector]);
 
   const handleListingClick = (listing: ListingData) => {
     sessionStorage.setItem("selectedListing", JSON.stringify(listing));
     router.push(`/room/${listing.id}`);
-  };
-
-  const handleWishlistToggle = async (listingId: number) => {
-    try {
-      if (!token) return;
-
-      const payloadBase64 = token.split(".")[1];
-      const tokenPayload = JSON.parse(atob(payloadBase64 || ""));
-      const userId = tokenPayload.id;
-
-      const isAlreadySaved = wishlistItems.some(
-        (item) => item.listingId === listingId
-      );
-
-      if (isAlreadySaved) {
-        // Remove from wishlist
-        await axios.delete(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist/delete`,
-          {
-            headers: { token: token, "Content-Type": "application/json" },
-            data: { id: listingId, type: "Room" },
-          }
-        );
-
-        setWishlistItems((prev) =>
-          prev.filter((item) => item.listingId !== listingId)
-        );
-      } else {
-        // Add to wishlist
-        await axios.post(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist`,
-          {
-            userId: userId,
-            listingId: listingId,
-            type: "Room",
-          },
-          {
-            headers: { token: token, "Content-Type": "application/json" },
-          }
-        );
-
-        setWishlistItems((prev) => [...prev, { listingId, type: "Room" }]);
-      }
-    } catch (error) {
-      console.error("Error updating wishlist:", error);
-    }
   };
 
   const handleShare = (listing: ListingData) => {
@@ -168,10 +97,6 @@ function Listing() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
             {listingData?.listings.map((listing) => {
-              const isSaved = wishlistItems.some(
-                (item) => item.listingId === listing.id
-              );
-
               return (
                 <div
                   onClick={() => handleListingClick(listing)}
@@ -180,20 +105,7 @@ function Listing() {
                 >
                   {/* Image container must be relative */}
                   <div className="relative w-full h-40">
-                    {/* Heart + Share buttons */}
-                    <div className="absolute top-2 right-2 flex flex-col items-center space-y-2 z-20">
-                      <button onClick={() => handleWishlistToggle(listing.id)}>
-                        {isSaved ? (
-                          <FaHeart className="text-red-500 text-2xl" />
-                        ) : (
-                          <FaRegHeart className="text-white text-2xl" />
-                        )}
-                      </button>
-
-                      <button onClick={() => handleShare(listing)}>
-                        <FaShareAlt className="text-white text-xl" />
-                      </button>
-                    </div>
+                    
 
                     {/* Image */}
                     <Image

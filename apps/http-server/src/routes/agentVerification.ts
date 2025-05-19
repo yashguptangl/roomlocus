@@ -122,7 +122,6 @@ verificationRequestRouteByAgent.post('/agent-accept-request', authenticate, asyn
     }
 });
 
-
 // ✅ Get all verified properties by agent (with sorting)
 verificationRequestRouteByAgent.get('/agent-verified-properties/:agentId', authenticate, async (req, res) => {
     try {
@@ -145,7 +144,5 @@ verificationRequestRouteByAgent.get('/agent-verified-properties/:agentId', authe
         res.status(500).json({ error: 'Failed to fetch verified properties', details: errorMessage });
     }
 });
-
-
 
 export default verificationRequestRouteByAgent;

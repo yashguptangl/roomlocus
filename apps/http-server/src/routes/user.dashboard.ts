@@ -21,7 +21,6 @@ userDashboard.post("/wishlist", authenticate, async (req: AuthenticatedRequest, 
     }
 });
 
-// Remove from Wishlist
 userDashboard.delete("/wishlist/delete", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { id , type} = req.body;
@@ -166,7 +165,5 @@ userDashboard.get("/dashboard", authenticate, async (req: AuthenticatedRequest, 
         });
     }
 });
-
-
 
 export default userDashboard;
