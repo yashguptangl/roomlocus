@@ -360,7 +360,7 @@ export default function Dashboard() {
                           url: shareUrl,
                         });
                         } catch (err) {
-                        // User cancelled or error
+                           alert("Failed to share the link.");
                         }
                       } else {
                         await navigator.clipboard.writeText(shareUrl);

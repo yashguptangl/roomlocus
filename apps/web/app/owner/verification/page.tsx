@@ -43,7 +43,6 @@ function Content({
   const searchParams = useSearchParams();
   const [selectedOption, setSelectedOption] = useState<"self" | "agent" | null>(null);
   const [agentId, setAgentId] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
 
   const listingId = searchParams.get("listingId");
   const listingType = searchParams.get("listingType");
@@ -89,11 +88,7 @@ function Content({
 
   const handleOptionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(e.target.value as "self" | "agent");
-    if (e.target.value === "agent") {
-      setIsEditing(true);
-    }
   };
-
   const handleSubmit = async () => {
     if (!selectedOption) {
       alert("Please select a verification option");

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { SideDetail } from "../../../components/sidedetails";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,7 +15,16 @@ const verifySchema = z.object({
 
 type VerifyFormValues = z.infer<typeof verifySchema>;
 
-export default function Verify() {
+// Wrapper with Suspense
+export default function VerifyPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <Verify />
+        </Suspense>
+    );
+}
+
+function Verify() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [resendLoading, setResendLoading] = useState(false);
@@ -30,7 +39,7 @@ export default function Verify() {
 
     const onSubmit = async (data: VerifyFormValues) => {
         try {
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/verify-otp`, {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/verify-otp`, {
                 mobile: data.mobile,
                 otp: data.otp,
             });

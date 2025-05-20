@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,7 +24,15 @@ const signupSchema = z
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
-export default function Signup() {
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Signup />
+    </Suspense>
+  );
+}
+
+function Signup() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -36,40 +44,40 @@ export default function Signup() {
   });
 
   const onSubmit = async (data: SignupFormValues) => {
-  try {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/signup`,
-      {
-        username: data.username,
-        mobile: data.mobile,
-        email: data.email,
-        password: data.password,
-      }
-    );
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/signup`,
+        {
+          username: data.username,
+          mobile: data.mobile,
+          email: data.email,
+          password: data.password,
+        }
+      );
 
-    // --- Redirect logic start ---
-    const redirect = searchParams.get("redirect");
-    if (redirect) {
-      router.push(`/user/verify?redirect=${encodeURIComponent(redirect)}`);
-    } else {
-      router.push("/user/verify");
-    }
-    // --- Redirect logic end ---
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      alert("Mobile number already exist");
+      // --- Redirect logic start ---
       const redirect = searchParams.get("redirect");
       if (redirect) {
-        router.push(`/user/signin?redirect=${encodeURIComponent(redirect)}`);
+        router.push(`/user/verify?redirect=${encodeURIComponent(redirect)}`);
       } else {
-        router.push("/user/signin");
+        router.push("/user/verify");
       }
-      return;
-    } else {
-      alert("An error occurred during signup.");
+      // --- Redirect logic end ---
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        alert("Mobile number already exist");
+        const redirect = searchParams.get("redirect");
+        if (redirect) {
+          router.push(`/user/signin?redirect=${encodeURIComponent(redirect)}`);
+        } else {
+          router.push("/user/signin");
+        }
+        return;
+      } else {
+        alert("An error occurred during signup.");
+      }
     }
-  }
-};
+  };
 
   return (
     <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3">

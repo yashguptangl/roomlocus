@@ -43,7 +43,6 @@ function Content({ ownerId, token, handleSubmit, isSubmitting }: { ownerId: numb
   const router = useRouter();
   const searchParams = useSearchParams();
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File | null }>({});
-  const {handleSubmit: formSubmit} = useForm();
   const handleUpload = async () => {
     try {
       console.log("Uploaded Files:", uploadedFiles); // Debugging log

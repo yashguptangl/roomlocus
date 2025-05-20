@@ -32,9 +32,10 @@ export default function Navbar() {
   }, []);
 
   // ✅ Also update state on every render (useEffect) to catch updates
+  const roleFromStorage = typeof window !== "undefined" ? localStorage.getItem("role") : null;
   useEffect(() => {
     syncAuth();
-  }, [typeof window !== "undefined" && localStorage.getItem("role")]);
+  }, [roleFromStorage]);
 
   // Dropdown outside click handler
   useEffect(() => {

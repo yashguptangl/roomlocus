@@ -4,18 +4,12 @@ import Navbar from "../../components/navbar";
 import SortFilter from "../../components/filterSort";
 import { useSearchParams, useRouter } from "next/navigation";
 import ListingData from "../../types/listing";
-import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
+
 
 interface ListingResponse {
   listings: ListingData[];
-}
-
-interface WishlistItem {
-  listingId: number;
-  type: string;
 }
 
 function Listing() {
@@ -26,13 +20,9 @@ function Listing() {
   const townSector = searchParams.get("townSector") || "";
 
   const [listingData, setListingData] = useState<ListingResponse | null>(null);
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [noListings, setNoListings] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    setToken(storedToken);
 
     async function fetchData() {
       try {
@@ -57,18 +47,6 @@ function Listing() {
   const handleListingClick = (listing: ListingData) => {
     sessionStorage.setItem("selectedListing", JSON.stringify(listing));
     router.push(`/hourlyroom/${listing.id}`);
-  };
-
-  const handleShare = (listing: ListingData) => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Check this listing",
-        text: `${listing.location}, ${listing.city}`,
-        url: `${window.location.origin}/hourlyroom/${listing.id}`,
-      });
-    } else {
-      alert("Sharing is not supported on your device.");
-    }
   };
 
   return (

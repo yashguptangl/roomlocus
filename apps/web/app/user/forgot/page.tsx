@@ -36,7 +36,6 @@ export default function ForgotPassword() {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
     setError,
     clearErrors,
   } = useForm<VerifyFormValues>({
@@ -215,7 +214,7 @@ export default function ForgotPassword() {
             {otpSent && (
               <div className="mt-4 text-center">
                 <p className="text-sm text-gray-600">
-                  Didn't receive OTP?{" "}
+                  Didn&apos;t receive OTP?{" "}
                   <button
                     type="button"
                     onClick={handleResendOTP}

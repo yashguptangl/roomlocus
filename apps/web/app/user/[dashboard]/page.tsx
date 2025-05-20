@@ -21,7 +21,7 @@ interface WishlistItem {
     minprice?: number;
     maxprice?: number;
     imageUrl: string | null;
-    [key: string]: any;
+    [key: string]: any; // Adjust this type as per your listing structure
 
   };
 }

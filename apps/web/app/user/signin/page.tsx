@@ -1,4 +1,5 @@
 "use client";
+import { Suspense } from "react";
 import { SideDetail } from "../../../components/sidedetails";
 import { FaMobileAlt } from "react-icons/fa";
 import { RiLockPasswordFill } from "react-icons/ri";
@@ -8,7 +9,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-// Define validation schema using Zod
+
 const loginSchema = z.object({
   mobile: z.string().regex(/^\d{10}$/, "Mob no must be 10 digits"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -16,7 +17,15 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginSignup() {
+export default function LoginSignupPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginSignup />
+    </Suspense>
+  );
+}
+
+function LoginSignup() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -36,7 +45,6 @@ export default function LoginSignup() {
       );
 
       if (response.status === 403) {
-        // Redirect to verify page for unverified accounts
         router.push("/user/verify");
         return;
       }
@@ -46,14 +54,12 @@ export default function LoginSignup() {
       localStorage.setItem("role", "user");
       alert("Login successful!");
 
-      // --- Redirect logic start ---
       const redirect = searchParams.get("redirect");
       if (redirect) {
         router.push(redirect);
       } else {
         router.push("/");
       }
-      // --- Redirect logic end ---
     } catch (error) {
       console.error("Error logging in:", error);
 
