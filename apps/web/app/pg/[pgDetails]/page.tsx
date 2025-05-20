@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import ListingData from "../../../types/listing";
-import { useRouter , useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import Navbar from "../../../components/navbar";
 import Footer from "../../../components/footer";
 import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 
 interface WishlistItem {
   listingId: number;
@@ -25,6 +26,7 @@ export default function ListingDetail() {
   const router = useRouter();
   const params = useParams();
   const pgId = params.pgDetails as string;
+  const { handleSubmit , formState : { isSubmitting } } = useForm();
 
   const [listing, setListing] = useState<ListingData | null>(null);
   const [ownerContact, setOwnerContact] = useState<{ ownerName: string; ownerMobile: string } | null>(null);
@@ -33,7 +35,7 @@ export default function ListingDetail() {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [token, setToken] = useState<string | null>(null);
 
-// Fetch PG details from backend
+  // Fetch PG details from backend
   useEffect(() => {
     async function fetchPG() {
       try {
@@ -139,7 +141,7 @@ export default function ListingDetail() {
   const handleShare = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!listing) return;
-    
+
     if (navigator.share) {
       navigator.share({
         title: "Check this PG listing",
@@ -171,7 +173,7 @@ export default function ListingDetail() {
   }
   // Contact owner and get details
   async function contactOwner() {
-   if (!token || !listing) {
+    if (!token || !listing) {
       router.push(`/user/signin?redirect=/pg/${pgId}`);
       return;
     }
@@ -193,7 +195,7 @@ export default function ListingDetail() {
           propertyId: listing.id,
           propertyType: listing.Type,
           ownerId: listing.ownerId,
-          address: listing.Adress,
+          address: listing.adress,
         }),
       });
       if (response.status === 401) {
@@ -250,11 +252,10 @@ export default function ListingDetail() {
                 <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
                   <div className="absolute top-2 left-2 z-10">
                     <span
-                      className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        listing.isVerified
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                      }`}
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${listing.isVerified
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                        }`}
                     >
                       {listing.isVerified ? "Verified" : "Not Verified"}
                     </span>
@@ -262,7 +263,7 @@ export default function ListingDetail() {
 
                   {/* Wishlist and Share buttons */}
                   <div className="absolute top-0 right-2 flex flex-col items-center space-y-2 z-20">
-                    <button 
+                    <button
                       onClick={handleWishlistToggle}
                       className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
                     >
@@ -273,7 +274,7 @@ export default function ListingDetail() {
                       )}
                     </button>
 
-                    <button 
+                    <button
                       onClick={handleShare}
                       className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
                     >
@@ -338,11 +339,11 @@ export default function ListingDetail() {
               <h1 className="text-xl font-semibold text-gray-800">
                 {listing.location}, {listing.city}, {listing.townSector}
               </h1>
-              
+
               <h2 className="text-2xl font-semibold text-center text-green-600 my-2">
                 ₹{listing.MinPrice} - ₹{listing.MaxPrice}
               </h2>
-              
+
             </div>
             <div className="border-t border-b border-gray-200 py-4">
               <div className="grid grid-cols-2 gap-4">
@@ -419,15 +420,15 @@ export default function ListingDetail() {
                   ))}
                 </div>
               </div>
-              
+
               <div>
                 <h3 className="text-lg font-semibold mb-2 text-gray-700">Parking</h3>
                 <div className="flex flex-wrap gap-2">
                   {listing.parking?.map((parking, index) => (
                     <div key={index} className="flex items-center">
-                    <span className="text-green-500 mr-2">✓</span>
-                    <span>{parking}</span>
-                  </div>
+                      <span className="text-green-500 mr-2">✓</span>
+                      <span>{parking}</span>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -456,17 +457,21 @@ export default function ListingDetail() {
                 </div>
               </div>
 
-              
+
             </div>
 
-             <div className="pt-4">
+            <div className="pt-4">
               {!ownerContact ? (
-                <button
-                  onClick={contactOwner}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                >
-                  Contact Owner
-                </button>
+                <form onSubmit={handleSubmit(contactOwner)}>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(contactOwner)}
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                  >
+                    {isSubmitting ? "Contacting..." : "Contact Owner"}
+                  </button>
+                </form>
               ) : (
                 <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
                   <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>

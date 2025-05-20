@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { SideDetail } from "../../../components/sidedetails";
 import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 // Zod schema for validation
 const signupSchema = z
@@ -26,7 +26,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 
 export default function Signup() {
   const router = useRouter();
-
+  const searchParams = useSearchParams();
   const {
     register,
     handleSubmit,
@@ -36,32 +36,41 @@ export default function Signup() {
   });
 
   const onSubmit = async (data: SignupFormValues) => {
-    try {
-      console.log("Data being sent to API:", data); // Logs the form data
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/signup`, {
-
+  try {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/signup`,
+      {
         username: data.username,
         mobile: data.mobile,
         email: data.email,
         password: data.password,
-      });
+      }
+    );
 
-      console.log("Signup successful:", response.data); // Logs the response from the server
+    // --- Redirect logic start ---
+    const redirect = searchParams.get("redirect");
+    if (redirect) {
+      router.push(`/user/verify?redirect=${encodeURIComponent(redirect)}`);
+    } else {
       router.push("/user/verify");
-
-    
-    } catch (error) {
-        if (axios.isAxiosError(error) && error.response) {
-            alert("Mobile number already exist");
-            router.push("/user/signin");
-            return;
-        } else {
-            alert("An error occurred during signup.");
-        }
     }
-  };
+    // --- Redirect logic end ---
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      alert("Mobile number already exist");
+      const redirect = searchParams.get("redirect");
+      if (redirect) {
+        router.push(`/user/signin?redirect=${encodeURIComponent(redirect)}`);
+      } else {
+        router.push("/user/signin");
+      }
+      return;
+    } else {
+      alert("An error occurred during signup.");
+    }
+  }
+};
 
-  
   return (
     <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3">
       <div className="w-full mb-2 lg:mb-0">
@@ -132,7 +141,11 @@ export default function Signup() {
               <p className="font-normal">
                 Already a User?{" "}
                 <Link
-                  href="/user/signin"
+                  href={
+                    searchParams.get("redirect")
+                      ? `/user/signin?redirect=${encodeURIComponent(searchParams.get("redirect")!)}`
+                      : "/user/signin"
+                  }
                   className="text-blue-600 font-semibold ml-3 cursor-pointer hover:underline"
                 >
                   Sign In

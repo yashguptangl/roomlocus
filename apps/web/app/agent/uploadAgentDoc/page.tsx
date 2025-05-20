@@ -28,7 +28,7 @@ export default function UploadDocuments() {
       }
 
       // Check if all required files are uploaded
-      const requiredFiles = ["agentImage", "aadharFront", "aadharBack", "panCard"];
+      const requiredFiles = ["agentImage", "aadharFront", "aadharBack", "panCard" , "passbook"];
       for (const fileKey of requiredFiles) {
         if (!uploadedFiles[fileKey]) {
           alert(`Please upload ${fileKey.replace(/([A-Z])/g, ' $1').toLowerCase()}!`);

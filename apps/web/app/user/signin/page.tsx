@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { useRouter , useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 // Define validation schema using Zod
 const loginSchema = z.object({
   mobile: z.string().regex(/^\d{10}$/, "Mob no must be 10 digits"),
@@ -22,12 +22,11 @@ export default function LoginSignup() {
   const {
     register,
     handleSubmit,
-    formState: { errors , isSubmitting},
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
-  // Handle form submission
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const response = await axios.post(
@@ -35,16 +34,14 @@ export default function LoginSignup() {
         data,
         { headers: { "Content-Type": "application/json" } }
       );
-  
+
       if (response.status === 403) {
         // Redirect to verify page for unverified accounts
         router.push("/user/verify");
-        return; // Stop further execution
+        return;
       }
-  
+
       const { token } = response.data;
-  
-      // Store the JWT token in local storage
       localStorage.setItem("token", token);
       localStorage.setItem("role", "user");
       alert("Login successful!");
@@ -59,15 +56,23 @@ export default function LoginSignup() {
       // --- Redirect logic end ---
     } catch (error) {
       console.error("Error logging in:", error);
-  
+
       if (axios.isAxiosError(error) && error.response?.status === 403) {
         alert("Account not verified. Redirecting to verification page.");
         router.push("/user/verify");
-      } else if ( axios.isAxiosError(error) && error.response?.status === 401) {
+      } else if (axios.isAxiosError(error) && error.response?.status === 401) {
         alert("Account not found. Redirecting to signup.");
-        router.push("/user/signup");
+        const redirect = searchParams.get("redirect");
+        if (redirect) {
+          router.push(`/user/signup?redirect=${encodeURIComponent(redirect)}`);
+        } else {
+          router.push("/user/signup");
+        }
       } else {
-        alert( axios.isAxiosError(error) && error.response?.data?.message || "An error occurred. Please try again.");
+        alert(
+          (axios.isAxiosError(error) && error.response?.data?.message) ||
+          "An error occurred. Please try again."
+        );
       }
     }
   };
@@ -113,9 +118,9 @@ export default function LoginSignup() {
             </div>
 
             <button type="submit"
-            disabled={isSubmitting}
-            onClick={handleSubmit(onSubmit)}
-            className="w-full py-2 mt-4 bg-blue-500 text-white font-semibold rounded hover:bg-blue-400 focus:outline-none">
+              disabled={isSubmitting}
+              onClick={handleSubmit(onSubmit)}
+              className="w-full py-2 mt-4 bg-blue-500 text-white font-semibold rounded hover:bg-blue-400 focus:outline-none">
               {isSubmitting ? "Signing in..." : "Sign In"}
             </button>
           </form>
@@ -128,7 +133,16 @@ export default function LoginSignup() {
           </div>
           <div className="text-center mt-2">
             <span className="font-normal">Create an Account &nbsp; </span>
-            <Link href="/user/signup" className="hover:underline font-semibold text-blue-600">Sign  Up</Link>
+            <Link
+              href={
+                searchParams.get("redirect")
+                  ? `/user/signup?redirect=${encodeURIComponent(searchParams.get("redirect")!)}`
+                  : "/user/signup"
+              }
+              className="hover:underline font-semibold text-blue-600"
+            >
+              Sign Up
+            </Link>
           </div>
         </div>
       </div>

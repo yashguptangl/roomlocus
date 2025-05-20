@@ -4,7 +4,7 @@ import { SideDetail } from "../../../components/sidedetails";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import Link from "next/link";
 
@@ -17,7 +17,8 @@ type VerifyFormValues = z.infer<typeof verifySchema>;
 
 export default function Verify() {
     const router = useRouter();
-    const [resendLoading, setResendLoading] = useState(false); // Move useState here
+    const searchParams = useSearchParams();
+    const [resendLoading, setResendLoading] = useState(false);
 
     const {
         register,
@@ -29,13 +30,18 @@ export default function Verify() {
 
     const onSubmit = async (data: VerifyFormValues) => {
         try {
-            console.log("Data being sent to API:", data);
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/verify-otp`, {
                 mobile: data.mobile,
                 otp: data.otp,
             });
-            console.log("Verification successful:", response.data);
-            router.push("/user/signin");
+            // --- Redirect logic start ---
+            const redirect = searchParams.get("redirect");
+            if (redirect) {
+                router.push(`/user/signin?redirect=${encodeURIComponent(redirect)}`);
+            } else {
+                router.push("/user/signin");
+            }
+            // --- Redirect logic end ---
         } catch (error) {
             console.error("Error verifying:", axios.isAxiosError(error) && error.response?.data);
         }
@@ -43,7 +49,7 @@ export default function Verify() {
 
     const handleResendOTP = async (data: VerifyFormValues) => {
         try {
-            setResendLoading(true); // Set loading state
+            setResendLoading(true);
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resend-otp`, {
                 mobile: data.mobile,
             });
@@ -55,7 +61,7 @@ export default function Verify() {
                 alert("Error resending OTP.");
             }
         } finally {
-            setResendLoading(false); // Reset loading state
+            setResendLoading(false);
         }
     };
 
@@ -102,7 +108,11 @@ export default function Verify() {
                                 <p className="font-normal">
                                     Create an Account{" "}
                                     <Link
-                                        href="/user/signup"
+                                        href={
+                                            searchParams.get("redirect")
+                                                ? `/user/signup?redirect=${encodeURIComponent(searchParams.get("redirect")!)}`
+                                                : "/user/signup"
+                                        }
                                         className="text-blue-600 font-semibold ml-1 cursor-pointer hover:underline"
                                     >
                                         Sign Up

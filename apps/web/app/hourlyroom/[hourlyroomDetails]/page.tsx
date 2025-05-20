@@ -8,6 +8,7 @@ import Footer from "../../../components/footer";
 import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 
 interface WishlistItem {
   listingId: number;
@@ -25,6 +26,8 @@ export default function ListingDetail() {
   const router = useRouter();
   const params = useParams();
   const hourlyroomId = params.hourlyroomDetails as string;
+  const { handleSubmit, formState: { isSubmitting } } = useForm();
+
   const [listing, setListing] = useState<ListingData | null>(null);
   const [ownerContact, setOwnerContact] = useState<{ ownerName: string; ownerMobile: string } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -39,7 +42,7 @@ export default function ListingDetail() {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing/hourlyroom/${hourlyroomId}`,
         );
-        setListing(res.data.hourlyroom);
+        setListing(res.data.hourly);
         setImages(res.data.images || []);
       } catch (error) {
         console.error("Error fetching hourly room details:", error);
@@ -191,7 +194,7 @@ export default function ListingDetail() {
           propertyId: listing.id,
           propertyType: listing.Type,
           ownerId: listing.ownerId,
-          address: listing.Adress,
+          address: listing.adress,
         }),
       });
       if (response.status === 401) {
@@ -456,12 +459,16 @@ export default function ListingDetail() {
               </div>
               <div className="pt-4">
                 {!ownerContact ? (
+                 <form onSubmit={handleSubmit(contactOwner)}>  
                   <button
-                    onClick={contactOwner}
+                    type="submit"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(contactOwner)}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
                   >
-                    Contact Owner
+                    {isSubmitting ? "Contacting..." : "Contact Owner"}
                   </button>
+                  </form>
                 ) : (
                   <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
                     <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>

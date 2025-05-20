@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import imageCompression from "browser-image-compression";
+import { useForm } from "react-hook-form";
 
 export default function UploadDocuments() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
   const [ownerId, setOwnerId] = useState<number | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<{ [key: string]: File | null }>({});
+  const {handleSubmit , formState : {isSubmitting}} = useForm();
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
@@ -115,12 +117,17 @@ export default function UploadDocuments() {
         <ImageUpload label="Aadhar Front" onFileChange={(file) => handleFileChange("aadharFront", file)} />
         <ImageUpload label="Aadhar Back" onFileChange={(file) => handleFileChange("aadharBack", file)} />
         <ImageUpload label="Other Id" onFileChange={(file) => handleFileChange("otherId", file)} />
+
+        <form onSubmit={handleSubmit(handleUpload)}>  
         <button
           onClick={handleUpload}
+          type="submit"
+          disabled={isSubmitting}
           className="bg-blue-500 text-white p-2 rounded text-center"
         >
-          Submit
+          {isSubmitting ? "Uploading..." : "Upload"}
         </button>
+
         <button 
           className="bg-gray-600 text-white p-2 rounded text-center ml-10"
           onClick={() => {
@@ -129,6 +136,7 @@ export default function UploadDocuments() {
         >
           Cancel
         </button>
+        </form>
       </div>
     </div>
   );

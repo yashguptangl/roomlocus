@@ -8,6 +8,7 @@ import Footer from "../../../components/footer";
 import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 
 interface WishlistItem {
   listingId: number;
@@ -24,6 +25,7 @@ export default function ListingDetail() {
   const router = useRouter();
   const params = useParams();
   const flatId = params.flatDetails as string; // [flatDetails] is the dynamic route param
+  const { handleSubmit, formState: { isSubmitting } } = useForm();
 
   const [listing, setListing] = useState<ListingData | null>(null);
   const [ownerContact, setOwnerContact] = useState<{ ownerName: string; ownerMobile: string } | null>(null);
@@ -435,12 +437,16 @@ export default function ListingDetail() {
               </div>
               <div className="pt-4">
                 {!ownerContact ? (
-                  <button
-                    onClick={contactOwner}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                  >
-                    Contact Owner
-                  </button>
+                    <form onSubmit={handleSubmit(contactOwner)}>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      onClick={handleSubmit(contactOwner)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    >
+                      {isSubmitting ? "Contacting..." : "Contact Owner"}
+                    </button>
+                    </form>
                 ) : (
                   <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
                     <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>

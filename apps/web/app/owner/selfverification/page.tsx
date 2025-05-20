@@ -15,6 +15,7 @@ interface UploadedFiles {
 
 export default function UploadDocuments() {
   const [ownerId, setOwnerId] = useState<number | null>(null);
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -44,11 +45,12 @@ export default function UploadDocuments() {
 function Content({ ownerId }: { ownerId: number | null }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFiles>({
     selfiewithaadhar: null,
     frontbuildingview: null,
   });
-  const { handleSubmit } = useForm();
+  const { handleSubmit , formState : {isSubmitting} } = useForm();
 
 
   const handleUpload = async () => {
@@ -153,9 +155,11 @@ function Content({ ownerId }: { ownerId: number | null }) {
         <form onSubmit={handleSubmit(handleUpload)}>
           <button
             type="submit"
+            disabled={isSubmitting}
+            onClick={handleUpload}
             className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
           >
-            Upload
+            {isSubmitting ? "Uploading..." : "Upload"}
           </button>
         </form>
       </div>

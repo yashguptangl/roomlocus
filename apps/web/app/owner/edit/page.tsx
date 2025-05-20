@@ -19,7 +19,7 @@ interface FormData {
 function EditFormContent() {
   const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
-  const { register, handleSubmit } = useForm<FormData>();
+  const { register, handleSubmit , formState : {isSubmitting}} = useForm<FormData>();
   const searchParams = useSearchParams();
   
   const listingType = searchParams.get("listingType");
@@ -181,12 +181,16 @@ function EditFormContent() {
                 )}
                 
                 <div className="flex justify-center mt-6">
+                  <form onSubmit={handleSubmit(onSubmit)}>
                     <button
                         type="submit"
+                        disabled={isSubmitting}
+                        onClick={handleSubmit(onSubmit)}
                         className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded"
                     >
-                        Update Listing
+                        {isSubmitting ? "Updating..." : "Update"}
                     </button>
+                    </form>
                 </div>
       </form>
     </div>

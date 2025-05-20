@@ -11,7 +11,7 @@ const SortFilter: React.FC = () => {
   return (
     <div className=" w-full">
       {/* Toggle Button for Small Screens */}
-      <div className="w-full fixed top-14 left-0 bg-gray-200 z-50">
+      <div className="w-full fixed top-14 left-0 bg-gray-200 z-40">
         <p
           onClick={toggleVisibility}
           className="w-full text-black opacity-70 p-2 text-center text-sm font-medium cursor-pointer"

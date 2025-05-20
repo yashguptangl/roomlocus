@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState } from "react";
 import ListingData from "../../../types/listing";
-import { useRouter , useParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import axios from "axios";
 import Navbar from "../../../components/navbar";
 import Footer from "../../../components/footer";
 import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 
 interface WishlistItem {
   listingId: number;
@@ -24,6 +25,7 @@ export default function ListingDetail() {
   const router = useRouter();
   const params = useParams();
   const roomId = params.roomDetails as string;
+  const { handleSubmit , formState : { isSubmitting } } = useForm();
 
   const [listing, setListing] = useState<ListingData | null>(null);
   const [ownerContact, setOwnerContact] = useState<{ ownerName: string; ownerMobile: string } | null>(null);
@@ -32,7 +34,7 @@ export default function ListingDetail() {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [token, setToken] = useState<string | null>(null);
 
- // Fetch Room details from backend
+  // Fetch Room details from backend
   useEffect(() => {
     async function fetchRoom() {
       try {
@@ -149,7 +151,7 @@ export default function ListingDetail() {
     }
   };
 
-    // Check if user has already contacted for this property
+  // Check if user has already contacted for this property
   async function checkContactLog(token: string, userId: number) {
     try {
       const res = await axios.get(
@@ -191,7 +193,7 @@ export default function ListingDetail() {
           propertyId: listing.id,
           propertyType: listing.Type,
           ownerId: listing.ownerId,
-          address: listing.Adress,
+          address: listing.adress,
         }),
       });
       if (response.status === 401) {
@@ -247,8 +249,8 @@ export default function ListingDetail() {
                   <div className="absolute top-2 left-2 z-10">
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-full ${listing.isVerified
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
                         }`}
                     >
                       {listing.isVerified ? "Verified" : "Not Verified"}
@@ -455,14 +457,20 @@ export default function ListingDetail() {
 
 
             </div>
-<div className="pt-4">
+            <div className="pt-4">
               {!ownerContact ? (
-                <button
-                  onClick={contactOwner}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                >
-                  Contact Owner
-                </button>
+                <form onSubmit={handleSubmit(async () => {
+                  await contactOwner();
+                })}>
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    disabled={isSubmitting}
+                    onClick={handleSubmit(contactOwner)}
+                  >
+                    {isSubmitting ? "Contacting..." : "Contact Owner"}
+                  </button>
+                </form>
               ) : (
                 <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
                   <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
