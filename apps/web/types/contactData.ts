@@ -12,4 +12,6 @@ export default interface contactInfo {
     expiryDate: Date;
     propertyType: string;
     isExpired: boolean;
+    userDeleted: boolean;
+    ownerDeleted: boolean;
 }

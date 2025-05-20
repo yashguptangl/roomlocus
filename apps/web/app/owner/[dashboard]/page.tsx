@@ -15,6 +15,7 @@ type Tab = "guide" | "myRental" | "usedLead";
 
 interface UsedLeadsResponse {
   logs: LeadLog[];
+  
 }
 
 export default function Dashboard() {
@@ -29,42 +30,72 @@ export default function Dashboard() {
   const [usedLeads, setUsedLeads] = useState<UsedLeadsResponse>({ logs: [] });
   const [isKycVerified, setIsKycVerified] = useState(true); // Default to true
 
-  useEffect(() => {
+// Move handleDeleteLead outside useEffect so it's accessible in render
+const handleDeleteLead = async (leadId: number) => {
+  try {
     const token = localStorage.getItem("token");
-
-    if (token) {
-      const payloadBase64 = token.split(".")[1];
-      const payload = payloadBase64 ? JSON.parse(atob(payloadBase64)) : null;
-      console.log("Payload:", payload);
-
-      const ownerId = payload?.id;
-
-      async function ownerDeatils() {
-        try {
-          const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/details-owner`,
-            { headers: { token } }
-          );
-          console.log("Owner Details:", response.data);
-          setPoints(response.data.ownerDetails.points);
-          setIsKycVerified(response.data.ownerDetails.isKYCVerified);
-        } catch (err) {
-          console.log("Error fetching owner details:", err);
-        }
+    if (!token) {
+      alert("User not authenticated");
+      return;
+    }
+    const response = await axios.delete(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/recentContacts/delete`,
+      {
+        headers: { token },
+        data: { id: leadId },
       }
+    );
+    if (response.data.success) {
+      setUsedLeads((prev) => ({
+        ...prev,
+        logs: prev.logs.filter((lead) => String(lead.id) !== String(leadId)),
+      }));
+      alert("Lead deleted successfully");
+    } else {
+      alert("Failed to delete lead");
+    }
+  } catch (error) {
+    console.error("Error deleting lead:", error);
+    alert("An error occurred while deleting the lead");
+  }
+};
 
-      async function usedLeadData(token: string, ownerId: string) {
-        try {
-          const leadResponse = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-logs/${ownerId}`,
-            { headers: { token } }
-          );
-          setUsedLeads(leadResponse.data);
-          console.log("Used Leads:", leadResponse.data);
-        } catch (err) {
-          console.error("Error fetching used leads:", err);
-        }
+useEffect(() => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    const payloadBase64 = token.split(".")[1];
+    const payload = payloadBase64 ? JSON.parse(atob(payloadBase64)) : null;
+    console.log("Payload:", payload);
+
+    const ownerId = payload?.id;
+
+    async function ownerDeatils() {
+      try {
+        const response = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/details-owner`,
+          { headers: { token } }
+        );
+        console.log("Owner Details:", response.data);
+        setPoints(response.data.ownerDetails.points);
+        setIsKycVerified(response.data.ownerDetails.isKYCVerified);
+      } catch (err) {
+        console.log("Error fetching owner details:", err);
       }
+    }
+
+    async function usedLeadData(token: string, ownerId: string) {
+      try {
+        const leadResponse = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-logs/${ownerId}`,
+          { headers: { token } }
+        );
+        setUsedLeads(leadResponse.data);
+        console.log("Used Leads:", leadResponse.data);
+      } catch (err) {
+        console.error("Error fetching used leads:", err);
+      }
+    }
 
       async function fetchImagesForListing(type: string, listingId: string) {
         try {
@@ -254,8 +285,8 @@ export default function Dashboard() {
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-          <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50 backdrop-blur-sm ">
+          <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4 ">
             <h2 className="text-xl font-semibold mb-4 text-center">
               Buy Leads
             </h2>
@@ -295,31 +326,28 @@ export default function Dashboard() {
       <div className="flex justify-between border-b border-gray-300 bg-blue-400">
         <button
           onClick={() => setActiveTab("guide")}
-          className={`flex-1 text-center py-2 font-semibold ${
-            activeTab === "guide"
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
               ? "text-blue-500 border-b-3 border-blue-500"
               : "text-white"
-          }`}
+            }`}
         >
           Guide
         </button>
         <button
           onClick={() => setActiveTab("myRental")}
-          className={`flex-1 text-center py-2 font-semibold ${
-            activeTab === "myRental"
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "myRental"
               ? "text-blue-500 border-b-3 border-blue-500"
               : "text-white"
-          }`}
+            }`}
         >
           My Rentals
         </button>
         <button
           onClick={() => setActiveTab("usedLead")}
-          className={`flex-1 text-center py-2 font-semibold ${
-            activeTab === "usedLead"
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "usedLead"
               ? "text-blue-500 border-b-2 border-blue-500"
               : "text-white"
-          }`}
+            }`}
         >
           Used Lead
         </button>
@@ -351,21 +379,21 @@ export default function Dashboard() {
                     <button
                       className="absolute top-3 right-3 z-10 bg-white/80 p-2 rounded-full shadow hover:bg-white"
                       onClick={async (e) => {
-                      e.stopPropagation();
-                      const shareUrl = `${window.location.origin}/${listing.type}/${listing.id}`;
-                      if (navigator.share) {
-                        try {
-                        await navigator.share({
-                          title: "Check out this rental listing",
-                          url: shareUrl,
-                        });
-                        } catch (err) {
-                           alert("Failed to share the link.");
+                        e.stopPropagation();
+                        const shareUrl = `${window.location.origin}/${listing.type}/${listing.id}`;
+                        if (navigator.share) {
+                          try {
+                            await navigator.share({
+                              title: "Check out this rental listing",
+                              url: shareUrl,
+                            });
+                          } catch (err) {
+                            alert("Failed to share the link.");
+                          }
+                        } else {
+                          await navigator.clipboard.writeText(shareUrl);
+                          alert("Link copied to clipboard!");
                         }
-                      } else {
-                        await navigator.clipboard.writeText(shareUrl);
-                        alert("Link copied to clipboard!");
-                      }
                       }}
                     >
                       <FaShareAlt className="text-gray-700 text-lg" />
@@ -396,9 +424,8 @@ export default function Dashboard() {
                         )
                       }
                       id={`publish-${listing.id}`}
-                      className={`px-1 py-0.5 rounded-lg text-white text-xs w-8 ${
-                        listing.isVisible ? "bg-green-500" : "bg-red-500"
-                      }`}
+                      className={`px-1 py-0.5 rounded-lg text-white text-xs w-8 ${listing.isVisible ? "bg-green-500" : "bg-red-500"
+                        }`}
                     >
                       {listing.isVisible ? "on" : "off"}
                     </button>
@@ -426,11 +453,10 @@ export default function Dashboard() {
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button
-                                      className={`${
-                                        active
+                                      className={`${active
                                           ? "bg-blue-500 text-white"
                                           : "text-gray-900"
-                                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                       onClick={() => {
                                         router.push(
                                           `/owner/${listing.type}/images`
@@ -448,11 +474,10 @@ export default function Dashboard() {
                                 <Menu.Item>
                                   {({ active }) => (
                                     <button
-                                      className={`${
-                                        active
+                                      className={`${active
                                           ? "bg-red-500 text-white"
                                           : "text-gray-900"
-                                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                        } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                       onClick={() =>
                                         handleDeleteListing(
                                           listing.id,
@@ -469,11 +494,10 @@ export default function Dashboard() {
                               <Menu.Item>
                                 {({ active }) => (
                                   <button
-                                    className={`${
-                                      active
+                                    className={`${active
                                         ? "bg-blue-500 text-white"
                                         : "text-gray-900"
-                                    } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
+                                      } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                     onClick={() => {
                                       router.push(
                                         `/owner/edit?listingType=${listing.type}&listingId=${listing.id}`
@@ -509,13 +533,12 @@ export default function Dashboard() {
                     </p>
 
                     <button
-                      className={`mt-1.5 rounded-md text-white text-sm ssm:text-sm ssm:p-2 w-full ${
-                        listing.isDraft
+                      className={`mt-1.5 rounded-md text-white text-sm ssm:text-sm ssm:p-2 w-full ${listing.isDraft
                           ? "bg-blue-600"
                           : listing.isVerified
                             ? "bg-blue-600"
                             : "bg-red-600"
-                      }`}
+                        }`}
                       onClick={() => {
                         if (listing.isDraft) {
                           alert("Please complete your listing first.");
@@ -545,62 +568,66 @@ export default function Dashboard() {
         )}
 
         {activeTab === "usedLead" && (
-          <div className="mt-4 w-full sm:w-2/3 mx-auto">
-            <h2 className="text-base font-medium mb-4 text-center">
-              Customer Visited Your Profile
-            </h2>
+        <div className="mt-4 w-full sm:w-2/3 mx-auto">
+          <h2 className="text-base font-medium mb-4 text-center">
+            Customer Visited Your Profile
+          </h2>
 
-            {/* Contact Log */}
-            {usedLeads.logs.length === 0 ? (
-              <p className="text-center">No leads available</p>
+          {/* Contact Log */}
+          {usedLeads.logs.length === 0 ? (
+            <p className="text-center">No leads available</p>
             ) : (
-              usedLeads.logs.map((lead: LeadLog) => (
-                <div
-                  key={lead.id}
-                  className="bg-white rounded-md shadow-md p-4 mb-4"
-                >
-                  <p className="p-1 text-base flex items-center justify-center">
-                    Address: {lead.adress}
-                  </p>
-                  <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">
-                    <div className="flex items-center gap-20">
-                      <div className="flex item-center gap-4">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-semibold">
-                            Name: {lead.customerName}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            Mob No.: {lead.customerPhone}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            Date:{" "}
-                            {new Date(lead.accessDate).toLocaleDateString(
-                              "en-CA"
-                            )}
-                          </span>
-                        </div>
+            usedLeads.logs
+              .filter((lead: LeadLog) => !lead.ownerDeleted)
+              .map((lead: LeadLog) => (
+              <div
+                key={lead.id}
+                className="bg-white rounded-md shadow-md p-4 mb-4"
+              >
+                <p className="p-1 text-base flex items-center justify-center">
+                Address: {lead.adress}
+                </p>
+                <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">
+                  <div className="flex items-center gap-20">
+                    <div className="flex item-center gap-4">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold">
+                          Name: {lead.customerName}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                          Mob No.: {lead.customerPhone}
+                        </span>
+                        <span className="text-xs text-gray-600">
+                          Date:{" "}
+                          {new Date(lead.accessDate).toLocaleDateString(
+                            "en-CA"
+                          )}
+                        </span>
                       </div>
+                    </div>
 
-                      <div className="flex items-center space-x-2">
-                        <button className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
-                          Call
-                        </button>
-
-                        <Image
-                          src={Delete.src}
-                          alt="Delete"
-                          className="cursor-pointer"
-                          height={30}
-                          width={30}
-                        />
-                      </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => (window.location.href = `tel:${lead.customerPhone}`)}
+                        className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                        Call
+                      </button>
+                      <Image
+                        src={Delete.src}
+                        alt="Delete"
+                        className="cursor-pointer"
+                        height={30}
+                        width={30}
+                        onClick={() => handleDeleteLead(lead.id)}
+                      />
                     </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
-        )}
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
         {/* Rental List Modal */}
         {isRentalListOpen && (

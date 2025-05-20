@@ -74,7 +74,6 @@ agentProfileRouter.post("/upload-agent-doc",  authenticate, async (req: Request,
   }
 });
 
-
 agentProfileRouter.get("/progress/:id", authenticate, async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -93,7 +92,6 @@ agentProfileRouter.get("/progress/:id", authenticate, async (req: Request, res: 
     res.status(500).json({ error: 'Failed to retrieve progress' });
   }
 });
-
 
 agentProfileRouter.get("/agent/:agentId", authenticate, async (req: Request, res: Response) => {
   try {

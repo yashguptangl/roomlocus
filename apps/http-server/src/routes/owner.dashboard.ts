@@ -382,4 +382,29 @@ ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRe
     }
 });
 
+ownerDashboard.delete("/recentContacts/delete", authenticate, async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const { id } = req.body;
+
+        const contactLog = await prisma.contactLog.findUnique({
+            where: { id: Number(id) }
+        });
+
+        if (!contactLog) {
+            res.status(404).json({ success: false, message: "Contact log not found" });
+            return;
+        }
+
+        await prisma.contactLog.update({
+            where: { id: Number(id) },
+            data: { ownerDeleted: true }
+        });
+
+        res.status(200).json({ success: true, message: "Contact log deleted" });
+    } catch (error) {
+        console.error("Error deleting contact log:", error);
+        res.status(500).json({ success: false, message: "Error deleting contact log", error });
+    }
+})
+
 export { ownerDashboard };

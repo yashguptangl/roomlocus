@@ -257,6 +257,8 @@ model ContactLog {
     expiryDate    DateTime 
     propertyType  String
     isExpired     Boolean  @default(false) // Automatically expires after 30 days
+    userDeleted   Boolean  @default(false) // User can delete the log
+    ownerDeleted  Boolean  @default(false) // Owner can delete the log
 }
 
 model VerificationRequest {

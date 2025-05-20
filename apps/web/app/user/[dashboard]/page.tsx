@@ -1,11 +1,10 @@
-// UserDashboard.tsx
 "use client";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import DefaultPropertyImage from "../../../assets/bedroom.jpg";
-
+import Delete from "../../../assets/delete.png";
 
 type Tab = "wishlist" | "recentContacts";
 
@@ -21,8 +20,7 @@ interface WishlistItem {
     minprice?: number;
     maxprice?: number;
     imageUrl: string | null;
-    [key: string]: any; // Adjust this type as per your listing structure
-
+    [key: string]: any;
   };
 }
 
@@ -34,7 +32,8 @@ interface RecentContact {
   accessDate: string;
   propertyType: string;
   propertyId: string;
-  isOwner?: boolean; // Added to distinguish owner/user contacts
+  isOwner?: boolean;
+  userDeleted?: boolean;
 }
 
 export default function UserDashboard() {
@@ -43,37 +42,52 @@ export default function UserDashboard() {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [recentContacts, setRecentContacts] = useState<RecentContact[]>([]);
   const [loading, setLoading] = useState(true);
- 
+
+  const handleDeleteContact = async (id: string) => {
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/recentContacts/delete`,
+        {
+          headers: {
+            token: localStorage.getItem("token"),
+          },
+          data: { id },
+        }
+      );
+      setRecentContacts((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      alert("Failed to delete contact. Please try again.");
+    }
+  };
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      
-      
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/dashboard`,
         {
           headers: {
-            token: localStorage.getItem("token")  
-          }
+            token: localStorage.getItem("token"),
+          },
         }
       );
 
       if (response.data.success) {
         setWishlist(response.data.data.wishlist);
-        // Enhance contacts with isOwner flag
-        const enhancedContacts = response.data.data.recentContacts.map((contact: { customerName: string; }) => ({
-          ...contact,
-          isOwner: contact.customerName !== "You" // Simple way to distinguish
-        }));
+        const enhancedContacts = response.data.data.recentContacts.map(
+          (contact: any) => ({
+            ...contact,
+            isOwner: contact.customerName !== "You",
+          })
+        );
         setRecentContacts(enhancedContacts);
       } else {
-        console.log("Failed to fetch dashboard data:", response.data.message);
         setWishlist([]);
         setRecentContacts([]);
       }
     } catch (err) {
-      console.log("Dashboard error:", err);
-     
+      setWishlist([]);
+      setRecentContacts([]);
     } finally {
       setLoading(false);
     }
@@ -87,22 +101,19 @@ export default function UserDashboard() {
     router.push(`/${type.toLowerCase()}/${id}`);
   };
 
-
   const handleRemoveFromWishlist = async (id: string, type: string) => {
     try {
       await axios.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist/delete`,
         {
           headers: {
-            token   : localStorage.getItem("token")
+            token: localStorage.getItem("token"),
           },
-          data: { type , id }
+          data: { type, id },
         }
       );
-      // Update UI immediately
-      setWishlist(wishlist.filter(item => item.id !== id));
+      setWishlist((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
-      console.error("Error removing from wishlist:", err);
       alert("Failed to remove from wishlist. Please try again.");
     }
   };
@@ -115,10 +126,10 @@ export default function UserDashboard() {
     );
   }
 
-   return (
+  return (
     <div className="container mx-auto px-1 py-4">
       <h1 className="text-lg text-center font-medium">My Dashboard</h1>
-      
+
       {/* Tab Navigation */}
       <div className="flex border-b border-gray-200 mb-6">
         <button
@@ -139,7 +150,7 @@ export default function UserDashboard() {
               : "text-gray-500 hover:text-gray-700"
           }`}
         >
-          Recent Contacts ({recentContacts.length})
+          Recent Contacts ({recentContacts.filter((contact) => !contact.userDeleted).length})
         </button>
       </div>
 
@@ -149,7 +160,6 @@ export default function UserDashboard() {
           {wishlist.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <p className="text-gray-500 text-lg">Your wishlist is empty</p>
-            
             </div>
           ) : (
             wishlist.map((item) => (
@@ -157,7 +167,7 @@ export default function UserDashboard() {
                 key={`${item.type}-${item.id}`}
                 className="bg-white flex flex-col w-72 rounded-md shadow-md overflow-hidden mb-4 p-2"
               >
-                <div 
+                <div
                   className="relative mod:w-72 mod:h-36 ssm:h-36 ssm:w-72 md:h-40 md:w-72 w-full sm:w-44 h-40"
                   onClick={() => handleViewProperty(item.id, item.type)}
                 >
@@ -168,29 +178,33 @@ export default function UserDashboard() {
                     className="object-cover"
                     priority
                   />
-                  <button 
-                    className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-red-100 transition-colors"
+                  <button
+                    className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-red-100 transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleRemoveFromWishlist(item.id, item.type);
                     }}
                     aria-label="Remove from wishlist"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
+                    <Image
+                      src={Delete}
+                      alt="Delete"
+                      width={80}
+                      height={80}
+                      className="h-6 w-6 text-red-500"
+                    />
                   </button>
                 </div>
-                <div className=" px-3 py-1">
-                <p className="ssm:text-base md:text-base ">
-                     {item.listing.location} {item.listing.townSector} {item.listing.city}
-                    </p>
+                <div className="px-3 py-1">
+                  <p className="ssm:text-base md:text-base ">
+                    {item.listing.location} {item.listing.townSector} {item.listing.city}
+                  </p>
                   <div className="text-xl font-medium ssm:text-xs mod:text-base">
-                  <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
-                      {item.listing.BHK} BHK  {item.listing.type} | Security {item.listing.security}{" "}
+                    <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
+                      {item.listing.BHK} BHK {item.listing.type} | Security {item.listing.security}{" "}
                     </h2>
                     <p className="text-green-600 text-center font-medium text-base">
-                     ₹ {item.listing.MinPrice} - {item.listing.MaxPrice}
+                      ₹ {item.listing.MinPrice} - {item.listing.MaxPrice}
                     </p>
                     <p className="text-sm text-gray-700 capitalize">
                       Type: {item.type}
@@ -214,39 +228,52 @@ export default function UserDashboard() {
               <p className="text-gray-500 text-lg">No recent contacts</p>
             </div>
           ) : (
-            recentContacts.map((contact) => (
-              <div
-                key={contact.id}
-                className="bg-white rounded-md shadow-md p-2 mb-1"
-              >
-                <p className="p-2 text-base flex items-center justify-center ">
-                    Address: {contact.adress} 
-                </p>
-                <div className="flex flex-col items-center gap-6 p-1 border-b border-gray-300">
+            recentContacts
+              .filter((contact) => !contact.userDeleted)
+              .map((contact) => (
+                <div key={contact.id} className="bg-white rounded-md shadow-md p-2 mb-1">
+                  <p className="p-2 text-base flex items-center justify-center ">
+                    Address: {contact.adress}
+                  </p>
+                  <div className="flex flex-col items-center gap-6 p-1 border-b border-gray-300">
                     <div className="flex items-center gap-20">
                       <div className="flex item-center gap-4">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold">Name: {contact.ownerName}</span>
-                        <span className="text-xs text-gray-600">Mob No.: {contact.ownerPhone}</span>
-                        <span className="text-xs text-gray-600">Date: {new Date(contact.accessDate).toLocaleDateString('en-CA')}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm font-semibold">
+                            Name: {contact.ownerName}
+                          </span>
+                          <span className="text-xs text-gray-600">
+                            Mob No.: {contact.ownerPhone}
+                          </span>
+                          <span className="text-xs text-gray-600">
+                            Date:{" "}
+                            {new Date(contact.accessDate).toLocaleDateString("en-CA")}
+                          </span>
+                        </div>
                       </div>
-                      </div>
-                     
                       <div className="flex items-center space-x-2">
-                        <button 
-                        onClick={() => (window.location.href = `tel:${contact.ownerPhone}`)}
-                        className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                        <a
+                          href={`tel:${contact.ownerPhone}`}
+                          className="bg-green-500 text-white px-3 py-1 rounded-full text-sm"
+                        >
                           Call
-                        </button>
-                      
+                        </a>
+                        <Image
+                          src={Delete}
+                          alt="Delete"
+                          width={80}
+                          height={80}
+                          className="h-7 w-7 text-red-500 cursor-pointer"
+                          onClick={() => handleDeleteContact(contact.id)}
+                        />
                       </div>
                     </div>
-              </div>        
+                  </div>
+                </div>
+              ))
+          )}
         </div>
-      )
-          ))}
-        </div>
-      )}  
+      )}
     </div>
   );
-};
+}

@@ -8,9 +8,11 @@ export interface Lead {
   }
   
   export interface LeadLog {
-    id: string;
+    id: number;
     adress: string;
     customerName: string;
     customerPhone: string;
     accessDate: string;
+    ownerDeleted: boolean;
+    userDeleted: boolean;
   }

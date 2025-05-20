@@ -36,6 +36,19 @@ export default function Dashboard() {
   >([]);
   const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest"); // Sorting state
 
+  // Pagination state for Verified tab
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(verifiedRequests.length / itemsPerPage);
+  const paginatedVerifiedRequests = verifiedRequests.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page on sort or data change
+  }, [sortOrder, verifiedRequests.length]);
+
   useEffect(() => {
     const storedToken = localStorage.getItem("token") || "";
     setToken(storedToken);
@@ -49,6 +62,7 @@ export default function Dashboard() {
         if (payload && payload.agentId) {
           setDecodedToken({ agentId: payload.agentId });
           localStorage.setItem("agentId", payload.agentId);
+
         } else {
           console.log("Invalid token payload");
           router.push("/agent/signin");
@@ -59,13 +73,14 @@ export default function Dashboard() {
       }
     } 
   }, [token, router]);
+  
 
   useEffect(() => {
     if (decodedToken) {
       const getProgress = async () => {
         try {
           const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/progress/${decodedToken.agentId}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/progress/${decodedToken.agentId}`,
             {
               method: "GET",
               headers: {
@@ -81,8 +96,6 @@ export default function Dashboard() {
           }
 
           const result = await response.json();
-          console.log("Progress:", result);
-
           if (!result.progress) {
             router.push("/agent/personalDetail");
             return;
@@ -104,7 +117,7 @@ export default function Dashboard() {
           }
 
           const agentData = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent/${decodedToken.agentId}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent/${decodedToken.agentId}`,
             {
               headers: {
                 token: token,
@@ -112,8 +125,7 @@ export default function Dashboard() {
               },
             }
           );
-          setAgentData(agentData.data.agent[0]);
-          console.log("Agent Data:", agentData.data.agent[0]);
+          setAgentData(agentData.data.agent);
         } catch (error) {
           console.error("Error retrieving progress:", error);
         }
@@ -127,7 +139,7 @@ export default function Dashboard() {
       if (decodedToken) {
         try {
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-requests/${decodedToken.agentId}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-requests/${decodedToken.agentId}`,
             {
               headers: {
                 token: token,
@@ -135,8 +147,6 @@ export default function Dashboard() {
             }
           );
           const data = response.data;
-          console.log("Incoming Requests:", data.requests);
-          console.log("Owner Data:", data.owner);
           setRequests(data.requests);
           setOwnerData(data.owner);
         } catch (error) {
@@ -155,7 +165,7 @@ export default function Dashboard() {
       if (decodedToken) {
         try {
           const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-verified-properties/${decodedToken.agentId}?sort=${sortOrder}`, // Corrected BACKEND_URL
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-verified-properties/${decodedToken.agentId}?sort=${sortOrder}`,
             {
               headers: {
                 token: token,
@@ -163,7 +173,6 @@ export default function Dashboard() {
             }
           );
           const data = response.data;
-          console.log("Verified Requests:", data);
           setVerifiedRequests(data);
         } catch (error) {
           console.error("Error fetching verified requests:", error);
@@ -297,15 +306,13 @@ export default function Dashboard() {
                 ))}
               </div>
             )}
-
-
           </div>
         )}
 
         {activeTab === "Verified" && (
           <div className="mt-6 w-full max-w-2xl mx-auto">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-800">
+              <h2 className="text-base font-semibold text-gray-800">
                 Verified Properties ({verifiedRequests.length})
               </h2>
               <select
@@ -323,40 +330,60 @@ export default function Dashboard() {
                 <p className="text-gray-500">No verified properties found</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {verifiedRequests.map((request) => (
-                  <div
-                    key={request.id}
-                    className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium capitalize">
-                          {request.listingType}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Address: {request.adress || "N/A"}
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1">
-                          Mobile: {request.mobile || "N/A"}
-                        </p>
+              <>
+                <div className="space-y-3">
+                  {paginatedVerifiedRequests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium capitalize">
+                            {request.listingType}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Address: {request.adress || "N/A"}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Mobile: {request.mobile || "N/A"}
+                          </p>
+                        </div>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ${
+                            request.status === "DONE"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-300 text-gray-800"
+                          }`}
+                        >
+                          {request.status}
+                        </span>
                       </div>
-                      <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          request.status === "DONE"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-300 text-gray-800"
-                        }`}
-                      >
-                        {request.status}
-                      </span>
+                      <p className="text-sm text-gray-600 mt-2">
+                        Verified On: {new Date(request.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
-                    <p className="text-sm text-gray-600 mt-2">
-                      Verified On: {new Date(request.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+                {/* Pagination Controls */}
+                <div className="flex justify-center mt-4 gap-2">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    className="px-3 py-1 rounded bg-blue-500 text-white disabled:bg-gray-300"
+                  >
+                    Prev
+                  </button>
+                  <span className="px-2 py-1">{currentPage} / {totalPages}</span>
+                  <button
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="px-3 py-1 rounded bg-blue-500 text-white disabled:bg-gray-300"
+                  >
+                    Next
+                  </button>
+                </div>
+              </>
             )}
           </div>
         )}
