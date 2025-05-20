@@ -52,7 +52,9 @@ export default function UploadDocuments() {
       const uploadPromises = Object.keys(presignedUrls).map(async (category) => {
         const file = uploadedFiles[category];
         if (file) {
-          await axios.put(presignedUrls[category], file, {
+          await axios.put(presignedUrls[category], {
+            method : "PUT",
+            body: file,
             headers: {
               "Content-Type": file.type,
             },
