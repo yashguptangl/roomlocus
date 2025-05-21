@@ -10,6 +10,7 @@ import cors from 'cors';
 import "./cronJob";
 import userDashboard from "./routes/user.dashboard";
 import selfVerification from "./routes/selfVerification";
+import nearmeRouter from "./routes/nearme";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/v1/agent" , agentRouter);
 app.use("/api/v1/agent", agentProfileRouter);
 app.use("/api/v1/agent" , verificationRequestRouteByAgent);
 app.use("/api/v1/owner/self", selfVerification)
+app.use("/api/v1/listing", nearmeRouter);
 
 app.get("/api/health",(req,res) => {
     res.send("Hello World");

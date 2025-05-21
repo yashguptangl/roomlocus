@@ -18,6 +18,28 @@ export default function FlatListingForm() {
   const [selectedTown, setSelectedTown] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+          setLocationError(null);
+        },
+        (error) => {
+          setLocationError("Please allow location access to submit the form.");
+          setLatitude(null);
+          setLongitude(null);
+        }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by your browser.");
+    }
+  }, []);
 
   const handleTownChange = (town: React.SetStateAction<string>) => {
     setSelectedTown(town);
@@ -35,12 +57,18 @@ export default function FlatListingForm() {
   }, []);
 
   const onSubmit = async (data: FormData) => {
+    if (latitude === null || longitude === null) {
+      setLocationError("Please allow location access to submit the form.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const formData = {
         ...data,
         city: selectedCity,
         townSector: selectedTown,
+        latitude,
+        longitude,
       };
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/flat`,
@@ -243,23 +271,26 @@ export default function FlatListingForm() {
             {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
           </div>
         ))}
+        {locationError && (
+          <div className="text-red-500 text-sm mb-2">{locationError}</div>
+        )}
 
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
-            <button
-            disabled={isSubmitting}
+          <button
+            disabled={isSubmitting || latitude === null || longitude === null}
             type="submit"
             className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded"
             onClick={handleSubmit(onSubmit)}
-            >
+          >
             {isSubmitting ? "Next..." : "Next"}
-            </button>
-            <button
+          </button>
+          <button
             onClick={() => router.push("/owner/dashboard")}
             className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
-            >
+          >
             Cancel
-            </button>
+          </button>
         </div>
       </form>
     </div>

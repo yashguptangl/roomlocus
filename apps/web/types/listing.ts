@@ -1,5 +1,6 @@
 
 export interface ListingData {
+  
     contactInfo: any;
     ownerId: number;
     id : number;
@@ -13,6 +14,7 @@ export interface ListingData {
     security: string;
     PGType: string;
     totalPG: string;
+    image : string;
     bedCount : number;
     foodAvailable : boolean;
     maintenance: string;

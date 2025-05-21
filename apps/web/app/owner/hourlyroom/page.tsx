@@ -17,6 +17,28 @@ export default function RoomDayNightForm() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedTown, setSelectedTown] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+          setLocationError(null);
+        },
+        (error) => {
+          setLocationError("Please allow location access to submit the form.");
+          setLatitude(null);
+          setLongitude(null);
+        }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by your browser.");
+    }
+  }, []);
 
 
   const handleTownChange = (town: React.SetStateAction<string>) => {
@@ -36,7 +58,11 @@ export default function RoomDayNightForm() {
   }, []);
 
 
-  const onSubmit = async (data: FormData) : Promise<void> => {
+  const onSubmit = async (data: FormData): Promise<void> => {
+    if (latitude === null || longitude === null) {
+      setLocationError("Please allow location access to submit the form.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const formData = {
@@ -103,9 +129,9 @@ export default function RoomDayNightForm() {
           {[
             { label: "Location", name: "location", type: "text" },
             { label: "Landmark", name: "landmark", type: "text" },
-            { label: "Bedcount" , name: "bedcount", type: "number" },
+            { label: "Bedcount", name: "bedcount", type: "number" },
             { label: "No of Guest Allowed", name: "noofGuests", type: "number" },
-            { label: "Total Floor" , name: "totalFloor", type: "text" },
+            { label: "Total Floor", name: "totalFloor", type: "text" },
             { label: "Minimum Price", name: "minprice", type: "text" },
             { label: "Maximum Price", name: "maxprice", type: "text" },
             { label: "Palace Name", name: "palaceName", type: "text" },
@@ -131,7 +157,7 @@ export default function RoomDayNightForm() {
               {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
             </div>
           ))}
-           
+
 
           {/* Full Address Textarea */}
           <div className="flex items-center gap-4">
@@ -165,8 +191,8 @@ export default function RoomDayNightForm() {
             title: "Gender Preferences",
             options: ["Male", "Female", "Both M & F"],
             name: "genderPrefer",
-          },{
-            title : "Food Availability",
+          }, {
+            title: "Food Availability",
             options: ["Yes", "No"],
             name: "foodAvailable",
           },
@@ -176,7 +202,7 @@ export default function RoomDayNightForm() {
             name: "roomType",
           },
           {
-            title : "Room Type",
+            title: "Room Type",
             options: ["AC", "Non AC"],
             name: "acType",
           }
@@ -252,18 +278,24 @@ export default function RoomDayNightForm() {
         ))}
 
 
+        {locationError && (
+          <div className="text-red-500 text-sm mb-2">{locationError}</div>
+        )}
+
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
-            <button
-            disabled={isSubmitting}
-            type="submit"
-            onClick={handleSubmit(onSubmit)}
-            className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded">
-            {isSubmitting ? "Next..." : "Next"}
-            </button>
           <button
-          onClick={() => router.push("/owner/dashboard")}
-          className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+            disabled={isSubmitting || latitude === null || longitude === null}
+            type="submit"
+            className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded"
+            onClick={handleSubmit(onSubmit)}
+          >
+            {isSubmitting ? "Next..." : "Next"}
+          </button>
+          <button
+            onClick={() => router.push("/owner/dashboard")}
+            className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+          >
             Cancel
           </button>
         </div>

@@ -18,6 +18,28 @@ export default function PGListingForm() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedTown, setSelectedTown] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+          setLocationError(null);
+        },
+        (error) => {
+          setLocationError("Please allow location access to submit the form.");
+          setLatitude(null);
+          setLongitude(null);
+        }
+      );
+    } else {
+      setLocationError("Geolocation is not supported by your browser.");
+    }
+  }, []);
 
 
   const handleTownChange = (town: React.SetStateAction<string>) => {
@@ -37,7 +59,11 @@ export default function PGListingForm() {
   }, []);
 
 
-  const onSubmit = async (data: FormData) : Promise<void> => {
+  const onSubmit = async (data: FormData): Promise<void> => {
+    if (latitude === null || longitude === null) {
+      setLocationError("Please allow location access to submit the form.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       const formData = {
@@ -104,7 +130,7 @@ export default function PGListingForm() {
           {[
             { label: "Location", name: "location", type: "text" },
             { label: "Landmark", name: "landmark", type: "text" },
-            { label: "BHK" , name: "Bhk", type: "text" },
+            { label: "BHK", name: "Bhk", type: "text" },
             { label: "Maximum Price", name: "maxprice", type: "text" },
             { label: "Minimum Price", name: "minprice", type: "text" },
             { label: "Total Floor", name: "totalFloor", type: "text" },
@@ -136,7 +162,7 @@ export default function PGListingForm() {
               {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
             </div>
           ))}
-           <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4">
             <label htmlFor="description" className="text-sm w-1/3 sm:text-xl">Care Taker if any</label>
             <input
               id="description"
@@ -146,7 +172,7 @@ export default function PGListingForm() {
               placeholder="Care Taker Name"
             />
             {errors.careTaker && <span className="text-red-500 text-sm">{String(errors.careTaker?.message)}</span>}
-           </div>
+          </div>
 
           {/* Full Address Textarea */}
           <div className="flex items-center gap-4">
@@ -190,11 +216,11 @@ export default function PGListingForm() {
           {
             title: "Time Restrictions",
             options: ["Yes", "No"],
-            name : "timeRestriction",
-          },{
+            name: "timeRestriction",
+          }, {
             title: "Food Available",
             options: ["Yes", "No"],
-            name : "foodAvailable",
+            name: "foodAvailable",
           }
         ].map(({ title, options, name }) => (
           <div key={name} className="mt-4">
@@ -234,7 +260,7 @@ export default function PGListingForm() {
           {
             title: "PG Inside Facility",
             name: "insideFacilities",
-            options: ["Fan", "TV", "AC", "Table", "Chair","Wi-Fi"],
+            options: ["Fan", "TV", "AC", "Table", "Chair", "Wi-Fi"],
             isMultiple: true,
           },
           {
@@ -268,18 +294,24 @@ export default function PGListingForm() {
         ))}
 
 
+        {locationError && (
+          <div className="text-red-500 text-sm mb-2">{locationError}</div>
+        )}
+
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
-            <button
-            disabled={isSubmitting}
-            type="button"
+          <button
+            disabled={isSubmitting || latitude === null || longitude === null}
+            type="submit"
+            className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded"
             onClick={handleSubmit(onSubmit)}
-            className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded">
+          >
             {isSubmitting ? "Next..." : "Next"}
-            </button>
-          <button 
-          onClick={() => router.push("/owner/dashboard")}
-          className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded">
+          </button>
+          <button
+            onClick={() => router.push("/owner/dashboard")}
+            className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
+          >
             Cancel
           </button>
         </div>
