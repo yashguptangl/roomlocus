@@ -7,7 +7,7 @@ import ListingData from "../../types/listing";
 import Image from "next/image";
 import Link from "next/link";
 
-function Listing() {
+function ListingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const lookingFor = searchParams.get("look") || "";
@@ -136,4 +136,10 @@ function Listing() {
   );
 }
 
-export default Listing;
+export default function Listing() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ListingContent />
+    </Suspense>
+  );
+}
