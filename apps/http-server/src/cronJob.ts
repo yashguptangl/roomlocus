@@ -92,4 +92,26 @@ cron.schedule("0 * * * *", async () => {
     }
 }
 );
+
+
+cron.schedule("0 * * * *", async () => {
+    try {
+        const now = new Date();
+        const oneYearAgo = new Date(now);
+        oneYearAgo.setFullYear(now.getFullYear() - 1);
+
+        // Purane VerificationRequest delete karo
+        const deletedVerificationRequests = await prisma.verificationRequest.deleteMany({
+            where: {
+                createdAt: { lte: oneYearAgo }
+            }
+        });
+
+        console.log(`🗑 Deleted ${deletedVerificationRequests.count} expired verification requests.`);
+        // ...baaki aapka code...
+    } catch (error) {
+        console.error("❌ Error deleting expired verification requests:", error);
+    }
+});
+
 console.log("⏳ Cron job started: Checking for expired contact logs every hour...");

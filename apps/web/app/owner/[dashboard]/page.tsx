@@ -124,6 +124,7 @@ useEffect(() => {
               ...item,
               type: "flat",
               listingId: item.id,
+              adress : item.adress || item.Adress || item.adress || "",
             })) || [];
 
           const pgListings =
@@ -131,6 +132,7 @@ useEffect(() => {
               ...item,
               type: "pg",
               listingId: item.id,
+              adress : item.adress || item.Adress || item.adress || "",
             })) || [];
 
           const roomListings =
@@ -138,6 +140,7 @@ useEffect(() => {
               ...item,
               type: "room",
               listingId: item.id,
+              adress : item.adress || item.Adress || item.adress || "",
             })) || [];
 
           const hourlyroomListings =
@@ -145,6 +148,7 @@ useEffect(() => {
               ...item,
               type: "hourlyroom",
               listingId: item.id,
+              adress : item.adress || item.Adress || item.adress || "",
             })) || [];
           console.log("Hourly Room Listings:", hourlyroomListings);
 
@@ -546,7 +550,7 @@ useEffect(() => {
                           localStorage.setItem(`${listing.type}Id`, listing.id);
                         } else if (isKycVerified) {
                           router.push(
-                            `/owner/verification?listingId=${listing.id}&listingType=${listing.type}&listingShowNo=${listing.listingShowNo}`
+                            `/owner/verification?listingId=${listing.id}&listingType=${listing.type}&listingShowNo=${listing.listingShowNo}&adress=${listing.adress}`
                           ); // Redirect to Verification page
                         } else {
                           alert("Please complete your KYC first."); // Optional alert for better UX
@@ -631,7 +635,7 @@ useEffect(() => {
 
         {/* Rental List Modal */}
         {isRentalListOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
             <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
               <h2 className="text-xl font-semibold mb-4 text-center">
                 Add Rental

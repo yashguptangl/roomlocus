@@ -153,9 +153,11 @@ export default function PersonalDetails() {
             className="w-full border p-3 rounded-lg focus:ring-1 focus:ring-blue-400 focus:outline-none border-gray-500"
           >
             <option value="">Select Qualification</option>
+            <option value="8th Pass">Below 8th Pass</option>
             <option value="10th Pass">10th Pass</option>
             <option value="12th Pass">12th Pass</option>
             <option value="Graduation">Graduation</option>
+            
           </select>
           {errors.qualification && (
             <p className="text-red-500 text-sm">

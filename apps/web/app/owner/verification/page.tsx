@@ -116,7 +116,7 @@ function Content({
             : 'Agent verification updated successfully';
           alert(message);
           if (selectedOption === 'self') {
-            router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}`);
+            router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&adress=${adress}`);
           } else {
             router.push('/owner/dashboard');
           }
@@ -132,7 +132,7 @@ function Content({
     } else {
       // Create new verification request
       if (selectedOption === 'self') {
-        router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}`);
+        router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&adress=${adress}`);
       } else if (selectedOption === 'agent' && agentId) {
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/verification-request`, {

@@ -52,6 +52,7 @@ export interface ListingData {
 
 
 export interface ListingItem {
+    Adress : string;
     isDraft: boolean;
     id: string;
     uniq: string;

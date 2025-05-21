@@ -6,12 +6,12 @@ import { putObject } from '../utils/s3client';
 
 selfVerification.post("/verification-request", authenticate, async (req: AuthenticatedRequest, res) => {
     try {
-        const { listingId, listingType, listingShowNo } = req.body;
+        const { listingId, listingType, listingShowNo , adress} = req.body;
         const ownerId = req.user?.id;
 
         // Validate required fields
-        if (!listingId || !listingType || !listingShowNo) {
-            res.status(400).json({ error: 'Missing required fields: listingId, listingType, listingShowNo' });
+        if (!listingId || !listingType || !listingShowNo || !adress) {
+            res.status(400).json({ error: 'Missing required fields: listingId, listingType, listingShowNo, adress' });
             return;
         }
 
@@ -22,6 +22,7 @@ selfVerification.post("/verification-request", authenticate, async (req: Authent
                 listingType,
                 ownerId,
                 listingShowNo,
+                adress,
                 verificationType: 'SELF',
                 status: 'PENDING',
                 imagesUploaded: false

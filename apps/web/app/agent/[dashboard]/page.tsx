@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { FaShareAlt } from "react-icons/fa";
 
 type Tab = "guide" | "incoming_request" | "Verified";
 interface DecodedToken {
@@ -22,6 +23,7 @@ export default function Dashboard() {
       adress: string;
       status: string;
       listingShowNo: string;
+      listingId: number;
     }[]
   >([]);
   const [verifiedRequests, setVerifiedRequests] = useState<
@@ -29,8 +31,9 @@ export default function Dashboard() {
       id: number;
       listingType: string;
       adress: string;
-      mobile: string;
+      listingShowNo: string;
       status: string;
+      listingId: number;
       createdAt: string;
     }[]
   >([]);
@@ -71,9 +74,9 @@ export default function Dashboard() {
         console.log("Error decoding token:", err);
         router.push("/agent/signin");
       }
-    } 
+    }
   }, [token, router]);
-  
+
 
   useEffect(() => {
     if (decodedToken) {
@@ -148,7 +151,7 @@ export default function Dashboard() {
           );
           const data = response.data;
           setRequests(data.requests);
-          setOwnerData(data.owner);
+          setOwnerData(data.owner[0]);
         } catch (error) {
           console.error("Error fetching requests:", error);
         }
@@ -199,33 +202,30 @@ export default function Dashboard() {
       <div className="flex justify-between border-b border-gray-300 bg-blue-400">
         <button
           onClick={() => setActiveTab("guide")}
-          className={`flex-1 text-center py-2 font-semibold ${
-            activeTab === "guide"
-              ? "text-blue-500 border-b-3 border-blue-500"
-              : "text-white"
-          }`}
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
+            ? "text-blue-500 border-b-3 border-blue-500"
+            : "text-white"
+            }`}
         >
           Guide
         </button>
         <button
           onClick={() => setActiveTab("incoming_request")}
-          className={`flex-1 text-center py-2 font-semibold ${
-            activeTab === "incoming_request"
-              ? "text-blue-500 border-b-3 border-blue-500"
-              : "text-white"
-          }`}
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "incoming_request"
+            ? "text-blue-500 border-b-3 border-blue-500"
+            : "text-white"
+            }`}
         >
           Request
         </button>
         <button
           onClick={() => setActiveTab("Verified")}
-          className={`flex-1 text-center py-2 font-semibold ${
-            activeTab === "Verified"
-              ? "text-blue-500 border-b-2 border-blue-500"
-              : "text-white"
-          }`}
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "Verified"
+            ? "text-blue-500 border-b-2 border-blue-500"
+            : "text-white"
+            }`}
         >
-          Verified 
+          Verified
         </button>
       </div>
 
@@ -272,17 +272,16 @@ export default function Dashboard() {
                           Address: {request.adress || "N/A"}
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
-                          Owner: {ownerData?.username || "Unknown"} ({ownerData?.mobile || "N/A"})
+                          Owner: {ownerData?.username}
                         </p>
                       </div>
                       <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          request.status === "pending"
-                            ? "bg-blue-100 text-blue-800"
-                            : request.status === "approved"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-300 text-gray-800"
-                        }`}
+                        className={`text-xs px-2 py-1 rounded ${request.status === "pending"
+                          ? "bg-blue-100 text-blue-800"
+                          : request.status === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-300 text-gray-800"
+                          }`}
                       >
                         {request.status}
                       </span>
@@ -332,38 +331,72 @@ export default function Dashboard() {
             ) : (
               <>
                 <div className="space-y-3">
-                  {paginatedVerifiedRequests.map((request) => (
-                    <div
-                      key={request.id}
-                      className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium capitalize">
-                            {request.listingType}
-                          </h3>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Address: {request.adress || "N/A"}
-                          </p>
-                          <p className="text-sm text-gray-600 mt-1">
-                            Mobile: {request.mobile || "N/A"}
-                          </p>
+                  {paginatedVerifiedRequests.map((request) => {
+                    const createdAt = new Date(request.createdAt);
+                    const now = new Date();
+                    const timeDiff = now.getTime() - createdAt.getTime();
+                    const daysSinceVerification = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+                    const shouldShowNumber = daysSinceVerification >= 335;
+
+                    const shareUrl = `${window.location.origin}/${request.listingType}/${request.listingId}`; // change to your domain
+
+                    const handleShare = async () => {
+                      if (navigator.share) {
+                        try {
+                          await navigator.share({
+                            title: "Check this property on Roomlocus!",
+                            text: `Check out this ${request.listingType} listing`,
+                            url: shareUrl,
+                          });
+                        } catch (error) {
+                          console.error("Sharing failed", error);
+                        }
+                      } else {
+                        await navigator.clipboard.writeText(shareUrl);
+                        alert("Link copied to clipboard!");
+                      }
+                    };
+                    return (
+                      <div
+                        key={request.id}
+                        className="bg-white rounded-lg p-4 shadow-sm border border-gray-100"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium capitalize">{request.listingType}</h3>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Address: {request.adress || "N/A"}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Verified on: {new Date(request.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+
+                          {/* Right-side icons */}
+                          <div className="flex flex-col items-end space-y-2">
+                            <button onClick={handleShare} className="text-gray-600 hover:text-gray-800">
+                              <FaShareAlt className="text-base m-1" />
+                            </button>
+
+                            <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                              Verified
+                            </span>
+                          </div>
                         </div>
-                        <span
-                          className={`text-xs px-2 py-1 rounded ${
-                            request.status === "DONE"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-300 text-gray-800"
-                          }`}
-                        >
-                          {request.status}
-                        </span>
+
+                        {shouldShowNumber ? (
+                          <p className="text-sm text-gray-800 mt-2">
+                            Contact: {request.listingShowNo}
+                          </p>
+                        ) : (
+                          <p className="text-sm text-gray-500 italic mt-2">
+                            Contact will be visible closer to expiry
+                          </p>
+                        )}
                       </div>
-                      <p className="text-sm text-gray-600 mt-2">
-                        Verified On: {new Date(request.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
                 {/* Pagination Controls */}
                 <div className="flex justify-center mt-4 gap-2">

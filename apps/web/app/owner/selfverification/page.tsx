@@ -80,6 +80,7 @@ function Content({ ownerId }: { ownerId: number | null }) {
           listingId: parseInt(searchParams.get("id") as string),
           listingType: searchParams.get("listingType"),
           listingShowNo: searchParams.get("listingShowNo"),
+          adress : searchParams.get("adress"),
         },
         {
           headers: {
@@ -156,7 +157,6 @@ function Content({ ownerId }: { ownerId: number | null }) {
           <button
             type="submit"
             disabled={isSubmitting}
-            onClick={handleUpload}
             className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
           >
             {isSubmitting ? "Uploading..." : "Upload"}
