@@ -70,8 +70,10 @@ function Listing() {
               </div>
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+        ) : ( 
+          <>
+        <p className="text-blue-400 p-1 mt-1 font-medium text-base">~ {lookingFor} , {city} , {townSector}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-3">
             {listingData?.listings.map((listing) => {
               return (
                 <div
@@ -119,6 +121,7 @@ function Listing() {
               );
             })}
           </div>
+          </>
         )}
       </div>
     </div>
