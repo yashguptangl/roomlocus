@@ -287,7 +287,7 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, landmark, maxprice , minprice, offer ,Bhk,  security, maintenance, totalFlat , adress ,latitude , longitude , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants, petsAllowed, genderPrefer, flatType, insideFacilities, outsideFacilities, careTaker , careTakerNo , listingShowNo } = req.body;
+            city , townSector , location, landmark, maxprice , minprice, offer ,Bhk,  security, maintenance, totalFlat , adress , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants, petsAllowed, genderPrefer, flatType, insideFacilities, outsideFacilities, careTaker , careTakerNo , listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -324,8 +324,6 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
                 preferTenants: filteredPreferTenants,
                 petsAllowed: Boolean(petsAllowed),
                 genderPrefer: genderPrefer,
-                latitude: parseFloat(latitude),
-                longitude: parseFloat(longitude),
                 flatType: flatType,
                 flatInside: filteredFlatInside,
                 flatOutside: filteredFlatOutside,
@@ -345,7 +343,7 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, landmark,Bhk, maxprice , minprice, offer ,  security, maintenance, totalRoom , latitude , longitude  , adress , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants,RoomAvailable,  genderPrefer, roomType, insideFacilities, outsideFacilities, careTaker, listingShowNo } = req.body;
+            city , townSector , location, landmark,Bhk, maxprice , minprice, offer ,  security, maintenance, totalRoom   , adress , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants,RoomAvailable,  genderPrefer, roomType, insideFacilities, outsideFacilities, careTaker, listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -383,8 +381,6 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
                 genderPrefer: genderPrefer,
                 RoomAvailable : RoomAvailable,
                 roomType: roomType,
-                latitude: parseFloat(latitude),
-                longitude: parseFloat(longitude),
                 roomInside: filteredRoomInside,
                 roomOutside: filteredRoomOutside,
                 careTaker: careTaker,
@@ -403,7 +399,7 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, Bhk, landmark, maxprice , minprice, offer ,  security, maintenance, totalPG , latitude , longitude , adress , totalFloor, waterSupply, powerBackup, noticePeriod, PGType , bedCount,timeRestriction ,   foodAvailable , furnishingType, accomoType, parking, preferTenants, genderPrefer, insideFacilities, outsideFacilities, careTaker  , listingShowNo } = req.body;
+            city , townSector , location, Bhk, landmark, maxprice , minprice, offer ,  security, maintenance, totalPG , adress , totalFloor, waterSupply, powerBackup, noticePeriod, PGType , bedCount,timeRestriction ,   foodAvailable , furnishingType, accomoType, parking, preferTenants, genderPrefer, insideFacilities, outsideFacilities, careTaker  , listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -441,8 +437,6 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
                 foodAvailable: Boolean(foodAvailable),
                 parking: filteredParking,
                 preferTenants: filteredPreferTenants,
-                latitude : parseFloat(latitude),
-                longitude : parseFloat(longitude),
                 genderPrefer: genderPrefer,
                 PGType: PGType,
                 PGInside: filteredPGInside,
@@ -463,7 +457,7 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
 ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest , res: Response) => {
     const ownerId = req.user?.id;
     try {
-        const {city , townSector , palaceName , location , landmark , maxprice , minprice , latitude , longitude  , adress ,totalRoom ,totalFloor , bedcount,noofGuests,furnishingType , accomoType , foodAvailable ,acType, preferTenants, genderPrefer , roomType , insideFacilities , outsideFacilities , parking , manager , listingShowNo } = req.body;
+        const {city , townSector , palaceName , location , landmark , maxprice , minprice , adress ,totalRoom ,totalFloor , bedcount,noofGuests,furnishingType , accomoType , foodAvailable ,acType, preferTenants, genderPrefer , roomType , insideFacilities , outsideFacilities , parking , manager , listingShowNo } = req.body;
         
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -496,8 +490,6 @@ ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest
                 preferTenants : filteredPreferTenants,
                 genderPrefer : genderPrefer,
                 roomType : roomType,
-                latitude : parseFloat(latitude),
-                longitude : parseFloat(longitude),
                 roomInside : filteredRoomDayNightInside,
                 roomOutside : filteredRoomDayNightOutside,
                 manager   : manager,
