@@ -10,7 +10,6 @@ import cors from 'cors';
 import "./cronJob";
 import userDashboard from "./routes/user.dashboard";
 import selfVerification from "./routes/selfVerification";
-import nearmeRouter from "./routes/nearme";
 
 const app = express();
 
@@ -20,7 +19,7 @@ app.options('*', cors()); // Handle preflight requests for all routes
 
 // Use CORS middleware
 app.use(cors({
-    origin: ["https://www.roomlocus.com" , "http://localhost:3000"],
+    origin: ["https://www.roomlocus.com" , "http://localhost:3000" , "https://roomlocus.com"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
@@ -34,7 +33,6 @@ app.use("/api/v1/agent" , agentRouter);
 app.use("/api/v1/agent", agentProfileRouter);
 app.use("/api/v1/agent" , verificationRequestRouteByAgent);
 app.use("/api/v1/owner/self", selfVerification)
-app.use("/api/v1/listing", nearmeRouter);
 
 app.get("/api/health",(req,res) => {
     res.send("Hello World");
