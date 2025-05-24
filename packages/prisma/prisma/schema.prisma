@@ -106,8 +106,6 @@ model FlatInfo {
     listingShowNo       String
     flatInside          String[]
     flatOutside         String[]
-    latitude            Float
-    longitude           Float
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
     paymentDone         Boolean   @default(false)
@@ -153,8 +151,6 @@ model PgInfo {
     PGOutside         String[]
     careTaker           String
     listingShowNo       String
-    latitude            Float
-    longitude           Float
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
     paymentDone         Boolean   @default(false)
@@ -197,8 +193,6 @@ model RoomInfo {
     careTaker           String
     listingShowNo       String
     RoomAvailable       String
-    latitude            Float
-    longitude           Float
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
     paymentDone         Boolean   @default(false)
@@ -237,8 +231,6 @@ model hourlyInfo {
     roomOutside     String[]
     manager         String
     ManagerConact   String
-    latitude        Float
-    longitude       Float
     owner               Owner      @relation(fields: [ownerId], references: [id])  
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)

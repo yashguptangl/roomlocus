@@ -40,28 +40,6 @@ export default function Home() {
     router.push(`/${lookingFor}?look=${lookingFor}&city=${selectedCity}&townSector=${selectedTownSector}`);
   };
 
-  const handleNearMe = () => {
-  if (!navigator.geolocation) {
-    alert("Geolocation is not supported by your browser");
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const { latitude, longitude } = position.coords;
-      router.push(`/near-me?look=${lookingFor}&latitude=${latitude}&longitude=${longitude}`);
-    }, 
-    (error) => {
-      console.log("Error getting location: ", error);
-      alert(`Error getting location: ${error.message}`);
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0
-    }
-  );
-}
 
   if (!isMounted) {
     return (
@@ -128,8 +106,6 @@ export default function Home() {
             onClick={() => router.push("/owner/signin")}
           />
         </div>
-        <button className="font-semibold text-xs sm:text-end md:text-sm bg-blue-300 rounded text-white p-1"
-         onClick={() => {handleNearMe()}}>Near Me</button>
         <div className="text-end mt-2">
           <p className="text-blue-300 text-lg ml-20 ssm:ml-6 mod:ml-20 sm:ml-28 ml:ml-32 sm:text-lg md:text-xl font-semibold">
             India&apos;s Largest Room Collection
