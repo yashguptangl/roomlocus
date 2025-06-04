@@ -11,7 +11,7 @@ export default function AboutUs() {
           <p>
             At <strong>Roomlocus</strong>, we believe finding a place to live shouldn’t be complicated or costly. That’s
             why we created a platform where seekers (tenants) can search for rental properties completely free—no hidden
-            fees, no middlemen. Whether you're looking for a room, flat, PG, or hourly room, we bring you listings in
+            fees, no middlemen. Whether you&apos;re looking for a room, flat, PG, or hourly room, we bring you listings in
             one easy-to-use website.
           </p>
 

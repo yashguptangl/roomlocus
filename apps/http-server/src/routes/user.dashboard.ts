@@ -190,4 +190,5 @@ userDashboard.delete("/recentContacts/delete", authenticate, async (req: Authent
         res.status(500).json({ success: false, message: "Error deleting contact log", error });
     }
 })
+
 export default userDashboard;

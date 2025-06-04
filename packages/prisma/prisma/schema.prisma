@@ -230,7 +230,7 @@ model hourlyInfo {
     roomInside      String[]
     roomOutside     String[]
     manager         String
-    ManagerConact   String
+    listingShowNo   String
     owner               Owner      @relation(fields: [ownerId], references: [id])  
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)

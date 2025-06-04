@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { FaShareAlt } from "react-icons/fa";
+import AgentGuide from "../../../components/agentGuide";
 
 type Tab = "guide" | "incoming_request" | "Verified";
 interface DecodedToken {
@@ -232,18 +233,7 @@ export default function Dashboard() {
       {/* Tab Content */}
       <div className="flex items-center justify-center">
         {activeTab === "guide" && (
-          <div className="mt-4 w-full sm:w-2/3 mx-auto flex justify-center items-center flex-col bg-gray-200">
-            <div className="pb-8">
-              <ul>
-                <li className="text-base list-disc text-red-600">
-                  Profile automatically off when lead is off
-                </li>
-                <li className="text-base list-disc text-red-600">
-                  Profile automatically off when lead is off
-                </li>
-              </ul>
-            </div>
-          </div>
+          <AgentGuide />
         )}
 
         {activeTab === "incoming_request" && (

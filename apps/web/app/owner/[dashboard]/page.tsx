@@ -10,6 +10,7 @@ import { ListingItem } from "../../../types/listing";
 import { useRouter } from "next/navigation";
 import { Menu, Transition } from "@headlessui/react"; // Add this for dropdown
 import { FaShareAlt } from "react-icons/fa";
+import OwnerGuide from "../../../components/ownerGuide"
 
 type Tab = "guide" | "myRental" | "usedLead";
 
@@ -393,6 +394,7 @@ useEffect(() => {
                             });
                           } catch (err) {
                             alert("Failed to share the link.");
+                            console.log(err);
                           }
                         } else {
                           await navigator.clipboard.writeText(shareUrl);
@@ -532,8 +534,8 @@ useEffect(() => {
                     </p>
                     <p className="text-sm ">
                       {listing.isVisible
-                        ? "Listing is shown on web"
-                        : "Listing is off"}
+                        ? "Property is visible to customers"
+                        : "Property is not visible to customers"}
                     </p>
 
                     <button
@@ -683,18 +685,7 @@ useEffect(() => {
         )}
 
         {activeTab === "guide" && (
-          <div className="mt-4 w-full sm:w-2/3 mx-auto flex justify-center items-center flex-col bg-gray-200 ">
-            <div className="pb-8">
-              <ul>
-                <li className="text-base list-disc text-red-600">
-                  Profile automatically off when lead is off
-                </li>
-                <li className="text-base list-disc text-red-600">
-                  Profile automatically off when lead is off
-                </li>
-              </ul>
-            </div>
-          </div>
+          <OwnerGuide />
         )}
       </div>
     </div>

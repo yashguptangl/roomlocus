@@ -100,8 +100,8 @@ export default function Upload() {
       </h1>
 
       <ImageUpload label="Front" onFileChange={(file) => handleFileChange("front", file)} />
-      <ImageUpload label="Lobby" onFileChange={(file) => handleFileChange("lobby", file)} />
       <ImageUpload label="Inside" onFileChange={(file) => handleFileChange("inside", file)} />
+      <ImageUpload label="Lobby" onFileChange={(file) => handleFileChange("lobby", file)} />
       <ImageUpload label="Kitchen" onFileChange={(file) => handleFileChange("kitchen", file)} />
       <ImageUpload label="Bathroom" onFileChange={(file) => handleFileChange("bathroom", file)} />
       <ImageUpload label="Toilet" onFileChange={(file) => handleFileChange("toilet", file)} />

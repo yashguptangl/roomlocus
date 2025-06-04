@@ -82,12 +82,12 @@ ownerDashboard.get("/contact-logs/:ownerId", authenticate, async (req: Authentic
     try {
         const { ownerId } = req.params;
 
-        // Fetch recent contacts (valid for 30 days)
+        // Fetch recent contacts (valid for 15 days)
         const logs = await prisma.contactLog.findMany({
             where: {
                 ownerId: Number(ownerId),
                 isExpired: false,
-                accessDate: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }, // Last 30 days
+                accessDate: { gte: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000) }, // Last 15 days
             },
             orderBy: { accessDate: "desc" },
         });
@@ -130,7 +130,7 @@ ownerDashboard.post("/publish", authenticate, async (req: AuthenticatedRequest, 
             return;
         }
 
-        res.status(200).json({ message: `Listing visibility updated to ${isVisible}` });
+        res.status(200).json({ message: `Property is visible to customers : ${isVisible}` });
         return;
     } catch (error) {
         console.error("Error updating listing visibility:", error);
@@ -293,7 +293,7 @@ ownerDashboard.get("/details-owner" , authenticate , async (req: AuthenticatedRe
 
 ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     try {
-        const { propertyId, propertyType, ownerId, address  } = req.body;
+        const { propertyId, propertyType, ownerId, address , listingShowNo  } = req.body;
         const token = req.headers.token as string;
         console.log(token);
         console.log(req.body);
@@ -320,18 +320,18 @@ ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRe
         // Create a contact log entry with 30-day validity
         await prisma.contactLog.create({
             data: {
-                ownerId,
-                userId: decoded.id,
-                listingId : propertyId,
-                customerName: username,
-                customerPhone: mobile,
-                adress : address,
-                accessDate: new Date(),
-                isExpired: false,
-                propertyType,
-                ownerName: owner.username,
-                ownerPhone: owner.mobile,
-                expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 30 days
+            ownerId,
+            userId: decoded.id,
+            listingId: propertyId,
+            customerName: username,
+            customerPhone: mobile,
+            adress: address,
+            accessDate: new Date(),
+            isExpired: false,
+            propertyType : propertyType,
+            ownerName: owner.username,
+            ownerPhone: listingShowNo,
+            expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // Valid for 15 days
             },
         });
 
@@ -372,8 +372,8 @@ ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRe
             message: 'Contact logged successfully',
             contactInfo: {
                 ownerName: owner.username,
-                ownerMobile: owner.mobile,
-                expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Valid for 30 days
+                ownerMobile: listingShowNo,
+                expirationDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // Valid for 15 days
             },
         });
     } catch (error) {

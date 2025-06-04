@@ -111,8 +111,8 @@ export default function Upload() {
         onFileChange={(file) => handleFileChange("inside", file)}
       />
       <ImageUpload
-        label="Another Inside View"
-        onFileChange={(file) => handleFileChange("anotherinsideview", file)}
+        label="Lobby"
+        onFileChange={(file) => handleFileChange("lobby", file)}
       />
       <ImageUpload
         label="Bathroom"

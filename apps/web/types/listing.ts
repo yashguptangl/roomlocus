@@ -49,6 +49,8 @@ export interface ListingData {
     PGInside: string[];
     PGOutside: string[];
     isVerified: boolean;
+    listingShowNo: string;
+    ManagerConact : string;
     listing?: ListingData[];
 }
 

@@ -117,7 +117,7 @@ listingRouter.get("/:listing/:id" , async ( req : Request, res : Response) => {
         }
 
         const roomImages = await Promise.all(
-          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+          ["front", "inside", "lobby", "kitchen", "bathroom" , "toilet"].map(async (category) => {
             const key = `images/room/${id}/${category}.jpeg`;
             return await getObjectURL(key); // Fetch signed URL from S3
           })
@@ -134,7 +134,7 @@ listingRouter.get("/:listing/:id" , async ( req : Request, res : Response) => {
           return;
         }
         const pgImages = await Promise.all(
-          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+          ["front", "inside", "lobby", "kitchen", "bathroom" , "toilet"].map(async (category) => {
             const key = `images/pg/${id}/${category}.jpeg`;
             return await getObjectURL(key); // Fetch signed URL from S3
           })
@@ -152,7 +152,7 @@ listingRouter.get("/:listing/:id" , async ( req : Request, res : Response) => {
         }
 
         const flatImages = await Promise.all(
-          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+          ["front", "inside", "lobby", "kitchen", "bathroom" , "toilet"].map(async (category) => {
             const key = `images/flat/${id}/${category}.jpeg`;
             return await getObjectURL(key); // Fetch signed URL from S3
           })
@@ -170,7 +170,7 @@ listingRouter.get("/:listing/:id" , async ( req : Request, res : Response) => {
         }
 
         const hourlyImages = await Promise.all(
-          ["inside", "front", "lobby", "bathroom", "kitchen"].map(async (category) => {
+          ["front", "inside", "lobby", "bathroom" , "toilet"].map(async (category) => {
             const key = `images/hourlyroom/${id}/${category}.jpeg`;
             return await getObjectURL(key); // Fetch signed URL from S3
           })

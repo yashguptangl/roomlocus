@@ -194,6 +194,7 @@ export default function ListingDetail() {
           propertyType: listing.Type,
           ownerId: listing.ownerId,
           address: listing.adress,
+          listingShowNo: listing.listingShowNo, 
         }),
       });
       if (response.status === 401) {
@@ -400,9 +401,11 @@ export default function ListingDetail() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-700">Address</h3>
-              <p className="font-normal">{listing.adress}</p>
-              <p className="font-normal mt-1">Landmark: {listing.landmark}</p>
+                <h3 className="text-lg font-semibold mb-2 text-gray-700">Address</h3>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <p className="font-normal">{listing.adress}</p>
+                  <p className="font-normal mt-1">Landmark: {listing.landmark}</p>
+            </div>
             </div>
 
             <div className="space-y-4">
@@ -475,7 +478,13 @@ export default function ListingDetail() {
                 <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
                   <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
                   <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
-                  <p className="text-gray-700">Phone: {ownerContact.ownerMobile}</p>
+                  <p className="text-gray-700">Phone: {listing.listingShowNo}</p>
+                  <a
+                    href={`tel:${listing.listingShowNo}`}
+                    className="mt-3 inline-block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg text-center transition-colors"
+                  >
+                    Call
+                  </a>
                 </div>
               )}
             </div>
