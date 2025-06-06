@@ -28,4 +28,6 @@ async function putObject(filename : string, mimeType : string) : Promise<string>
     const url = await getSignedUrl(s3client, command, { expiresIn: 600 });
     return url;
 }
+
+
 export  { getObjectURL, putObject , s3client};

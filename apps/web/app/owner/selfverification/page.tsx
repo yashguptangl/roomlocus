@@ -10,12 +10,14 @@ import { useForm } from "react-hook-form";
 interface UploadedFiles {
   selfiewithaadhar: File | null;
   frontbuildingview: File | null;
-  [key: string]: File | null; // Index signature for other potential keys
+  [key: string]: File | null;
 }
 
 export default function UploadDocuments() {
   const [ownerId, setOwnerId] = useState<number | null>(null);
-  
+  const [existingRequest, setExistingRequest] = useState<any>(null);
+  const [presignedUrls, setPresignedUrls] = useState<{ [key: string]: string } | null>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -35,14 +37,65 @@ export default function UploadDocuments() {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchExistingRequest = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !ownerId) return;
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verified-requests?listingId=${searchParams.get("id")}&listingType=${searchParams.get("listingType")}`,
+        { headers: { token } }
+      );
+      // response.data is array of requests
+      const pendingSelf = response.data.find(
+        (req: any) =>
+          req.status === "PENDING" && req.verificationType === "SELF"
+      );
+      if (pendingSelf) {
+        setExistingRequest(pendingSelf);
+        // Optionally, fetch presigned URLs for this request if needed
+        if (!pendingSelf.imagesUploaded) {
+          // Get presigned URLs for existing request
+          const urlRes = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/presigned-urls/${pendingSelf.id}`,
+            { headers: { token } }
+          );
+          setPresignedUrls(urlRes.data.imageUrls);
+        }
+      } else {
+        setExistingRequest(null);
+        setPresignedUrls(null);
+      }
+    };
+    fetchExistingRequest();
+  }, [ownerId, searchParams]);
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <Content ownerId={ownerId} />
+      <Content
+        ownerId={ownerId}
+        existingRequest={existingRequest}
+        presignedUrls={presignedUrls}
+        setPresignedUrls={setPresignedUrls}
+        setExistingRequest={setExistingRequest}
+      />
     </Suspense>
   );
 }
 
-function Content({ ownerId }: { ownerId: number | null }) {
+function Content({
+  ownerId,
+  existingRequest,
+  presignedUrls,
+  setPresignedUrls,
+  setExistingRequest,
+}: {
+  ownerId: number | null;
+  existingRequest: any;
+  presignedUrls: { [key: string]: string } | null;
+  setPresignedUrls: (urls: { [key: string]: string } | null) => void;
+  setExistingRequest: (req: any) => void;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -50,8 +103,18 @@ function Content({ ownerId }: { ownerId: number | null }) {
     selfiewithaadhar: null,
     frontbuildingview: null,
   });
-  const { handleSubmit , formState : {isSubmitting} } = useForm();
+  const { handleSubmit, formState: { isSubmitting } } = useForm();
 
+  // Helper to get presigned URLs for an existing request
+  const fetchPresignedUrls = async (requestId: string) => {
+    const token = localStorage.getItem("token");
+    const urlRes = await axios.get(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/presigned-urls/${requestId}`,
+      { headers: { token } }
+    );
+    setPresignedUrls(urlRes.data.imageUrls);
+    return urlRes.data.imageUrls;
+  };
 
   const handleUpload = async () => {
     try {
@@ -73,35 +136,52 @@ function Content({ ownerId }: { ownerId: number | null }) {
         }
       }
 
-      // Step 1: Create the verification request
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verification-request`,
-        {
-          listingId: parseInt(searchParams.get("id") as string),
-          listingType: searchParams.get("listingType"),
-          listingShowNo: searchParams.get("listingShowNo"),
-          adress : searchParams.get("adress"),
-        },
-        {
-          headers: {
-            token: token,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      let verificationRequestId = existingRequest?.id;
+      let imageUrls = presignedUrls;
 
-      if (response.status !== 201) {
-        alert("Failed to create verification request. Please try again.");
-        return;
+      // If no existing request, create one and get presigned URLs
+      if (!verificationRequestId) {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verification-request`,
+          {
+            listingId: parseInt(searchParams.get("id") as string),
+            listingType: searchParams.get("listingType"),
+            listingShowNo: searchParams.get("listingShowNo"),
+            city: searchParams.get("city"),
+            townSector: searchParams.get("townSector"),
+            location: searchParams.get("location"),
+          },
+          {
+            headers: {
+              token: token,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.status !== 201) {
+          alert("Failed to create verification request. Please try again.");
+          return;
+        }
+
+        verificationRequestId = response.data.verification.id;
+        imageUrls = response.data.imageUrls;
+        setExistingRequest(response.data.verification);
+        setPresignedUrls(response.data.imageUrls);
+      } else if (!imageUrls) {
+        // If request exists but no presigned URLs, fetch them
+        imageUrls = await fetchPresignedUrls(verificationRequestId);
       }
 
-      const { imageUrls } = response.data;
-
       // Step 2: Upload each file using its corresponding presigned URL
+      if (!imageUrls) {
+        throw new Error("Presigned URLs are missing.");
+      }
       const uploadPromises = Object.keys(imageUrls).map(async (category) => {
         const file = uploadedFiles[category];
-        if (file) {
-          await axios.put(imageUrls[category], file, {
+        const url = imageUrls[category];
+        if (file && typeof url === "string") {
+          await axios.put(url, file, {
             headers: {
               "Content-Type": file.type,
             },
@@ -125,18 +205,18 @@ function Content({ ownerId }: { ownerId: number | null }) {
       alert("Only JPEG and PNG files are allowed!");
       return;
     }
-       try {
-         const compressedFile = await imageCompression(file, {
-           maxSizeMB: 0.5, // reduce to under 500KB
-           maxWidthOrHeight: 1024, // resize dimensions if needed
-           useWebWorker: true,
-         });
-   
-         setUploadedFiles((prev) => ({ ...prev, [key]: compressedFile }));
-       } catch (error) {
-         console.error("Image compression error:", error);
-         alert("Failed to compress image.");
-       }
+    try {
+      const compressedFile = await imageCompression(file, {
+        maxSizeMB: 0.5,
+        maxWidthOrHeight: 1024,
+        useWebWorker: true,
+      });
+
+      setUploadedFiles((prev) => ({ ...prev, [key]: compressedFile }));
+    } catch (error) {
+      console.error("Image compression error:", error);
+      alert("Failed to compress image.");
+    }
   };
 
   return (

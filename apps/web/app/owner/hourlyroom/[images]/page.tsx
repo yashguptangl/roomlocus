@@ -25,7 +25,7 @@ export default function Upload() {
   const handleUpload = async () => {
     try {
       // Check if all required images are uploaded
-      const requiredCategories = ["front", "inside", "anotherinsideview", "bathroom", "toilet"];
+      const requiredCategories = ["front", "inside", "lobby", "bathroom", "toilet"];
       const missingCategories = requiredCategories.filter((category) => !uploadedFiles[category]);
 
       if (missingCategories.length > 0) {

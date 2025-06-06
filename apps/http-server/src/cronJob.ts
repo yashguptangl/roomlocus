@@ -100,17 +100,25 @@ cron.schedule("0 * * * *", async () => {
         const oneYearAgo = new Date(now);
         oneYearAgo.setFullYear(now.getFullYear() - 1);
 
-        // Purane VerificationRequest delete karo
+        // Sirf self wali VerificationRequest delete karo
         const deletedVerificationRequests = await prisma.verificationRequest.deleteMany({
             where: {
-                createdAt: { lte: oneYearAgo }
+                createdAt: { lte: oneYearAgo },
+                verificationType: "SELF"
             }
         });
 
-        console.log(`🗑 Deleted ${deletedVerificationRequests.count} expired verification requests.`);
-        // ...baaki aapka code...
+        await prisma.verificationRequest.updateMany({
+            where: {
+            status: "DONE",
+            updatedAt: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
+            },
+            data: { status: "PENDING" },
+        });
+
+        console.log(`🗑 Deleted ${deletedVerificationRequests.count} expired self verification requests.`);
     } catch (error) {
-        console.error("❌ Error deleting expired verification requests:", error);
+        console.error("❌ Error deleting expired self verification requests:", error);
     }
 });
 

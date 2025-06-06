@@ -18,6 +18,8 @@ function Listing() {
   const lookingFor = searchParams.get("look") || "";
   const city = searchParams.get("city") || "";
   const townSector = searchParams.get("townSector") || "";
+  const [searchText, setSearchText] = useState("");
+
 
   const [listingData, setListingData] = useState<ListingResponse | null>(null);
   const [noListings, setNoListings] = useState(false);
@@ -48,12 +50,23 @@ function Listing() {
     router.push(`/flat/${listing.id}`);
   };
 
-  
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="container mx-auto px-4 py-6">
         <SortFilter />
+
+        <div className="mt-3 mb-2 flex justify-end">
+          <input
+            type="text"
+            placeholder="Search by location"
+            className="w-40 sm:w-80 p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-700"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </div>
+
         {noListings ? (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
@@ -70,57 +83,68 @@ function Listing() {
               </div>
             </div>
           </div>
-        ) : ( 
+        ) : (
           <>
-        <p className="text-blue-400 p-1 mt-1 font-medium text-base">~ {lookingFor} , {city} , {townSector}</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-3">
-            {listingData?.listings.map((listing) => {
+            <p className="text-blue-400 p-1 mt-1 font-medium text-base"> - {lookingFor.toUpperCase()} , {city} , {townSector}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-3">
+              {listingData?.listings
+              .filter((listing) => {
+              const text = searchText.toLowerCase();
               return (
-                <div
-                  onClick={() => handleListingClick(listing)}
-                  key={listing.id}
-                  className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                >
-                  {/* Image container must be relative */}
-                  <div className="relative w-full h-40">
-                                       {/* Image */}
-                    <Image
-                      src={
-                        listing.images && listing.images[0]
-                          ? listing.images[0]
-                          : "/images/placeholder.png"
-                      }
-                      alt="Flat"
-                      fill
-                      className="object-cover"
-                    />
+                listing.location.toLowerCase().includes(text) ||
+                listing.landmark.toLowerCase().includes(text) ||
+                listing.city.toLowerCase().includes(text) ||
+                listing.townSector.toLowerCase().includes(text) ||
+                listing.BHK.toString().includes(text)
+              );
+            })
+              .map((listing) => {
+                return (
+                  <div
+                    onClick={() => handleListingClick(listing)}
+                    key={listing.id}
+                    className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                  >
+                    {/* Image container must be relative */}
+                    <div className="relative w-full h-40">
+                      {/* Image */}
+                      <Image
+                        src={
+                          listing.images && listing.images[0]
+                            ? listing.images[0]
+                            : "/images/placeholder.png"
+                        }
+                        alt="Flat"
+                        fill
+                        className="object-cover"
+                      />
 
-                    {/* Optional: Add dark overlay to make icons more visible */}
-                    <div className="absolute inset-0 bg-black bg-opacity-10 z-10"></div>
-                  </div>
+                      {/* Optional: Add dark overlay to make icons more visible */}
+                      <div className="absolute inset-0 bg-black bg-opacity-10 z-10"></div>
+                    </div>
 
-                  {/* Text Part */}
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
-                      {listing.location} {listing.city} {listing.townSector}
-                    </h3>
-                    <div className="mt-2 space-y-1">
-                      <p className="text-sm text-gray-600">
-                        {listing.BHK} BHK {listing.Type}
-                      </p>
-                      <p className="text-lg font-bold text-green-600 text-center">
-                        ₹{listing.MinPrice.toLocaleString()} - ₹
-                        {listing.MaxPrice.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-600 text-center">
-                        All Flat Prices Vary
-                      </p>
+                    {/* Text Part */}
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
+                        {listing.location} {listing.city} {listing.townSector}
+                      </h3>
+                      <div className="mt-2 space-y-1">
+                        <p className="text-sm text-gray-600">
+                          {listing.BHK} BHK {listing.Type}
+                        </p>
+                        <p className="text-lg font-bold text-green-600 text-center">
+                          ₹{listing.MinPrice.toLocaleString()} - ₹
+                          {listing.MaxPrice.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-600 text-center">
+                          All Flat Prices Vary
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
           </>
         )}
       </div>

@@ -593,7 +593,7 @@ ownerRouter.post("/pg/images/presigned-urls", authenticate , async (req: Authent
         }
 
         // Define specific categories for images
-        const categories = ["front", "inside" ,"kitchen" , "lobby" , "toilet", "bathroom"];
+        const categories = ["front", "inside" ,"kitchen" , "lobby" , "toilet", "bathroom" , "careTaker"];
         const urls: { [key: string]: string } = {};
 
         for (const category of categories) {
@@ -630,7 +630,7 @@ ownerRouter.post("/hourlyroom/images/presigned-urls", authenticate , async (req:
         }
 
         // Define specific categories for images
-        const categories = ["front", "inside" ,"lobby" , "toilet", "bathroom"];
+        const categories = ["front", "inside" ,"lobby" , "toilet", "bathroom" , "manager"];
         const urls: { [key: string]: string } = {};
 
         for (const category of categories) {

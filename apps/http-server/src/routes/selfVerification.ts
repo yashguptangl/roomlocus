@@ -6,12 +6,12 @@ import { putObject } from '../utils/s3client';
 
 selfVerification.post("/verification-request", authenticate, async (req: AuthenticatedRequest, res) => {
     try {
-        const { listingId, listingType, listingShowNo , adress} = req.body;
+        const { listingId, listingType, listingShowNo, location , city, townSector } = req.body;
         const ownerId = req.user?.id;
 
         // Validate required fields
-        if (!listingId || !listingType || !listingShowNo || !adress) {
-            res.status(400).json({ error: 'Missing required fields: listingId, listingType, listingShowNo, adress' });
+        if (!listingId || !listingType || !listingShowNo || !location || !city || !townSector) {
+            res.status(400).json({ error: 'Missing required fields: listingId, listingType, listingShowNo, location, city, townSector' });
             return;
         }
 
@@ -22,7 +22,9 @@ selfVerification.post("/verification-request", authenticate, async (req: Authent
                 listingType,
                 ownerId,
                 listingShowNo,
-                adress,
+                location,
+                city: city,
+                townSector: townSector,
                 verificationType: 'SELF',
                 status: 'PENDING',
                 imagesUploaded: false
@@ -51,8 +53,9 @@ selfVerification.post("/verification-request", authenticate, async (req: Authent
             }
         });
 
-        res.status(201).json({ 
-            message: 'Verification request and images submitted successfully', 
+
+        res.status(201).json({
+            message: 'Verification request and images submitted successfully',
             verification: updatedData,
             imageUrls: urls
         });
@@ -63,8 +66,7 @@ selfVerification.post("/verification-request", authenticate, async (req: Authent
     }
 });
 
-
-selfVerification.get("/verified-requests" , authenticate, async (req : AuthenticatedRequest, res) => {
+selfVerification.get("/verified-requests", authenticate, async (req: AuthenticatedRequest, res) => {
     try {
         const { listingId, listingType } = req.query;
         const ownerId = req.user?.id;
@@ -91,11 +93,11 @@ selfVerification.post('/owner-update-verification/:requestId', authenticate, asy
         if (verificationType === 'SELF') {
             await prisma.verificationRequest.update({
                 where: { id: requestId },
-                data: { agentId: null, verificationType: 'SELF', status: 'PENDING' }  // ✅ Changing status to 'InProgress' when owner takes over
+                data: { agentId: null, verificationType: 'SELF', status: 'PENDING', updatedAt: new Date() , imagesUploaded: false }  // ✅ Changing status to 'InProgress' when owner takes over
             });
 
-             res.json({ message: 'Switched to self-verification' });
-             return;
+            res.json({ message: 'Switched to self-verification' });
+            return;
         }
 
         const updatedRequest = await prisma.verificationRequest.update({
@@ -108,6 +110,37 @@ selfVerification.post('/owner-update-verification/:requestId', authenticate, asy
         const errorMessage = (error as Error).message;
         res.status(500).json({ error: 'Failed to update verification request', details: errorMessage });
     }
+});
+
+
+// only presigned url 
+selfVerification.get("/presigned-urls/:requestId", authenticate, async (req : AuthenticatedRequest, res) => {
+  try {
+    const { requestId } = req.params;
+    const ownerId = req.user?.id;
+    // Find the verification request
+    const verification = await prisma.verificationRequest.findUnique({
+      where: { id: requestId }
+    });
+    if (!verification) {
+      res.status(404).json({ error: "Verification request not found" });
+      return;
+    }
+
+    // Generate presigned URLs for both images
+    const categories = ["selfiewithaadhar", "frontbuildingview"];
+    const urls: { [key: string]: string } = {};
+    for (const category of categories) {
+      urls[category] = await putObject(
+        `self-verification/${ownerId}/${verification.id}/${category}.jpeg`,
+        "image/jpeg"
+      );
+    }
+
+    res.json({ imageUrls: urls });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to generate presigned URLs" });
+  }
 });
 
 export default selfVerification;

@@ -253,7 +253,8 @@ model ContactLog {
     customerName  String
     customerPhone String
     ownerPhone    String
-    adress        String
+    location      String
+    landmark      String
     accessDate    DateTime  
     expiryDate    DateTime 
     propertyType  String
@@ -274,7 +275,9 @@ model VerificationRequest {
   status               StatusType @default(PENDING) // "Pending" | "Confirmed" | "Cancelled"
   imagesUploaded       Boolean    @default(false)
   createdAt            DateTime   @default(now())
-  adress               String?
+  location             String
+  city                 String
+  townSector           String
   listingShowNo        String?
   updatedAt            DateTime   @updatedAt
   @@index([agentId])

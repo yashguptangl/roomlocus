@@ -9,13 +9,15 @@ const verificationRequestRouteByAgent = Router();
 verificationRequestRouteByAgent.post('/verification-request', authenticate, async (req: AuthenticatedRequest, res) => {
     const ownerId = req.user?.id;
     try {
-        const { listingId, listingType, agentId , adress , listingShowNo } = req.body;
+        const { listingId, listingType, agentId , city , townSector , location ,  listingShowNo } = req.body;
 
         const verification = await prisma.verificationRequest.create({
             data: {
                 listingId: parseInt(listingId),
                 listingType,
-                adress,
+                city,
+                townSector,
+                location,
                 listingShowNo,
                 ownerId : parseInt(ownerId),
                 agentId,
@@ -86,22 +88,22 @@ verificationRequestRouteByAgent.post('/agent-accept-request', authenticate, asyn
         if (updatedData.listingType === "flat") {
             await prisma.flatInfo.update({
                 where: { id: updatedData.listingId },
-                data: { isVerified: true, verifiedByAdminOrAgent: new Date() }
+                data: { isVerified: true, verificationPending: false, verifiedByAdminOrAgent: new Date() }
             });
         } else if (updatedData.listingType === "room") {
             await prisma.roomInfo.update({
                 where: { id: updatedData.listingId },
-                data: { isVerified: true, verifiedByAdminOrAgent: new Date() }
+                data: { isVerified: true, verificationPending: false, verifiedByAdminOrAgent: new Date() }
             });
         } else if (updatedData.listingType === "pg") {
             await prisma.pgInfo.update({
                 where: { id: updatedData.listingId },
-                data: { isVerified: true, verifiedByAdminOrAgent: new Date() }
+                data: { isVerified: true, verificationPending: false, verifiedByAdminOrAgent: new Date() }
             });
         } else if (updatedData.listingType === "hourlyroom") {
             await prisma.hourlyInfo.update({
                 where: { id: updatedData.listingId },
-                data: { isVerified: true, verifiedByAdminOrAgent: new Date() }
+                data: { isVerified: true, verificationPending: false, verifiedByAdminOrAgent: new Date() }
             });
         }
 
@@ -138,7 +140,11 @@ verificationRequestRouteByAgent.get('/agent-verified-properties/:agentId', authe
                 { createdAt: 'asc' } : 
                 { createdAt: 'desc' }
         });
-        res.status(200).json(requests);
+        const owner = await prisma.owner.findMany({
+            where: { id: { in: requests.map(request => request.ownerId) } },
+        });
+
+        res.status(200).json({requests , owner });
     } catch (error) {
         const errorMessage = (error as Error).message;
         res.status(500).json({ error: 'Failed to fetch verified properties', details: errorMessage });

@@ -28,7 +28,8 @@ interface RecentContact {
   id: string;
   ownerName: string;
   ownerPhone: string;
-  adress: string;
+  location: string;
+  landmark: string;
   accessDate: string;
   propertyType: string;
   propertyId: string;
@@ -233,7 +234,7 @@ export default function UserDashboard() {
               .map((contact) => (
                 <div key={contact.id} className="bg-white rounded-md shadow-md p-2 mb-1">
                   <p className="p-2 text-base flex items-center justify-center ">
-                    Address: {contact.adress}
+                    {contact.propertyType} | {contact.landmark} | {contact.location}
                   </p>
                   <div className="flex flex-col items-center gap-6 p-1 border-b border-gray-300">
                     <div className="flex items-center gap-20">

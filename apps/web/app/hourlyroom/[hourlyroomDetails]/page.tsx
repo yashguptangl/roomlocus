@@ -194,7 +194,8 @@ export default function ListingDetail() {
           propertyId: listing.id,
           propertyType: listing.Type,
           ownerId: listing.ownerId,
-          address: listing.adress,
+          location: listing.location,
+          landmark: listing.landmark,
           listingShowNo: listing.listingShowNo
         }),
       });
@@ -412,87 +413,92 @@ export default function ListingDetail() {
                 </div>
               </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-gray-700">Prefer Tenants </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {listing.preferTenants?.map((tenants, index) => (
-                        <div key={index} className="flex items-center">
-                          <span className="text-green-500 mr-2">✓</span>
-                          <span>{tenants}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-gray-700">Parking</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {listing.parking?.map((parking, index) => (
-                        <div key={index} className="flex items-center">
-                          <span className="text-green-500 mr-2">✓</span>
-                          <span>{parking}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Inside Facilities : </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {listing.roomInside?.map((facility, index) => (
-                        <div key={index} className="flex items-center">
-                          <span className="text-green-500 mr-2">✓</span>
-                          <span>{facility}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Outside Facilities : </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {listing.roomOutside?.map((facility, index) => (
-                        <div key={index} className="flex items-center">
-                          <span className="text-green-500 mr-2">✓</span>
-                          <span>{facility}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-4">
-                  {!ownerContact ? (
-                    <form onSubmit={handleSubmit(contactOwner)}>
-                      <button
-                        type="submit"
-                        disabled={isSubmitting}
-                        onClick={handleSubmit(contactOwner)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                      >
-                        {isSubmitting ? "Contacting..." : "Contact Owner"}
-                      </button>
-                    </form>
-                  ) : (
-                    <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                      <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
-                      <p className="text-gray-700">Phone: {ownerContact.ownerMobile}</p>
-                      <a
-                        href={`tel:${ownerContact.ownerMobile}`}
-                        className="mt-3 inline-block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg text-center transition-colors"
-                      >
-                        Call
-                      </a>
-                    </div>
-                  )}
-                </div>
-
+              <div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-700">Offer : </h3>
+                <p className="text-gray-700">{listing.Offer}</p>
               </div>
+
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Prefer Tenants </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {listing.preferTenants?.map((tenants, index) => (
+                      <div key={index} className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span>{tenants}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Parking</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {listing.parking?.map((parking, index) => (
+                      <div key={index} className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span>{parking}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Inside Facilities : </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {listing.roomInside?.map((facility, index) => (
+                      <div key={index} className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span>{facility}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Outside Facilities : </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {listing.roomOutside?.map((facility, index) => (
+                      <div key={index} className="flex items-center">
+                        <span className="text-green-500 mr-2">✓</span>
+                        <span>{facility}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="pt-4">
+                {!ownerContact ? (
+                  <form onSubmit={handleSubmit(contactOwner)}>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      onClick={handleSubmit(contactOwner)}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    >
+                      {isSubmitting ? "Contacting..." : "Contact Owner"}
+                    </button>
+                  </form>
+                ) : (
+                  <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
+                    <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
+                    <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
+                    <p className="text-gray-700">Phone: {ownerContact.ownerMobile}</p>
+                    <a
+                      href={`tel:${ownerContact.ownerMobile}`}
+                      className="mt-3 inline-block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg text-center transition-colors"
+                    >
+                      Call
+                    </a>
+                  </div>
+                )}
+              </div>
+
             </div>
           </div>
         </div>
-        <Footer />
-      </>
+      </div>
+      <Footer />
+    </>
   );
 }

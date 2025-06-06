@@ -187,7 +187,8 @@ export default function ListingDetail() {
           propertyId: listing.id,
           propertyType: listing.Type,
           ownerId: listing.ownerId,
-          address: listing.Adress,
+          location: listing.location,
+          landmark: listing.landmark,
           listingShowNo: listing.listingShowNo,
         }),
       });
@@ -391,6 +392,11 @@ export default function ListingDetail() {
                   <p className="font-normal">{listing.Adress}</p>
                   <p className="font-normal mt-1">Landmark: {listing.landmark}</p>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold mb-2 text-gray-700">Offer : </h3>
+                <p className="text-gray-700">{listing.Offer}</p>
               </div>
 
               <div className="space-y-4">

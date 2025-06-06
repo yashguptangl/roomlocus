@@ -16,11 +16,13 @@ const VerificationPage = () => {
     }
   }, [router]); // Added 'router' to the dependency array
 
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
+ return (
+  <Suspense fallback={<div>Loading...</div>}>
+    {token ? (
       <Content token={token} existingRequest={existingRequest} setExistingRequest={setExistingRequest} />
-    </Suspense>
-  );
+    ) : null}
+  </Suspense>
+);
 };
 
 interface VerificationRequest {
@@ -47,7 +49,9 @@ function Content({
   const listingId = searchParams.get("listingId");
   const listingType = searchParams.get("listingType");
   const listingShowNo = searchParams.get("listingShowNo");
-  const adress = searchParams.get("adress");
+  const city = searchParams.get("city");
+  const townSector = searchParams.get("townSector");
+  const location = searchParams.get("location");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -58,7 +62,7 @@ function Content({
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              token: token,
+               token: token,
             },
           }
         );
@@ -67,17 +71,27 @@ function Content({
           const verificationRequest = data[0];
           setExistingRequest(verificationRequest);
 
-          if (verificationRequest.status === "PENDING" && verificationRequest.verificationType === "SELF") {
-            alert("Property is verified within 4 - 5 working days");
-            router.push(`/owner/dashboard`);
-          } else if (verificationRequest.status === "PENDING" && verificationRequest.verificationType === "AGENT") {
+          if (
+            verificationRequest.status === "PENDING" &&
+            verificationRequest.verificationType === "SELF"
+          ) {
+            if (!verificationRequest.imagesUploaded) {
+              router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}`);
+            } else {
+              alert("Property is verified within 4 - 5 working days");
+              router.push(`/owner/dashboard`);
+            }
+          }
+          else if (verificationRequest.status === "PENDING" && verificationRequest.verificationType === "AGENT") {
             setSelectedOption("agent");
             setAgentId(verificationRequest.agentId || "");
-          }else if (verificationRequest.status === "DONE"){
+          }
+          else if (verificationRequest.status === "DONE") {
             alert("Property is verified");
             router.push(`/owner/dashboard`);
           }
         }
+
       } catch (error) {
         console.log("Error during verification request:", error);
         alert("An error occurred while fetching the verification request. Please try again.");
@@ -116,7 +130,7 @@ function Content({
             : 'Agent verification updated successfully';
           alert(message);
           if (selectedOption === 'self') {
-            router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&adress=${adress}`);
+            router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}`);
           } else {
             router.push('/owner/dashboard');
           }
@@ -132,7 +146,7 @@ function Content({
     } else {
       // Create new verification request
       if (selectedOption === 'self') {
-        router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&adress=${adress}`);
+        router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}`);
       } else if (selectedOption === 'agent' && agentId) {
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/verification-request`, {
@@ -145,7 +159,9 @@ function Content({
               listingId,
               listingType,
               agentId,
-              adress,
+              city,
+              townSector,
+              location,
               listingShowNo,
             }),
           });
@@ -156,7 +172,7 @@ function Content({
           } else {
             const errorData = await response.json();
             console.log('Error creating verification request:', errorData);
-            alert('Failed to send verification request. Please try again.');
+            alert('Please enter a valid Agent ID and all words are in capital letters e.g : RL97XXXXXXXX ');
           }
         } catch (error) {
           console.error('Error during verification request:', error);
@@ -216,7 +232,7 @@ function Content({
                 autoFocus
                 placeholder={existingRequest ? existingRequest.agentId : ""}
               />
-              
+
             </div>
             {existingRequest && (
               <p className="text-xs text-gray-500 mt-1">

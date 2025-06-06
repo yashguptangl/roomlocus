@@ -25,7 +25,7 @@ export default function ListingDetail() {
   const router = useRouter();
   const params = useParams();
   const roomId = params.roomDetails as string;
-  const { handleSubmit , formState : { isSubmitting } } = useForm();
+  const { handleSubmit, formState: { isSubmitting } } = useForm();
 
   const [listing, setListing] = useState<ListingData | null>(null);
   const [ownerContact, setOwnerContact] = useState<{ ownerName: string; ownerMobile: string } | null>(null);
@@ -193,8 +193,9 @@ export default function ListingDetail() {
           propertyId: listing.id,
           propertyType: listing.Type,
           ownerId: listing.ownerId,
-          address: listing.adress,
-          listingShowNo: listing.listingShowNo, 
+          location: listing.location,
+          landmark: listing.landmark,
+          listingShowNo: listing.listingShowNo,
         }),
       });
       if (response.status === 401) {
@@ -401,11 +402,16 @@ export default function ListingDetail() {
             </div>
 
             <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">Address</h3>
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <p className="font-normal">{listing.adress}</p>
-                  <p className="font-normal mt-1">Landmark: {listing.landmark}</p>
+              <h3 className="text-lg font-semibold mb-2 text-gray-700">Address</h3>
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <p className="font-normal">{listing.adress}</p>
+                <p className="font-normal mt-1">Landmark: {listing.landmark}</p>
+              </div>
             </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-2 text-gray-700">Offer : </h3>
+              <p className="text-gray-700">{listing.Offer}</p>
             </div>
 
             <div className="space-y-4">

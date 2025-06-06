@@ -130,7 +130,7 @@ ownerDashboard.post("/publish", authenticate, async (req: AuthenticatedRequest, 
             return;
         }
 
-        res.status(200).json({ message: `Property is visible to customers : ${isVisible}` });
+        res.status(200).json({ message: `Property is visible to customers : ${!isVisible}` });
         return;
     } catch (error) {
         console.error("Error updating listing visibility:", error);
@@ -156,7 +156,7 @@ ownerDashboard.post("/owner-kyc", authenticate, async (req: AuthenticatedRequest
         // Update owner's KYC status
         await prisma.owner.update({
             where: { id },
-            data: { isKYCVerified: true },
+            data: { isKYCVerified: true , points: { increment: 10 } }, // Increment points by 10 for KYC verification
         });
 
         res.status(200).json({ message: "KYC documents uploaded successfully", presignedUrls: urls });
@@ -293,7 +293,7 @@ ownerDashboard.get("/details-owner" , authenticate , async (req: AuthenticatedRe
 
 ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     try {
-        const { propertyId, propertyType, ownerId, address , listingShowNo  } = req.body;
+        const { propertyId, propertyType, ownerId, location , landmark , listingShowNo  } = req.body;
         const token = req.headers.token as string;
         console.log(token);
         console.log(req.body);
@@ -325,7 +325,8 @@ ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRe
             listingId: propertyId,
             customerName: username,
             customerPhone: mobile,
-            adress: address,
+            location: location,
+            landmark: landmark,
             accessDate: new Date(),
             isExpired: false,
             propertyType : propertyType,

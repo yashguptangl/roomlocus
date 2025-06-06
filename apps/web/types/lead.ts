@@ -9,7 +9,9 @@ export interface Lead {
   
   export interface LeadLog {
     id: number;
-    adress: string;
+    location: string;
+    landmark: string;
+    propertyType: string;
     customerName: string;
     customerPhone: string;
     accessDate: string;

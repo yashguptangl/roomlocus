@@ -19,6 +19,7 @@ function Listing() {
   const lookingFor = searchParams.get("look") || "";
   const city = searchParams.get("city") || "";
   const townSector = searchParams.get("townSector") || "";
+  const [searchText, setSearchText] = useState("");
 
   const [listingData, setListingData] = useState<ListingResponse | null>(null);
   const [noListings, setNoListings] = useState(false);
@@ -55,6 +56,18 @@ function Listing() {
       <Navbar />
       <div className="container mx-auto px-4 py-6">
         <SortFilter />
+
+         <div className="mt-3 mb-2 flex justify-end">
+          <input
+            type="text"
+            placeholder="Search by location"
+            className="w-40 sm:w-80 p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-700"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+          />
+        </div>
+
+
         {noListings ? (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
@@ -73,9 +86,20 @@ function Listing() {
           </div>
         ) : (
           <>
-          <p className="text-blue-400 p-1 mt-1 font-medium text-base">~ {lookingFor} , {city} , {townSector}</p>
+          <p className="text-blue-400 p-1 mt-1 font-medium text-base">- {lookingFor.toUpperCase()} , {city} , {townSector}</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
-            {listingData?.listings.map((listing) => {
+            {listingData?.listings
+            .filter((listing) => {
+              const text = searchText.toLowerCase();
+              return (
+                listing.location.toLowerCase().includes(text) ||
+                listing.landmark.toLowerCase().includes(text) ||
+                listing.city.toLowerCase().includes(text) ||
+                listing.townSector.toLowerCase().includes(text) ||
+                listing.BHK.toString().includes(text)
+              );
+            })
+            .map((listing) => {
               return (
                 <div
                   onClick={() => handleListingClick(listing)}

@@ -74,6 +74,8 @@ useEffect(() => {
     async function ownerDeatils() {
       try {
         const response = await axios.get(
+
+          
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/details-owner`,
           { headers: { token } }
         );
@@ -330,15 +332,6 @@ useEffect(() => {
       {/* Navigation Tabs */}
       <div className="flex justify-between border-b border-gray-300 bg-blue-400">
         <button
-          onClick={() => setActiveTab("guide")}
-          className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
-              ? "text-blue-500 border-b-3 border-blue-500"
-              : "text-white"
-            }`}
-        >
-          Guide
-        </button>
-        <button
           onClick={() => setActiveTab("myRental")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "myRental"
               ? "text-blue-500 border-b-3 border-blue-500"
@@ -350,11 +343,20 @@ useEffect(() => {
         <button
           onClick={() => setActiveTab("usedLead")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "usedLead"
-              ? "text-blue-500 border-b-2 border-blue-500"
+              ? "text-blue-500 border-b-3 border-blue-500"
               : "text-white"
             }`}
         >
           Used Lead
+        </button>
+        <button
+          onClick={() => setActiveTab("guide")}
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
+              ? "text-blue-500 border-b-2 border-blue-500"
+              : "text-white"
+            }`}
+        >
+          Guide
         </button>
       </div>
 
@@ -552,7 +554,7 @@ useEffect(() => {
                           localStorage.setItem(`${listing.type}Id`, listing.id);
                         } else if (isKycVerified) {
                           router.push(
-                            `/owner/verification?listingId=${listing.id}&listingType=${listing.type}&listingShowNo=${listing.listingShowNo}&adress=${listing.adress}`
+                            `/owner/verification?listingId=${listing.id}&listingType=${listing.type}&listingShowNo=${listing.listingShowNo}&city=${listing.city}&townSector=${listing.townSector}&location=${listing.location}` // Ensure location is passed
                           ); // Redirect to Verification page
                         } else {
                           alert("Please complete your KYC first."); // Optional alert for better UX
@@ -591,7 +593,7 @@ useEffect(() => {
                 className="bg-white rounded-md shadow-md p-4 mb-4"
               >
                 <p className="p-1 text-base flex items-center justify-center">
-                Address: {lead.adress}
+                 {lead.propertyType} | {lead.landmark} | {lead.location}
                 </p>
                 <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">
                   <div className="flex items-center gap-20">

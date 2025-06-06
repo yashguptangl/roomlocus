@@ -16,12 +16,14 @@ export default function Dashboard() {
   const [token, setToken] = useState(""); // Initialize token as an empty string
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [ownerData, setOwnerData] = useState<{ username: string; mobile: string } | null>(null);
+  const [ownerNameVerified, setOwnerNameVerified] = useState<{ id: number; username: string } | null>(null);
   const [agentData, setAgentData] = useState<{ walletRs: string } | null>(null);
   const [requests, setRequests] = useState<
     {
       id: number;
       listingType: string;
-      adress: string;
+      city: string;
+      townSector: string;
       status: string;
       listingShowNo: string;
       listingId: number;
@@ -31,9 +33,12 @@ export default function Dashboard() {
     {
       id: number;
       listingType: string;
-      adress: string;
+      city: string;
+      townSector: string;   
       listingShowNo: string;
       status: string;
+      ownerId: number;
+      updatedAt: string;
       listingId: number;
       createdAt: string;
     }[]
@@ -177,7 +182,9 @@ export default function Dashboard() {
             }
           );
           const data = response.data;
-          setVerifiedRequests(data);
+          setVerifiedRequests(Array.isArray(data) ? data : data.requests);
+          setOwnerNameVerified(Array.isArray(data.owner) ? data.owner : []);
+
         } catch (error) {
           console.error("Error fetching verified requests:", error);
         }
@@ -259,7 +266,7 @@ export default function Dashboard() {
                           {request.listingType}
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
-                          Address: {request.adress || "N/A"}
+                          {request.city}, {request.townSector}
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
                           Owner: {ownerData?.username}
@@ -322,12 +329,13 @@ export default function Dashboard() {
               <>
                 <div className="space-y-3">
                   {paginatedVerifiedRequests.map((request) => {
-                    const createdAt = new Date(request.createdAt);
+                    const createdAt = new Date(request.updatedAt);
                     const now = new Date();
                     const timeDiff = now.getTime() - createdAt.getTime();
                     const daysSinceVerification = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
 
-                    const shouldShowNumber = daysSinceVerification >= 335;
+                    // Show number if more than (365 - 15) = 350 days have passed
+                    const shouldShowNumber = daysSinceVerification >= 350;
 
                     const shareUrl = `${window.location.origin}/${request.listingType}/${request.listingId}`; // change to your domain
 
@@ -356,10 +364,17 @@ export default function Dashboard() {
                           <div>
                             <h3 className="font-medium capitalize">{request.listingType}</h3>
                             <p className="text-sm text-gray-600 mt-1">
-                              Address: {request.adress || "N/A"}
+                              {request.city}, {request.townSector}
                             </p>
                             <p className="text-sm text-gray-600 mt-1">
                               Verified on: {new Date(request.createdAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              Owner : {
+                                Array.isArray(ownerNameVerified)
+                                  ? ownerNameVerified.find((o) => o.id === request.ownerId)?.username || "N/A"
+                                  : (ownerNameVerified?.username || "N/A")
+                              }
                             </p>
                           </div>
 

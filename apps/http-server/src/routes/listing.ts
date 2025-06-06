@@ -188,9 +188,4 @@ listingRouter.get("/:listing/:id" , async ( req : Request, res : Response) => {
   }
 })
 
-
-
-
-
-
 export { listingRouter };
