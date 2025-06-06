@@ -17,7 +17,6 @@ export default function UploadDocuments() {
   const [ownerId, setOwnerId] = useState<number | null>(null);
   const [existingRequest, setExistingRequest] = useState<any>(null);
   const [presignedUrls, setPresignedUrls] = useState<{ [key: string]: string } | null>(null);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -37,39 +36,7 @@ export default function UploadDocuments() {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchExistingRequest = async () => {
-      const token = localStorage.getItem("token");
-      if (!token || !ownerId) return;
-
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verified-requests?listingId=${searchParams.get("id")}&listingType=${searchParams.get("listingType")}`,
-        { headers: { token } }
-      );
-      // response.data is array of requests
-      const pendingSelf = response.data.find(
-        (req: any) =>
-          req.status === "PENDING" && req.verificationType === "SELF"
-      );
-      if (pendingSelf) {
-        setExistingRequest(pendingSelf);
-        // Optionally, fetch presigned URLs for this request if needed
-        if (!pendingSelf.imagesUploaded) {
-          // Get presigned URLs for existing request
-          const urlRes = await axios.get(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/presigned-urls/${pendingSelf.id}`,
-            { headers: { token } }
-          );
-          setPresignedUrls(urlRes.data.imageUrls);
-        }
-      } else {
-        setExistingRequest(null);
-        setPresignedUrls(null);
-      }
-    };
-    fetchExistingRequest();
-  }, [ownerId, searchParams]);
-
+  
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Content
@@ -115,6 +82,39 @@ function Content({
     setPresignedUrls(urlRes.data.imageUrls);
     return urlRes.data.imageUrls;
   };
+
+  useEffect(() => {
+    const fetchExistingRequest = async () => {
+      const token = localStorage.getItem("token");
+      if (!token || !ownerId) return;
+
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verified-requests?listingId=${searchParams.get("id")}&listingType=${searchParams.get("listingType")}`,
+        { headers: { token } }
+      );
+      // response.data is array of requests
+      const pendingSelf = response.data.find(
+        (req: any) =>
+          req.status === "PENDING" && req.verificationType === "SELF"
+      );
+      if (pendingSelf) {
+        setExistingRequest(pendingSelf);
+        // Optionally, fetch presigned URLs for this request if needed
+        if (!pendingSelf.imagesUploaded) {
+          // Get presigned URLs for existing request
+          const urlRes = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/presigned-urls/${pendingSelf.id}`,
+            { headers: { token } }
+          );
+          setPresignedUrls(urlRes.data.imageUrls);
+        }
+      } else {
+        setExistingRequest(null);
+        setPresignedUrls(null);
+      }
+    };
+    fetchExistingRequest();
+  }, [ownerId, searchParams]);
 
   const handleUpload = async () => {
     try {
