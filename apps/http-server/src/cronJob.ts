@@ -19,18 +19,7 @@ cron.schedule("0 * * * *", async () => {
 
 cron.schedule("0 * * * *", async () => {
     try {
-        const now = new Date();
-
-        // ❌ **Expired Contact Logs Delete Karo**
-        await prisma.verificationRequest.updateMany({
-            where: {
-                status: "DONE",
-                updatedAt : { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
-            },
-            data: { status: "CANCELLED" },
-        });
-
-
+        
         const updatedProperties = await prisma.flatInfo.updateMany({
             where: {
             isVerified: true,
