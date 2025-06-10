@@ -59,11 +59,7 @@ verificationRequestRouteByAgent.post('/agent-accept-request', authenticate, asyn
         const categories = ["selfieWithOwner", "frontbuildingview"];
         const urls: { [key: string]: string } = {};
 
-        // Update the request status to 'CONFIRMED'
-        const updatedRequest = await prisma.verificationRequest.update({
-            where: { id: requestId as string },
-            data: { status: 'CONFIRMED' }
-        });
+        
 
         // Upload images for the verification request
         for (const category of categories) {
@@ -74,7 +70,7 @@ verificationRequestRouteByAgent.post('/agent-accept-request', authenticate, asyn
             urls[category] = imageUrl;
         }
 
-        // Update the verification request with images and mark as 'DONE'
+                
         const updatedData = await prisma.verificationRequest.update({
             where: { id: requestId as string },
             data: {
@@ -107,12 +103,6 @@ verificationRequestRouteByAgent.post('/agent-accept-request', authenticate, asyn
             });
         }
 
-        // Increment the agent's wallet by 200rs
-        await prisma.agent.update({
-            where: { agentId: String(agentId) },
-            data: { walletRs: { increment: 200 } }
-        });
-
         res.status(200).json({ 
             message: 'Request accepted and images uploaded successfully', 
             urls, 
@@ -133,7 +123,7 @@ verificationRequestRouteByAgent.get('/agent-verified-properties/:agentId', authe
         const requests = await prisma.verificationRequest.findMany({
             where: { 
                 agentId, 
-                status: 'DONE',
+                status: { in: ['DONE', 'PAY', 'CANCELLED_PAYMENT'] },
                 imagesUploaded: true
             },
             orderBy: sort === 'oldest' ? 

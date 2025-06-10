@@ -12,6 +12,7 @@ export default function UploadDocuments() {
     [key: string]: File | null;
   }>({});
   const [token, setToken] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,9 +53,7 @@ export default function UploadDocuments() {
       const uploadPromises = Object.keys(presignedUrls).map(async (category) => {
         const file = uploadedFiles[category];
         if (file) {
-          await axios.put(presignedUrls[category], {
-            method : "PUT",
-            body: file,
+          await axios.put(presignedUrls[category], file ,{
             headers: {
               "Content-Type": file.type,
             },
@@ -119,9 +118,10 @@ export default function UploadDocuments() {
         />
         <button
           onClick={handleUpload}
+          disabled={isUploading}
           className="bg-blue-500 text-white p-2 rounded mt-4 w-full"
         >
-          Upload
+          {isUploading ? "Uploading..." : "Upload Documents"}
         </button>
       </div>
     </div>

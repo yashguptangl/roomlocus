@@ -385,7 +385,19 @@ export default function Dashboard() {
                             </button>
 
                             <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                              Verified
+                                <span
+                                  className={
+                                    request.status === "PAY"
+                                      ? "text-green-700"
+                                      : request.status === "CANCELLED_PAYMENT"
+                                      ? "text-red-700"
+                                      : request.status === "DONE"
+                                      ? "text-gray-700"
+                                      : ""
+                                  }
+                                >
+                                  {request.status}
+                                </span>
                             </span>
                           </div>
                         </div>

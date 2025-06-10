@@ -285,10 +285,9 @@ model VerificationRequest {
 
 enum StatusType { 
   PENDING
-  CONFIRMED
-  CANCELLED
+  PAY
+  CANCELLED_PAYMENT
   DONE
-  INPROGRESS
 }
 
 enum VerifyType {
