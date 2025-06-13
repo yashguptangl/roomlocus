@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, Suspense } from "react";
 import Navbar from "../../components/navbar";
-import SortFilter from "../../components/filterSort";
 import { useSearchParams, useRouter } from "next/navigation";
 import ListingData from "../../types/listing";
 import Image from "next/image";
@@ -54,7 +53,7 @@ function Listing() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="container mx-auto px-4 py-6">
-        <SortFilter />
+        {/* <SortFilter /> */}
 
          <div className="mt-3 mb-2 flex justify-end">
           <input
@@ -93,8 +92,7 @@ function Listing() {
                 listing.location.toLowerCase().includes(text) ||
                 listing.landmark.toLowerCase().includes(text) ||
                 listing.city.toLowerCase().includes(text) ||
-                listing.townSector.toLowerCase().includes(text) ||
-                listing.BHK.toString().includes(text)
+                listing.townSector.toLowerCase().includes(text) 
               );
             })
               .map((listing) => {
@@ -126,18 +124,18 @@ function Listing() {
                     {/* Text Part */}
                     <div className="p-4">
                       <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
-                        {listing.location} {listing.city} {listing.townSector}
+                        {listing.location} , {listing.city} , {listing.townSector}
                       </h3>
                       <div className="mt-2 space-y-1">
                         <p className="text-sm text-gray-600">
-                          {listing.BHK} BHK {listing.Type}
+                           {listing.Type.toUpperCase()}
                         </p>
                         <p className="text-lg font-bold text-green-600 text-center">
                           ₹{listing.MinPrice.toLocaleString()} - ₹
                           {listing.MaxPrice.toLocaleString()}
                         </p>
                         <p className="text-sm text-gray-600 text-center">
-                          All Hourly Room Prices Vary
+                          All Hourly Room Prices Different
                         </p>
                       </div>
                     </div>

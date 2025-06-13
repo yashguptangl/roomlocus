@@ -16,7 +16,7 @@ type Tab = "guide" | "myRental" | "usedLead";
 
 interface UsedLeadsResponse {
   logs: LeadLog[];
-  
+
 }
 
 export default function Dashboard() {
@@ -31,74 +31,74 @@ export default function Dashboard() {
   const [usedLeads, setUsedLeads] = useState<UsedLeadsResponse>({ logs: [] });
   const [isKycVerified, setIsKycVerified] = useState(true); // Default to true
 
-// Move handleDeleteLead outside useEffect so it's accessible in render
-const handleDeleteLead = async (leadId: number) => {
-  try {
+  // Move handleDeleteLead outside useEffect so it's accessible in render
+  const handleDeleteLead = async (leadId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("User not authenticated");
+        return;
+      }
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/recentContacts/delete`,
+        {
+          headers: { token },
+          data: { id: leadId },
+        }
+      );
+      if (response.data.success) {
+        setUsedLeads((prev) => ({
+          ...prev,
+          logs: prev.logs.filter((lead) => String(lead.id) !== String(leadId)),
+        }));
+        alert("Lead deleted successfully");
+      } else {
+        alert("Failed to delete lead");
+      }
+    } catch (error) {
+      console.error("Error deleting lead:", error);
+      alert("An error occurred while deleting the lead");
+    }
+  };
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      alert("User not authenticated");
-      return;
-    }
-    const response = await axios.delete(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/recentContacts/delete`,
-      {
-        headers: { token },
-        data: { id: leadId },
+
+    if (token) {
+      const payloadBase64 = token.split(".")[1];
+      const payload = payloadBase64 ? JSON.parse(atob(payloadBase64)) : null;
+      console.log("Payload:", payload);
+
+      const ownerId = payload?.id;
+
+      async function ownerDeatils() {
+        try {
+          const response = await axios.get(
+
+
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/details-owner`,
+            { headers: { token } }
+          );
+          console.log("Owner Details:", response.data);
+          setPoints(response.data.ownerDetails.points);
+          setIsKycVerified(response.data.ownerDetails.isKYCVerified);
+        } catch (err) {
+          console.log("Error fetching owner details:", err);
+        }
       }
-    );
-    if (response.data.success) {
-      setUsedLeads((prev) => ({
-        ...prev,
-        logs: prev.logs.filter((lead) => String(lead.id) !== String(leadId)),
-      }));
-      alert("Lead deleted successfully");
-    } else {
-      alert("Failed to delete lead");
-    }
-  } catch (error) {
-    console.error("Error deleting lead:", error);
-    alert("An error occurred while deleting the lead");
-  }
-};
 
-useEffect(() => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    const payloadBase64 = token.split(".")[1];
-    const payload = payloadBase64 ? JSON.parse(atob(payloadBase64)) : null;
-    console.log("Payload:", payload);
-
-    const ownerId = payload?.id;
-
-    async function ownerDeatils() {
-      try {
-        const response = await axios.get(
-
-          
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/details-owner`,
-          { headers: { token } }
-        );
-        console.log("Owner Details:", response.data);
-        setPoints(response.data.ownerDetails.points);
-        setIsKycVerified(response.data.ownerDetails.isKYCVerified);
-      } catch (err) {
-        console.log("Error fetching owner details:", err);
+      async function usedLeadData(token: string, ownerId: string) {
+        try {
+          const leadResponse = await axios.get(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-logs/${ownerId}`,
+            { headers: { token } }
+          );
+          setUsedLeads(leadResponse.data);
+          console.log("Used Leads:", leadResponse.data);
+        } catch (err) {
+          console.error("Error fetching used leads:", err);
+        }
       }
-    }
-
-    async function usedLeadData(token: string, ownerId: string) {
-      try {
-        const leadResponse = await axios.get(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-logs/${ownerId}`,
-          { headers: { token } }
-        );
-        setUsedLeads(leadResponse.data);
-        console.log("Used Leads:", leadResponse.data);
-      } catch (err) {
-        console.error("Error fetching used leads:", err);
-      }
-    }
 
       async function fetchImagesForListing(type: string, listingId: string) {
         try {
@@ -127,7 +127,7 @@ useEffect(() => {
               ...item,
               type: "flat",
               listingId: item.id,
-              adress : item.adress || item.Adress || item.adress || "",
+              adress: item.adress || item.Adress || item.adress || "",
             })) || [];
 
           const pgListings =
@@ -135,7 +135,7 @@ useEffect(() => {
               ...item,
               type: "pg",
               listingId: item.id,
-              adress : item.adress || item.Adress || item.adress || "",
+              adress: item.adress || item.Adress || item.adress || "",
             })) || [];
 
           const roomListings =
@@ -143,7 +143,7 @@ useEffect(() => {
               ...item,
               type: "room",
               listingId: item.id,
-              adress : item.adress || item.Adress || item.adress || "",
+              adress: item.adress || item.Adress || item.adress || "",
             })) || [];
 
           const hourlyroomListings =
@@ -151,7 +151,7 @@ useEffect(() => {
               ...item,
               type: "hourlyroom",
               listingId: item.id,
-              adress : item.adress || item.Adress || item.adress || "",
+              adress: item.adress || item.Adress || item.adress || "",
             })) || [];
           console.log("Hourly Room Listings:", hourlyroomListings);
 
@@ -330,12 +330,12 @@ useEffect(() => {
         </div>
       )}
       {/* Navigation Tabs */}
-      <div className="flex justify-between border-b border-gray-300 bg-blue-400">
+      <div className="flex justify-between border-b border-gray-300 bg-blue-300">
         <button
           onClick={() => setActiveTab("myRental")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "myRental"
-              ? "text-blue-500 border-b-3 border-blue-500"
-              : "text-white"
+            ? "text-blue-500 border-b-3 border-blue-500"
+            : "text-white"
             }`}
         >
           My Rentals
@@ -343,8 +343,8 @@ useEffect(() => {
         <button
           onClick={() => setActiveTab("usedLead")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "usedLead"
-              ? "text-blue-500 border-b-3 border-blue-500"
-              : "text-white"
+            ? "text-blue-500 border-b-3 border-blue-500"
+            : "text-white"
             }`}
         >
           Used Lead
@@ -352,8 +352,8 @@ useEffect(() => {
         <button
           onClick={() => setActiveTab("guide")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
-              ? "text-blue-500 border-b-2 border-blue-500"
-              : "text-white"
+            ? "text-blue-500 border-b-2 border-blue-500"
+            : "text-white"
             }`}
         >
           Guide
@@ -384,7 +384,7 @@ useEffect(() => {
                 >
                   <div className="relative mod:w-72 mod:h-36 ssm:h-36 ssm:w-72 md:h-40 md:w-72 w-full sm:w-44 h-40">
                     <button
-                      className="absolute top-3 right-3 z-10 bg-white/80 p-2 rounded-full shadow hover:bg-white"
+                      className="absolute top-3 right-3 z-10 bg-white/50 p-1.5 rounded-full shadow hover:bg-white"
                       onClick={async (e) => {
                         e.stopPropagation();
                         const shareUrl = `${window.location.origin}/${listing.type}/${listing.id}`;
@@ -424,13 +424,18 @@ useEffect(() => {
                       Publish
                     </label>
                     <button
-                      onClick={() =>
+                      onClick={() => {
+                        if (Number(points) <= 0) {
+                        setShowModal(true);
+                        alert("You need to buy leads to publish your property.");
+                        return;
+                      }
                         toggleButton(
                           listing.id,
                           listing.type,
                           listing.isVisible
-                        )
-                      }
+                        );
+                      }}
                       id={`publish-${listing.id}`}
                       className={`px-1 py-0.5 rounded-lg text-white text-xs w-8 ${listing.isVisible ? "bg-green-500" : "bg-red-500"
                         }`}
@@ -462,8 +467,8 @@ useEffect(() => {
                                   {({ active }) => (
                                     <button
                                       className={`${active
-                                          ? "bg-blue-500 text-white"
-                                          : "text-gray-900"
+                                        ? "bg-blue-500 text-white"
+                                        : "text-gray-900"
                                         } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                       onClick={() => {
                                         router.push(
@@ -483,8 +488,8 @@ useEffect(() => {
                                   {({ active }) => (
                                     <button
                                       className={`${active
-                                          ? "bg-red-500 text-white"
-                                          : "text-gray-900"
+                                        ? "bg-red-500 text-white"
+                                        : "text-gray-900"
                                         } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                       onClick={() =>
                                         handleDeleteListing(
@@ -503,8 +508,8 @@ useEffect(() => {
                                 {({ active }) => (
                                   <button
                                     className={`${active
-                                        ? "bg-blue-500 text-white"
-                                        : "text-gray-900"
+                                      ? "bg-blue-500 text-white"
+                                      : "text-gray-900"
                                       } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                     onClick={() => {
                                       router.push(
@@ -542,10 +547,10 @@ useEffect(() => {
 
                     <button
                       className={`mt-1.5 rounded-md text-white text-sm ssm:text-sm ssm:p-2 w-full ${listing.isDraft
+                        ? "bg-blue-600"
+                        : listing.isVerified
                           ? "bg-blue-600"
-                          : listing.isVerified
-                            ? "bg-blue-600"
-                            : "bg-red-600"
+                          : "bg-red-600"
                         }`}
                       onClick={() => {
                         if (listing.isDraft) {
@@ -576,66 +581,66 @@ useEffect(() => {
         )}
 
         {activeTab === "usedLead" && (
-        <div className="mt-4 w-full sm:w-2/3 mx-auto">
-          <h2 className="text-base font-medium mb-4 text-center">
-            Customer Visited Your Profile
-          </h2>
+          <div className="mt-4 w-full sm:w-2/3 mx-auto">
+            <h2 className="text-base font-medium mb-4 text-center">
+              Customer Visited Your Profile
+            </h2>
 
-          {/* Contact Log */}
-          {usedLeads.logs.length === 0 ? (
-            <p className="text-center">No leads available</p>
+            {/* Contact Log */}
+            {usedLeads.logs.length === 0 ? (
+              <p className="text-center">No leads available</p>
             ) : (
-            usedLeads.logs
-              .filter((lead: LeadLog) => !lead.ownerDeleted)
-              .map((lead: LeadLog) => (
-              <div
-                key={lead.id}
-                className="bg-white rounded-md shadow-md p-4 mb-4"
-              >
-                <p className="p-1 text-base flex items-center justify-center">
-                 {lead.propertyType} | {lead.landmark} | {lead.location}
-                </p>
-                <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">
-                  <div className="flex items-center gap-20">
-                    <div className="flex item-center gap-4">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold">
-                          Name: {lead.customerName}
-                        </span>
-                        <span className="text-xs text-gray-600">
-                          Mob No.: {lead.customerPhone}
-                        </span>
-                        <span className="text-xs text-gray-600">
-                          Date:{" "}
-                          {new Date(lead.accessDate).toLocaleDateString(
-                            "en-CA"
-                          )}
-                        </span>
+              usedLeads.logs
+                .filter((lead: LeadLog) => !lead.ownerDeleted)
+                .map((lead: LeadLog) => (
+                  <div
+                    key={lead.id}
+                    className="bg-white rounded-md shadow-md p-4 mb-4"
+                  >
+                    <p className="p-1 text-base flex items-center justify-center">
+                      {lead.propertyType} | {lead.landmark} | {lead.location}
+                    </p>
+                    <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">
+                      <div className="flex items-center gap-20">
+                        <div className="flex item-center gap-4">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold">
+                              Name: {lead.customerName}
+                            </span>
+                            <span className="text-xs text-gray-600">
+                              Mob No.: {lead.customerPhone}
+                            </span>
+                            <span className="text-xs text-gray-600">
+                              Date:{" "}
+                              {new Date(lead.accessDate).toLocaleDateString(
+                                "en-CA"
+                              )}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => (window.location.href = `tel:${lead.customerPhone}`)}
+                            className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                            Call
+                          </button>
+                          <Image
+                            src={Delete.src}
+                            alt="Delete"
+                            className="cursor-pointer"
+                            height={30}
+                            width={30}
+                            onClick={() => handleDeleteLead(lead.id)}
+                          />
+                        </div>
                       </div>
                     </div>
-
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => (window.location.href = `tel:${lead.customerPhone}`)}
-                        className="bg-green-500 text-white px-3 py-1 rounded-full text-sm">
-                        Call
-                      </button>
-                      <Image
-                        src={Delete.src}
-                        alt="Delete"
-                        className="cursor-pointer"
-                        height={30}
-                        width={30}
-                        onClick={() => handleDeleteLead(lead.id)}
-                      />
-                    </div>
                   </div>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
+                ))
+            )}
+          </div>
+        )}
 
         {/* Rental List Modal */}
         {isRentalListOpen && (

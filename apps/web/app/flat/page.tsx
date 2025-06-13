@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, Suspense } from "react";
 import Navbar from "../../components/navbar";
-import SortFilter from "../../components/filterSort";
 import { useSearchParams, useRouter } from "next/navigation";
 import ListingData from "../../types/listing";
 import Image from "next/image";
@@ -55,7 +54,7 @@ function Listing() {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="container mx-auto px-4 py-6">
-        <SortFilter />
+        {/* <SortFilter /> */}
 
         <div className="mt-3 mb-2 flex justify-end">
           <input
@@ -137,7 +136,7 @@ function Listing() {
                           {listing.MaxPrice.toLocaleString()}
                         </p>
                         <p className="text-sm text-gray-600 text-center">
-                          All Flat Prices Vary
+                          All Flat Prices Different
                         </p>
                       </div>
                     </div>

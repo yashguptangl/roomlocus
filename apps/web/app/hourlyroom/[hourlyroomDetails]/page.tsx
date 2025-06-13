@@ -265,10 +265,10 @@ export default function ListingDetail() {
                       </span>
                     </div>
 
-                    <div className="absolute top-0 right-2 flex flex-col items-center space-y-2 z-20">
+                    <div className="absolute top-3 right-2 flex flex-col items-center space-y-4 z-20">
                       <button
                         onClick={handleWishlistToggle}
-                        className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
+                        className="p-1 bg-white/50 rounded-full shadow-md hover:bg-white transition-all"
                       >
                         {isSaved ? (
                           <FaHeart className="text-red-500 text-xl" />
@@ -279,7 +279,7 @@ export default function ListingDetail() {
 
                       <button
                         onClick={handleShare}
-                        className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
+                        className="p-1 bg-white/50 rounded-full shadow-md hover:bg-white transition-all"
                       >
                         <FaShareAlt className="text-gray-700 text-lg" />
                       </button>
@@ -344,7 +344,7 @@ export default function ListingDetail() {
             <div className="flex-1 p-4 space-y-4">
               <div>
                 <h1 className="text-xl font-semibold text-gray-800">
-                  {listing.location}, {listing.city}, {listing.townSector}
+                  {listing.adress}
                 </h1>
 
                 <h2 className="text-2xl font-semibold text-center text-green-600 my-2">
@@ -355,72 +355,68 @@ export default function ListingDetail() {
               <div className="border-t border-b border-gray-200 py-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-gray-700">Palace Name</p>
+                    <p className="text-blue-300 font-semibold">Palace Name</p>
                     <p className="font-normal">{listing.palaceName}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Type</p>
-                    <p className="font-normal">{listing.Type}</p>
+                    <p className="text-blue-300 font-semibold">Type</p>
+                    <p className="font-normal">Hourly Room</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Furnishing</p>
+                    <p className="text-blue-300 font-semibold">Furnishing</p>
                     <p className="font-normal">{listing.furnishingType}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Accommodation</p>
+                    <p className="text-blue-300 font-semibold">Accommodation</p>
                     <p className="font-normal">{listing.accomoType}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Gender</p>
+                    <p className="text-blue-300 font-semibold">Gender</p>
                     <p className="font-normal">{listing.genderPrefer}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Room Type</p>
+                    <p className="text-blue-300 font-semibold">Room Type</p>
                     <p className="font-normal">{listing.roomType}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Total Room</p>
+                    <p className="text-blue-300 font-semibold">Total Room</p>
                     <p className="font-normal">{listing.totalRoom}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Total Floor</p>
+                    <p className="text-blue-300 font-semibold">Total Floor</p>
                     <p className="font-normal">{listing.totalFloor}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Bed Count</p>
+                    <p className="text-blue-300 font-semibold">Bed Count</p>
                     <p className="font-normal">{listing.BedCount}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">Food Available</p>
+                    <p className="text-blue-300 font-semibold">Food Available</p>
                     <p className="font-normal">{listing.foodAvailable ? "Yes" : "No"}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">AC Type</p>
+                    <p className="text-blue-300 font-semibold">AC Type</p>
                     <p className="font-normal">{listing.acType}</p>
                   </div>
                   <div>
-                    <p className="text-gray-700">No of Guests</p>
+                    <p className="text-blue-300 font-semibold">No of Guests</p>
                     <p className="font-normal">{listing.noofGuests}</p>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">Address</h3>
+                <h3 className="text-lg font-semibold mb-2 text-blue-300">Address</h3>
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                   <p className="font-normal">{listing.adress}</p>
                   <p className="font-normal mt-1">Landmark: {listing.landmark}</p>
+                  <p className="font-normal mt-1">Location: {listing.location}</p>
                 </div>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">Offer : </h3>
-                <p className="text-gray-700">{listing.Offer}</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Prefer Tenants </h3>
+                  <h3 className="text-lg font-semibold mb-2 text-blue-300">Prefer Tenants </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {listing.preferTenants?.map((tenants, index) => (
                       <div key={index} className="flex items-center">
@@ -432,7 +428,7 @@ export default function ListingDetail() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Parking</h3>
+                  <h3 className="text-lg font-semibold mb-2 text-blue-300">Parking</h3>
                   <div className="flex flex-wrap gap-2">
                     {listing.parking?.map((parking, index) => (
                       <div key={index} className="flex items-center">
@@ -444,7 +440,7 @@ export default function ListingDetail() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Inside Facilities : </h3>
+                  <h3 className="text-lg font-semibold mb-2 text-blue-300">Room Inside Facilities : </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {listing.roomInside?.map((facility, index) => (
                       <div key={index} className="flex items-center">
@@ -456,7 +452,7 @@ export default function ListingDetail() {
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Outside Facilities : </h3>
+                  <h3 className="text-lg font-semibold mb-2 text-blue-300">Room Outside Facilities : </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {listing.roomOutside?.map((facility, index) => (
                       <div key={index} className="flex items-center">
@@ -474,22 +470,27 @@ export default function ListingDetail() {
                       type="submit"
                       disabled={isSubmitting}
                       onClick={handleSubmit(contactOwner)}
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                      className="bg-blue-300  text-white font-medium py-2 px-3 rounded-lg transition-colors ssm:ml-10 mod:ml-14 md:ml-20"
                     >
                       {isSubmitting ? "Contacting..." : "Contact Owner"}
                     </button>
                   </form>
                 ) : (
-                  <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                    <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
-                    <p className="text-gray-700">Phone: {ownerContact.ownerMobile}</p>
-                    <a
-                      href={`tel:${ownerContact.ownerMobile}`}
-                      className="mt-3 inline-block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg text-center transition-colors"
-                    >
-                      Call
-                    </a>
+                  <div className="flex justify-evenly border border-green-200 bg-green-50 p-4 rounded-lg">
+                    <div >
+                      <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
+                      <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
+                      <p className="text-gray-700">Phone: {ownerContact.ownerMobile}</p>
+                    </div>
+                    <div>
+                      <a
+                        href={`tel:${ownerContact.ownerMobile}`}
+                        className="mt-8 inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-1  px-2 rounded-xl text-center transition-colors"
+                      >
+                        Call
+                      </a>
+                    </div>
+
                   </div>
                 )}
               </div>

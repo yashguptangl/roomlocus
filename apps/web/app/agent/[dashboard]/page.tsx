@@ -207,16 +207,7 @@ export default function Dashboard() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex justify-between border-b border-gray-300 bg-blue-400">
-        <button
-          onClick={() => setActiveTab("guide")}
-          className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
-            ? "text-blue-500 border-b-3 border-blue-500"
-            : "text-white"
-            }`}
-        >
-          Guide
-        </button>
+      <div className="flex justify-between border-b border-gray-300 bg-blue-300">
         <button
           onClick={() => setActiveTab("incoming_request")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "incoming_request"
@@ -229,11 +220,20 @@ export default function Dashboard() {
         <button
           onClick={() => setActiveTab("Verified")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "Verified"
-            ? "text-blue-500 border-b-2 border-blue-500"
+            ? "text-blue-500 border-b-3 border-blue-500"
             : "text-white"
             }`}
         >
           Verified
+        </button>
+        <button
+          onClick={() => setActiveTab("guide")}
+          className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
+            ? "text-blue-500 border-b-2 border-blue-500"
+            : "text-white"
+            }`}
+        >
+          Guide
         </button>
       </div>
 

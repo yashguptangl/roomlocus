@@ -112,7 +112,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3">
+    <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3 mb-10">
       <div className="w-full mb-2 lg:mb-0">
         <SideDetail
             title="Welcome to Roomlocus"
@@ -200,7 +200,7 @@ export default function ForgotPassword() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-400 text-white mt-4 py-2 rounded font-semibold hover:bg-blue-400 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+              className="w-full bg-blue-500 text-white mt-4 py-2 rounded font-semibold hover:bg-blue-400 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
               {isSubmitting
                 ? otpSent
@@ -219,7 +219,7 @@ export default function ForgotPassword() {
                     type="button"
                     onClick={handleResendOTP}
                     disabled={resendLoading}
-                    className="text-blue-400 font-semibold hover:underline focus:outline-none disabled:text-blue-400 disabled:cursor-not-allowed"
+                    className="text-blue-500 font-semibold hover:underline focus:outline-none disabled:text-blue-400 disabled:cursor-not-allowed"
                   >
                     {resendLoading ? "Sending..." : "Resend OTP"}
                   </button>
@@ -229,7 +229,7 @@ export default function ForgotPassword() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/user/signin" className="text-blue-400 hover:underline">
+            <Link href="/agent/signin" className="text-blue-700 font-semibold hover:underline">
               Back to Sign In
             </Link>
           </div>

@@ -131,9 +131,9 @@ function LoginSignup() {
             </button>
           </form>
 
-          <div className="text-center mt-4">
-            <Link href="/user/forgot" className="hover:underline font-semibold text-blue-600">
+          <div className="text-center mt-4">         
               <span className="font-normal text-black">Forgot</span> &nbsp;
+              <Link href="/user/forgot" className="hover:underline font-semibold text-blue-600">
               <span className="hover:underline text-blue-600 font-semibold">Password</span>
             </Link>
           </div>

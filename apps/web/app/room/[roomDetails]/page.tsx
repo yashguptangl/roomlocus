@@ -260,10 +260,10 @@ export default function ListingDetail() {
                   </div>
 
                   {/* Wishlist and Share buttons */}
-                  <div className="absolute top-0 right-2 flex flex-col items-center space-y-2 z-20">
+                  <div className="absolute top-3 right-2 flex flex-col items-center space-y-4 z-20">
                     <button
                       onClick={handleWishlistToggle}
-                      className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
+                      className="p-1 bg-white/50 rounded-full shadow-md hover:bg-white transition-all"
                     >
                       {isSaved ? (
                         <FaHeart className="text-red-500 text-xl" />
@@ -274,7 +274,7 @@ export default function ListingDetail() {
 
                     <button
                       onClick={handleShare}
-                      className="p-0.5 bg-white/80 rounded-full shadow-md hover:bg-white transition-all"
+                      className="p-1 bg-white/50 rounded-full shadow-md hover:bg-white transition-all"
                     >
                       <FaShareAlt className="text-gray-700 text-lg" />
                     </button>
@@ -341,7 +341,7 @@ export default function ListingDetail() {
           <div className="flex-1 p-4 space-y-4">
             <div>
               <h1 className="text-xl font-semibold text-gray-800">
-                {listing.location}, {listing.city}, {listing.townSector}
+                {listing.adress}
               </h1>
 
               <h2 className="text-2xl font-semibold text-center text-green-600 my-2">
@@ -352,72 +352,70 @@ export default function ListingDetail() {
             <div className="border-t border-b border-gray-200 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-gray-700">Security</p>
+                  <p className="text-blue-300 font-semibold">Security</p>
                   <p className="font-normal">{listing.security}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Maintenance</p>
+                  <p className="text-blue-300 font-semibold">Maintenance</p>
                   <p className="font-normal">{listing.maintenance}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Type</p>
+                  <p className="text-blue-300 font-semibold">Type</p>
                   <p className="font-normal">{listing.BHK} BHK {listing.Type}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Furnishing</p>
+                  <p className="text-blue-300 font-semibold">Furnishing</p>
                   <p className="font-normal">{listing.furnishingType}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Accommodation</p>
+                  <p className="text-blue-300 font-semibold">Accommodation</p>
                   <p className="font-normal">{listing.accomoType}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Gender</p>
+                  <p className="text-blue-300 font-semibold">Gender</p>
                   <p className="font-normal">{listing.genderPrefer}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Room Type</p>
+                  <p className="text-blue-300 font-semibold">Room Type</p>
                   <p className="font-normal">{listing.roomType}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Total Room</p>
+                  <p className="text-blue-300 font-semibold">Total Room</p>
                   <p className="font-normal">{listing.totalRoom}</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Water Supply</p>
+                  <p className="text-blue-300 font-semibold">Water Supply</p>
                   <p className="font-normal">{listing.waterSupply} hr</p>
                 </div>
                 <div>
-                  <p className="text-gray-700">Power Backup</p>
+                  <p className="text-blue-300 font-semibold">Power Backup</p>
                   <p className="font-normal">{listing.powerBackup} hr</p>
+                </div>
+                <div>
+                  <p className="text-blue-300 font-semibold">Room Available</p>
+                  <p className="font-normal">{listing.RoomAvailable}</p>
                 </div>
               </div>
             </div>
 
             <div className="border-b border-gray-200 py-4">
-              <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Available</h3>
-              <p className="font-normal">{listing.RoomAvailable}</p>
-              <h3 className="text-lg font-semibold mb-2 text-gray-700">Offer</h3>
+              <h3 className="text-lg font-semibold mb-2 text-blue-300">Offer</h3>
               <p className="font-normal">{listing.Offer}</p>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-700">Address</h3>
+              <h3 className="text-lg font-semibold mb-2 text-blue-300">Address</h3>
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                 <p className="font-normal">{listing.adress}</p>
                 <p className="font-normal mt-1">Landmark: {listing.landmark}</p>
+                <p className="font-normal mt-1">Location: {listing.location}</p>
               </div>
-            </div>
-
-            <div>
-              <h3 className="text-lg font-semibold mb-2 text-gray-700">Offer : </h3>
-              <p className="text-gray-700">{listing.Offer}</p>
             </div>
 
             <div className="space-y-4">
 
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">Prefer Tenants </h3>
+                <h3 className="text-lg font-semibold mb-2 text-blue-300">Prefer Tenants </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {listing.preferTenants?.map((tenants, index) => (
                     <div key={index} className="flex items-center">
@@ -428,7 +426,7 @@ export default function ListingDetail() {
                 </div>
               </div>
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">Parking</h3>
+                <h3 className="text-lg font-semibold mb-2 text-blue-300">Parking</h3>
                 <div className="flex flex-wrap gap-2">
                   {listing.parking?.map((parking, index) => (
                     <div key={index} className="flex items-center">
@@ -440,7 +438,7 @@ export default function ListingDetail() {
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Inside Facilities : </h3>
+                <h3 className="text-lg font-semibold mb-2 text-blue-300">Room Inside Facilities : </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {listing.roomInside?.map((facility, index) => (
                     <div key={index} className="flex items-center">
@@ -453,7 +451,7 @@ export default function ListingDetail() {
 
 
               <div>
-                <h3 className="text-lg font-semibold mb-2 text-gray-700">Room Outside Facilities : </h3>
+                <h3 className="text-lg font-semibold mb-2 text-blue-300">Room Outside Facilities : </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {listing.roomOutside?.map((facility, index) => (
                     <div key={index} className="flex items-center">
@@ -471,23 +469,27 @@ export default function ListingDetail() {
                 <form onSubmit={handleSubmit(async () => {
                   await contactOwner();
                 })}>
-                  <button
-                    type="submit"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                    disabled={isSubmitting}
-                    onClick={handleSubmit(contactOwner)}
-                  >
-                    {isSubmitting ? "Contacting..." : "Contact Owner"}
-                  </button>
+                  <center>
+                    <button
+                      type="submit"
+                      className="bg-blue-300 text-white font-medium py-2 px-6 rounded-lg transition-colors ssm:ml-10 mod:ml-12 "
+                      disabled={isSubmitting}
+                      onClick={handleSubmit(contactOwner)}
+                    >
+                      {isSubmitting ? "Contacting..." : "Contact Owner"}
+                    </button>
+                  </center>
                 </form>
               ) : (
-                <div className="border border-green-200 bg-green-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                  <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
-                  <p className="text-gray-700">Phone: {listing.listingShowNo}</p>
+                <div className="flex justify-evenly border border-green-200 bg-green-50 p-4 rounded-lg">
+                  <div>
+                    <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
+                    <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
+                    <p className="text-gray-700">Phone: {listing.listingShowNo}</p>
+                  </div>
                   <a
                     href={`tel:${listing.listingShowNo}`}
-                    className="mt-3 inline-block w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg text-center transition-colors"
+                    className="mt-8 inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-2 rounded-xl text-center transition-colors"
                   >
                     Call
                   </a>

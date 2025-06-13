@@ -102,18 +102,12 @@ export default function Signup() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-500 text-white py-2 rounded font-semibold focus:outline-none"
+                className="w-full bg-blue-500 hover:bg-blue-400 text-white py-2 rounded font-semibold focus:outline-none"
               >
                 {isSubmitting ? "Signing up..." : "Sign Up"}
               </button>
 
               <div className="mt-4 text-center">
-                <p className="font-normal">
-                  Forgot{" "}
-                  <span className="text-blue-600 font-semibold ml-3 cursor-pointer hover:underline">
-                    UserName/Password
-                  </span>
-                </p>
                 <p className="font-normal">
                   Already a User?{" "}
                   <Link href="/agent/signin" className="text-blue-600 font-semibold ml-3 cursor-pointer hover:underline">

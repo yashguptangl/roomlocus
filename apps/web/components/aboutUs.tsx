@@ -7,7 +7,7 @@ export default function AboutUs() {
           About Us – Roomlocus
         </h1>
 
-        <div className="space-y-6 text-gray-700 text-base sm:text-lg leading-relaxed">
+        <div className="space-y-6 text-gray-700 text-base sm:text-lg leading-relaxed text-justify">
           <p>
             At <strong>Roomlocus</strong>, we believe finding a place to live shouldn’t be complicated or costly. That’s
             why we created a platform where seekers (tenants) can search for rental properties completely free—no hidden
@@ -33,7 +33,7 @@ export default function AboutUs() {
 
           <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mt-6">How Tenants Can Find Rooms on Roomlocus</h2>
 
-          <ol className="list-decimal list-inside space-y-2 mt-4">
+          <ol className="list-decimal list-inside space-y-2 mt-4 text-justify">
             <li>
               On the homepage, the seeker chooses the type of rental (Room, PG, Flat, Hourly Room), along with city,
               town & sector using 3 dropdowns.

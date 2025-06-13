@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 const ownerDashboard = Router();
 import { jwt, JWT_SECRET } from '../config';
 import { authenticate, AuthenticatedRequest } from "../middleware/auth";
-import { getObjectURL , putObject} from '../utils/s3client';
+import { getObjectURL, putObject } from '../utils/s3client';
 import { prisma } from '@repo/db/prisma';
 
 
@@ -21,13 +21,13 @@ ownerDashboard.get("/:id/listings", authenticate, async (req: AuthenticatedReque
     try {
         const ownerWithListings = await prisma.owner.findUnique({
             where: { id: Number(id) },
-            include: { FlatInfo: true, RoomInfo: true, PgInfo: true , HourlyInfo : true }
+            include: { FlatInfo: true, RoomInfo: true, PgInfo: true, HourlyInfo: true }
         });
         if (!ownerWithListings) {
             res.status(404).json({ message: "Listing not found" });
             return;
         }
-        
+
         res.status(200).json({
             message: "Owner listings fetched successfully",
             listings: ownerWithListings,
@@ -101,29 +101,29 @@ ownerDashboard.get("/contact-logs/:ownerId", authenticate, async (req: Authentic
 
 ownerDashboard.post("/publish", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const { listingId, type , isVisible} = req.body;
+        const { listingId, type, isVisible } = req.body;
         const { id: ownerId } = req.user;
 
         // Update the visibility of the listing based on the provided type
         if (type === "flat") {
             await prisma.flatInfo.updateMany({
-            where: { id: listingId, ownerId },
-            data: { isVisible: !isVisible },
+                where: { id: listingId, ownerId },
+                data: { isVisible: !isVisible },
             });
         } else if (type === "room") {
             await prisma.roomInfo.updateMany({
-            where: { id: listingId, ownerId },
-            data: { isVisible: !isVisible },
+                where: { id: listingId, ownerId },
+                data: { isVisible: !isVisible },
             });
         } else if (type === "pg") {
             await prisma.pgInfo.updateMany({
-            where: { id: listingId, ownerId },
-            data: { isVisible: !isVisible },
+                where: { id: listingId, ownerId },
+                data: { isVisible: !isVisible },
             });
         } else if (type === "hourlyroom") {
             await prisma.hourlyInfo.updateMany({
-            where: { id: listingId, ownerId },
-            data: { isVisible: isVisible },
+                where: { id: listingId, ownerId },
+                data: { isVisible: isVisible },
             });
         } else {
             res.status(400).json({ message: "Invalid type specified" });
@@ -156,12 +156,12 @@ ownerDashboard.post("/owner-kyc", authenticate, async (req: AuthenticatedRequest
         // Update owner's KYC status
         await prisma.owner.update({
             where: { id },
-            data: { isKYCVerified: true , points: { increment: 10 } }, // Increment points by 10 for KYC verification
+            data: { isKYCVerified: true, points: { increment: 10 } }, // Increment points by 10 for KYC verification
         });
 
         res.status(200).json({ message: "KYC documents uploaded successfully", presignedUrls: urls });
         return;
-    }catch(error){
+    } catch (error) {
         console.error("Error uploading KYC documents:", error);
         res.status(500).json({ message: "Failed to upload KYC documents" });
         return;
@@ -191,8 +191,8 @@ ownerDashboard.delete("/listing", authenticate, async (req: AuthenticatedRequest
                 where: { id: listingId, ownerId },
             });
         } else {
-             res.status(400).json({ message: "Invalid type specified" });
-             return;
+            res.status(400).json({ message: "Invalid type specified" });
+            return;
         }
 
         res.status(200).json({ message: "Listing deleted successfully" });
@@ -272,7 +272,7 @@ ownerDashboard.put("/edit-listing", authenticate, async (req: AuthenticatedReque
     }
 });
 
-ownerDashboard.get("/details-owner" , authenticate , async (req: AuthenticatedRequest, res: Response) => {
+ownerDashboard.get("/details-owner", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     const { id } = req.user; // Corrected destructuring
     try {
         const ownerDetails = await prisma.owner.findUnique({
@@ -286,14 +286,14 @@ ownerDashboard.get("/details-owner" , authenticate , async (req: AuthenticatedRe
         return;
     } catch (error) {
         console.log("Error fetching owner details:", error);
-         res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error" });
         return;
     }
 });
 
-ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRequest, res: Response): Promise<any> => {
+ownerDashboard.post("/contact-owner", authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     try {
-        const { propertyId, propertyType, ownerId, location , landmark , listingShowNo  } = req.body;
+        const { propertyId, propertyType, ownerId, location, landmark, listingShowNo } = req.body;
         const token = req.headers.token as string;
         console.log(token);
         console.log(req.body);
@@ -305,10 +305,10 @@ ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRe
         const decoded = verifyToken(token);
         console.log(decoded);
         if (!decoded) {
-            return res.status(403).json({ message: "Invalid token" });
+            return res.status(401).json({ message: "Invalid token" });
         }
-        
-        
+
+
         const { username, mobile } = decoded;
 
         // Fetch Owner Details
@@ -317,27 +317,37 @@ ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRe
             return res.status(404).json({ message: 'Owner not found' });
         }
 
-        // Create a contact log entry with 30-day validity
+        // Create a contact log entry with 15-day validity
         await prisma.contactLog.create({
             data: {
-            ownerId,
-            userId: decoded.id,
-            listingId: propertyId,
-            customerName: username,
-            customerPhone: mobile,
-            location: location,
-            landmark: landmark,
-            accessDate: new Date(),
-            isExpired: false,
-            propertyType : propertyType,
-            ownerName: owner.username,
-            ownerPhone: listingShowNo,
-            expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // Valid for 15 days
+                ownerId,
+                userId: decoded.id,
+                listingId: propertyId,
+                customerName: username,
+                customerPhone: mobile,
+                location: location,
+                landmark: landmark,
+                accessDate: new Date(),
+                isExpired: false,
+                propertyType: propertyType,
+                ownerName: owner.username,
+                ownerPhone: listingShowNo,
+                expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // Valid for 15 days
             },
         });
 
+        const updateOwner = await prisma.owner.update({
+            where: { id: ownerId },
+            data: {
+                points: { decrement: owner.points > 0 ? 1 : 0 },
+            },
+            select: {
+                points: true,
+            }
+        });
+
         // Reduce owner's points by 1
-        if (owner.points <= 0) {
+        if (updateOwner.points <= 0) {
 
             await prisma.flatInfo.updateMany({
                 where: { ownerId: ownerId },
@@ -359,15 +369,9 @@ ownerDashboard.post("/contact-owner", authenticate , async (req: AuthenticatedRe
                 data: { isVisible: false },
             });
 
-        }else{
-            await prisma.owner.update({
-                where: { id: ownerId },
-                data: {
-                    points: { decrement: owner.points > 0 ? 1 : 0 },
-                },
-            });
         }
-        
+
+
         // Return Owner’s Contact Info for User
         return res.status(200).json({
             message: 'Contact logged successfully',

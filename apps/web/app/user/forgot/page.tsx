@@ -200,7 +200,7 @@ export default function ForgotPassword() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-blue-400 text-white mt-4 py-2 rounded font-semibold hover:bg-blue-400 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+              className="w-full bg-blue-500 hover:bg-blue-400 text-white mt-4 py-2 rounded font-semibold  transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
               {isSubmitting
                 ? otpSent
@@ -229,7 +229,7 @@ export default function ForgotPassword() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/user/signin" className="text-blue-400 hover:underline">
+            <Link href="/user/signin" className="text-blue-700 font-semibold hover:underline">
               Back to Sign In
             </Link>
           </div>

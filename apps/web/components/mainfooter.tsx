@@ -6,11 +6,9 @@ import Link from "next/link";
 
 export default function MainFooter() {
   return (
-    <div className="flex flex-col items-center bg-gray-400 w-full gap-4 mt-32 relative bottom-0 ">
-      <p className="text-sm sm:text-base">English</p>
-      <p className="text-sm sm:text-base">+91-9045668197</p>
+    <div className="flex flex-col items-center bg-gray-400 w-full gap-4 mt-32 relative bottom-0 ">     
 
-      <div className="relative flex justify-center gap-5">
+      <div className="relative flex justify-center gap-5 mt-4">
         <div className="relative h-8 sm:h-10 w-8 sm:w-10">
           <Image 
           src={fb}
@@ -36,11 +34,14 @@ export default function MainFooter() {
           className="object-contain rounded-full" />
         </div>
       </div>
-
-      <p className="font-semibold text-xs sm:text-xl text-center">
+      <p className="text-sm sm:text-base sm:font-semibold">
         <Link href="/about-us">About Us</Link> |{" "}
+        <Link href="/contact-us">Contact Us</Link>
+      </p>
+
+      <p className="sm:font-semibold  text-xs sm:text-xl text-center">
         <Link href="/privacy-policy">Privacy Policy</Link> |{" "}
-        <Link href="/contact-us">Contact us </Link> |{" "}
+        <Link href="/refund">Payment Refund Policy</Link> |{" "} 
         <Link href="/terms-and-condition">Terms & Conditions</Link>
       </p>
 

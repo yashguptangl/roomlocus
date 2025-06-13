@@ -83,10 +83,10 @@ export default function Home() {
             <option value="" disabled>
               Looking for
             </option>
-            <option value="pg">PG</option>
+            <option value="hourlyroom">Hourly Room</option>
             <option value="room">Room</option>
             <option value="flat">Flat</option>
-            <option value="hourlyroom">Hourly Room</option>
+            <option value="pg">PG</option>
           </select>
         </div>
         {/* <ComboBox options={["PG", "Room", "Flat", "Hourly Room"]} placeholder="Looking for" onChange={setLookingFor} /> */}

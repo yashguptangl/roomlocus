@@ -79,7 +79,7 @@ export default function LoginSignUp() {
 
     return (
         <>
-            <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3 mb-20">
+            <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3 mb-32">
                 {/* SideDetail component will be smaller on mobile and positioned above on small screens */}
                 <div className="w-full mb-2 lg:mb-0">
                     <SideDetail
@@ -125,7 +125,7 @@ export default function LoginSignUp() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full py-2 mt-4 bg-blue-400 text-white font-semibold rounded focus:outline-none"
+                                className="w-full py-2 mt-4 bg-blue-500 hover:bg-blue-400 text-white font-semibold rounded focus:outline-none"
                             >
                                 {isSubmitting ? "Signing in..." : "Sign In"}
                             </button>

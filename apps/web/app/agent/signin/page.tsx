@@ -65,7 +65,7 @@ export default function LoginSignup() {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3 mb-8">
+    <div className="flex flex-col lg:flex-row justify-center lg:justify-evenly py-3 mb-12">
       <div className="w-full mb-2 lg:mb-0">
         <SideDetail title="Welcome to Roomlocus" titleDetail="Agent Zone" word="Earning big." />
       </div>
@@ -113,14 +113,14 @@ export default function LoginSignup() {
           </form>
 
           <div className="text-center mt-4">
-            <Link href="#">
               <span className="font-normal">Forgot</span> &nbsp;
-              <span className="hover:underline text-blue-600 font-semibold">UserName/Password</span>
+              <Link href="/agent/forgot">
+              <span className="hover:underline text-blue-600 font-semibold">Password</span>
             </Link>
           </div>
           <div className="text-center mt-2">
             <span className="font-normal">Create an Account &nbsp; </span>
-            <Link href="/agent/signup" className="hover:underline font-semibold text-blue-600">Sign  Up</Link>
+            <Link href="/agent/signup" className="hover:underline font-semibold text-blue-600">Sign Up</Link>
           </div>
         </div>
       </div>
