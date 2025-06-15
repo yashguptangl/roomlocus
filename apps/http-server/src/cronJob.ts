@@ -19,55 +19,55 @@ cron.schedule("0 * * * *", async () => {
 
 cron.schedule("0 * * * *", async () => {
     try {
-        
+
         const updatedProperties = await prisma.flatInfo.updateMany({
             where: {
-            isVerified: true,
-            verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
+                isVerified: true,
+                verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
             },
             data: {
-            isVerified: false,
-            paymentDone : false,
-            verificationPending : true,
-            verifiedByAdminOrAgent: undefined,
+                isVerified: false,
+                paymentDone: false,
+                verificationPending: true,
+                verifiedByAdminOrAgent: undefined,
             },
         });
 
         const updatedProperties2 = await prisma.roomInfo.updateMany({
             where: {
-            isVerified: true,
-            verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
+                isVerified: true,
+                verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
             },
             data: {
-            isVerified: false,
-            paymentDone : false,
-            verificationPending : true,
-            verifiedByAdminOrAgent: undefined,
+                isVerified: false,
+                paymentDone: false,
+                verificationPending: true,
+                verifiedByAdminOrAgent: undefined,
             },
         });
 
         const updatedProperties3 = await prisma.pgInfo.updateMany({
             where: {
-            isVerified: true,
-            verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
+                isVerified: true,
+                verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
             },
             data: {
-            isVerified: false,
-            paymentDone : false,
-            verificationPending : true,
+                isVerified: false,
+                paymentDone: false,
+                verificationPending: true,
             },
         });
 
         const updatedProperties4 = await prisma.hourlyInfo.updateMany({
             where: {
-            isVerified: true,
-            verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
+                isVerified: true,
+                verifiedByAdminOrAgent: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
             },
             data: {
-            isVerified: false,
-            paymentDone : false,
-            verificationPending : true,
-            verifiedByAdminOrAgent: undefined,
+                isVerified: false,
+                paymentDone: false,
+                verificationPending: true,
+                verifiedByAdminOrAgent: undefined,
             },
         });
 
@@ -99,8 +99,8 @@ cron.schedule("0 * * * *", async () => {
 
         await prisma.verificationRequest.updateMany({
             where: {
-            status: "DONE",
-            updatedAt: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
+                status: "DONE",
+                updatedAt: { lte: new Date(new Date().setFullYear(new Date().getFullYear() - 1)) },
             },
             data: { status: "PENDING" },
         });
@@ -108,6 +108,23 @@ cron.schedule("0 * * * *", async () => {
         console.log(`🗑 Deleted ${deletedVerificationRequests.count} expired self verification requests.`);
     } catch (error) {
         console.error("❌ Error deleting expired self verification requests:", error);
+    }
+});
+
+cron.schedule("1 0 * * *", async () => {
+    try {
+        const agents = await prisma.agent.findMany();
+        for (const agent of agents) {
+            await prisma.agent.update({
+                where: { id: agent.id },
+                data: {
+                    walletRs: { increment: agent.earnings },
+                    earnings: { set: 0 },
+                },
+            });
+        }
+    } catch (error) {
+        console.error("❌ Error updating agent earnings:", error);
     }
 });
 

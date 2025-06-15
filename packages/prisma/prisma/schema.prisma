@@ -59,6 +59,7 @@ model Agent {
     isVerifiedByAdmin  Boolean    @default(false)
     isKYCVerified      Boolean    @default(false)
     personverifiedName String
+    earnings           Int       @default(0)  // Initial earnings amount
     walletRs           Int       @default(0)  // Initial wallet amount
     Agentprogress      Agentprogress[]
     VerificationRequests VerificationRequest[]

@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import ListingData from "../../types/listing";
 import Image from "next/image";
 import Link from "next/link";
+import Verified from "../../assets/not-verified.png";
+import Unverified from "../../assets/not-verified.png";
 
 
 interface ListingResponse {
@@ -84,8 +86,9 @@ function Listing() {
           </div>
         ) : (
           <>
-            <p className="text-blue-400 p-1 mt-1 font-medium text-base"> - {lookingFor.toUpperCase()} , {city} , {townSector}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-3">
+            <p className="text-blue-400 p-1 mt-1 font-medium text-base"> - Flat , {city.toString()} , {townSector.toString()}</p>
+            <p className="text-blue-400 p-1 mt-1 font-medium text-base"> - Total Flat Search - {listingData?.listings.length}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-1">
               {listingData?.listings
               .filter((listing) => {
               const text = searchText.toLowerCase();
@@ -108,15 +111,25 @@ function Listing() {
                     <div className="relative w-full h-40">
                       {/* Image */}
                       <Image
-                        src={
-                          listing.images && listing.images[0]
-                            ? listing.images[0]
-                            : "/images/placeholder.png"
-                        }
-                        alt="Flat"
-                        fill
-                        className="object-cover"
+                      src={
+                        listing.images && listing.images[0]
+                        ? listing.images[0]
+                        : "/images/placeholder.png"
+                      }
+                      alt="Flat"
+                      fill
+                      className="object-cover"
                       />
+                      {/* Verified/Not Verified Badge */}
+                      <div className="absolute top-2 left-2 z-20">
+                      <Image
+                        src={listing.isVerified ? Verified : Unverified}
+                        alt={listing.isVerified ? "Verified" : "Not Verified"}
+                        width={60}
+                        height={60}
+                        className="rounded-full "
+                      />
+                      </div>
 
                       {/* Optional: Add dark overlay to make icons more visible */}
                       <div className="absolute inset-0 bg-black bg-opacity-10 z-10"></div>

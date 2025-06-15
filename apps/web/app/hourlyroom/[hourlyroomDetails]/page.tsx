@@ -9,6 +9,8 @@ import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
 import { useForm } from "react-hook-form";
+import Verified from "../../../assets/not-verified.png";
+import Unverified from "../../../assets/not-verified.png";
 
 interface WishlistItem {
   listingId: number;
@@ -254,26 +256,25 @@ export default function ListingDetail() {
                 <div className="space-y-2">
                   {/* Main Image with Navigation */}
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-100">
-                    <div className="absolute top-2 left-2 z-10 flex ">
-                      <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${listing.isVerified
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                          }`}
-                      >
-                        {listing.isVerified ? "Verified" : "Not Verified"}
-                      </span>
+                    <div className="absolute top-2 left-2 z-10">
+                      <Image
+                        src={listing.isVerified ? Verified : Unverified}
+                        alt={listing.isVerified ? "Verified" : "Not Verified"}
+                        width={80}
+                        height={80}
+                        className="inline-block mr-2"
+                      />
                     </div>
 
-                    <div className="absolute top-3 right-2 flex flex-col items-center space-y-4 z-20">
+                    <div className="absolute md:top-3 ssm:top-1 right-2 flex flex-col items-center md:space-y-4 ssm:space-y-1 z-20">
                       <button
                         onClick={handleWishlistToggle}
                         className="p-1 bg-white/50 rounded-full shadow-md hover:bg-white transition-all"
                       >
                         {isSaved ? (
-                          <FaHeart className="text-red-500 text-xl" />
+                          <FaHeart className="text-red-500 text-base" />
                         ) : (
-                          <FaRegHeart className="text-gray-700 text-xl" />
+                          <FaRegHeart className="text-gray-700 text-base" />
                         )}
                       </button>
 
@@ -281,7 +282,7 @@ export default function ListingDetail() {
                         onClick={handleShare}
                         className="p-1 bg-white/50 rounded-full shadow-md hover:bg-white transition-all"
                       >
-                        <FaShareAlt className="text-gray-700 text-lg" />
+                        <FaShareAlt className="text-gray-700 text-base" />
                       </button>
                     </div>
 
@@ -298,14 +299,14 @@ export default function ListingDetail() {
                       <>
                         <button
                           onClick={handlePrevImage}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all"
+                          className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/50 p-2 rounded-full shadow-md hover:bg-white transition-all"
                           aria-label="Previous image"
                         >
                           <FiChevronLeft className="w-5 h-5" />
                         </button>
                         <button
                           onClick={handleNextImage}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 p-2 rounded-full shadow-md hover:bg-white transition-all"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/50 p-2 rounded-full shadow-md hover:bg-white transition-all"
                           aria-label="Next image"
                         >
                           <FiChevronRight className="w-5 h-5" />

@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [ownerData, setOwnerData] = useState<{ username: string; mobile: string } | null>(null);
   const [ownerNameVerified, setOwnerNameVerified] = useState<{ id: number; username: string } | null>(null);
-  const [agentData, setAgentData] = useState<{ walletRs: string } | null>(null);
+  const [agentData, setAgentData] = useState<{ walletRs: string; earnings: string } | null>(null);
   const [requests, setRequests] = useState<
     {
       id: number;
@@ -199,10 +199,14 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <div className="flex flex-row items-center justify-around bg-white p-3">
+      <div className="flex flex-row items-center justify-around bg-white px-0.5 py-2">
         <div className="flex flex-col gap-0.5 items-center mt-0.5">
-          <p className="text-lg">Agent id : {decodedToken?.agentId || "N/A"}</p>
-          <p className="text-lg">Wallet : {agentData ? agentData.walletRs : "N/A"}</p>
+          <p className="md:text-base ssm:text-sm">Agent Id : {decodedToken?.agentId || "N/A"}</p>
+          <p className="md:text-base ssm:text-sm">Earnings: {agentData ? agentData.earnings : "N/A"}</p>
+        </div>
+        <div>
+          <p className="md:text-base ssm:text-sm">Wallet : {agentData ? agentData.walletRs : "N/A"}</p>
+          <button className="bg-green-600 text-white md:text-base ssm:text-sm py-0.5 px-2 rounded">Withdraw</button>
         </div>
       </div>
 
@@ -211,7 +215,7 @@ export default function Dashboard() {
         <button
           onClick={() => setActiveTab("incoming_request")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "incoming_request"
-            ? "text-blue-500 border-b-3 border-blue-500"
+            ? "text-blue-400 border-b-3 border-blue-500"
             : "text-white"
             }`}
         >
@@ -220,7 +224,7 @@ export default function Dashboard() {
         <button
           onClick={() => setActiveTab("Verified")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "Verified"
-            ? "text-blue-500 border-b-3 border-blue-500"
+            ? "text-blue-400 border-b-3 border-blue-500"
             : "text-white"
             }`}
         >
@@ -229,7 +233,7 @@ export default function Dashboard() {
         <button
           onClick={() => setActiveTab("guide")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
-            ? "text-blue-500 border-b-2 border-blue-500"
+            ? "text-blue-400 border-b-2 border-blue-500"
             : "text-white"
             }`}
         >
@@ -396,7 +400,13 @@ export default function Dashboard() {
                                       : ""
                                   }
                                 >
-                                  {request.status}
+                                  {request.status === "PAY"
+                                    ? "Payment_Paid"
+                                    : request.status === "CANCELLED_PAYMENT"
+                                    ? "Cancelled_Payment"
+                                    : request.status === "DONE"
+                                    ? "Pending Payment"
+                                    : request.status}
                                 </span>
                             </span>
                           </div>

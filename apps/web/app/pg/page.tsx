@@ -5,7 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import ListingData from "../../types/listing";
 import Image from "next/image";
 import Link from "next/link";
-
+import Verified from "../../assets/not-verified.png";
+import Unverified from "../../assets/not-verified.png";
 
 interface ListingResponse {
   listings: ListingData[];
@@ -57,7 +58,7 @@ function Listing() {
       <div className="container mx-auto px-4 py-6">
         {/* <SortFilter /> */}
 
-         <div className="mt-3 mb-2 flex justify-end">
+        <div className="mt-3 mb-2 flex justify-end">
           <input
             type="text"
             placeholder="Search by location"
@@ -85,67 +86,77 @@ function Listing() {
           </div>
         ) : (
           <>
-          <p className="text-blue-400 p-1 mt-1 font-medium text-base">- {lookingFor.toUpperCase()} , {city} , {townSector}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            <p className="text-blue-400 p-1 mt-1 font-medium text-base">- Pg , {city.toString()} , {townSector.toString()}</p>
+            <p className="text-blue-400 p-1 mt-1 font-medium text-base">- Total PG Search - {listingData?.listings.length}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
               {listingData?.listings
-              .filter((listing) => {
-              const text = searchText.toLowerCase();
-              return (
-                listing.location.toLowerCase().includes(text) ||
-                listing.landmark.toLowerCase().includes(text) ||
-                listing.city.toLowerCase().includes(text) ||
-                listing.townSector.toLowerCase().includes(text) ||
-                listing.BHK.toString().includes(text)
-              );
-            })
-              .map((listing) => {
-                return (
-                  <div
-                    onClick={() => handleListingClick(listing)}
-                    key={listing.id}
-                    className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                  >
-                    {/* Image container must be relative */}
-                    <div className="relative w-full h-40">
+                .filter((listing) => {
+                  const text = searchText.toLowerCase();
+                  return (
+                    listing.location.toLowerCase().includes(text) ||
+                    listing.landmark.toLowerCase().includes(text) ||
+                    listing.city.toLowerCase().includes(text) ||
+                    listing.townSector.toLowerCase().includes(text) ||
+                    listing.BHK.toString().includes(text)
+                  );
+                })
+                .map((listing) => {
+                  return (
+                    <div
+                      onClick={() => handleListingClick(listing)}
+                      key={listing.id}
+                      className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                    >
+                      {/* Image container must be relative */}
+                      <div className="relative w-full h-40">
 
 
-                      {/* Image */}
-                      <Image
-                        src={
-                          listing.images && listing.images[0]
-                            ? listing.images[0]
-                            : "/images/placeholder.png"
-                        }
-                        alt="Pg"
-                        fill
-                        className="object-cover"
-                      />
+                        {/* Image */}
+                        <Image
+                          src={
+                            listing.images && listing.images[0]
+                              ? listing.images[0]
+                              : "/images/placeholder.png"
+                          }
+                          alt="Pg"
+                          fill
+                          className="object-cover"
+                        />
+                        <div className="absolute top-2 left-2 z-20">
+                          <Image
+                            src={listing.isVerified ? Verified : Unverified}
+                            alt={listing.isVerified ? "Verified" : "Not Verified"}
+                            width={60}
+                            height={60}
+                            className="rounded-full "
+                          />
+                        </div>
 
-                      {/* Optional: Add dark overlay to make icons more visible */}
-                      <div className="absolute inset-0 bg-black bg-opacity-10 z-10"></div>
-                    </div>
+                        {/* Optional: Add dark overlay to make icons more visible */}
+                        <div className="absolute inset-0 bg-black bg-opacity-10 z-10"></div>
+                      </div>
 
-                    {/* Text Part */}
-                    <div className="p-4">
-                      <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
-                        {listing.location} {listing.city} {listing.townSector}
-                      </h3>
-                      <div className="mt-2 space-y-1">
-                        <p className="text-sm text-gray-600">
-                          {listing.BHK} BHK {listing.Type}
-                        </p>
-                        <p className="text-lg font-bold text-green-600 text-center">
-                          ₹{listing.MinPrice.toLocaleString()} - ₹
-                          {listing.MaxPrice.toLocaleString()}
-                        </p>
-                        <p className="text-sm text-gray-600 text-center">
-                          All PG Prices Different
-                        </p>
+                      {/* Text Part */}
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
+                          {listing.location} {listing.city} {listing.townSector}
+                        </h3>
+                        <div className="mt-2 space-y-1">
+                          <p className="text-sm text-gray-600">
+                            {listing.BHK} BHK {listing.Type}
+                          </p>
+                          <p className="text-lg font-bold text-green-600 text-center">
+                            ₹{listing.MinPrice.toLocaleString()} - ₹
+                            {listing.MaxPrice.toLocaleString()}
+                          </p>
+                          <p className="text-sm text-gray-600 text-center">
+                            All PG Prices Different
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </>
         )}

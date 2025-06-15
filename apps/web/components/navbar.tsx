@@ -70,7 +70,7 @@ export default function Navbar() {
   return (
     <nav className="flex h-16 w-full bg-blue-300 justify-between items-center px-4 shadow-md">
       {/* Logo */}
-      <div className="relative h-10 w-32 cursor-pointer" onClick={() => router.push("/")}>
+      <div className="relative h-16 w-44  ml-1 cursor-pointer" onClick={() => router.push("/")}>
         <Image src={logo} fill className="object-contain" alt="Company Logo" priority />
       </div>
 
