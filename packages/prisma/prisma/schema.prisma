@@ -279,6 +279,7 @@ model VerificationRequest {
   location             String
   city                 String
   townSector           String
+  address              String
   listingShowNo        String?
   updatedAt            DateTime   @updatedAt
   @@index([agentId])
@@ -320,4 +321,29 @@ model Admin {
 enum Role {
   EMPLOYEE
   ADMIN
+}
+
+model Payment {
+  id          String  @id @default(cuid())
+  orderId     String  @unique
+  listingId   String
+  listingType String
+  email       String
+  phone       String
+  amount      Float
+  status      String
+  city        String?
+  townSector  String?
+  address     String?
+  location    String?
+  listingShowNo String?
+  leadCount   Int?
+  leadPrice   Float?
+}
+
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

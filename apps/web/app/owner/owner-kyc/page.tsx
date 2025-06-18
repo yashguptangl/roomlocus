@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../utils/api";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
 import { jwtDecode, JwtPayload } from "jwt-decode";
@@ -55,7 +55,7 @@ export default function UploadDocuments() {
       }
 
       // Fetch presigned URLs from the backend
-      const { data } = await axios.post(
+      const { data } = await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/owner-kyc`,
         { ownerId },
         {
@@ -70,7 +70,7 @@ export default function UploadDocuments() {
       const uploadPromises = Object.keys(presignedUrls).map(async (category) => {
         const file = uploadedFiles[category];
         if (file) {
-          await axios.put(presignedUrls[category], file, {
+          await api.put(presignedUrls[category], file, {
             headers: {
               "Content-Type": file.type,
             },

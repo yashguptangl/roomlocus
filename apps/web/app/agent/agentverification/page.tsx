@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
-import axios from "axios";
+import api from "../../../utils/api";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import { useForm } from "react-hook-form";
 import imageCompression from "browser-image-compression";
@@ -70,7 +70,7 @@ function Content({ ownerId, token, handleSubmit, isSubmitting }: { ownerId: numb
       }
 
       // Step 1: Send a request to update the verification status and get presigned URLs
-      const { data } = await axios.post(
+      const { data } = await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-accept-request/?requestId=${requestId}&agentId=${agentId}`,
         {},
         {
@@ -86,7 +86,7 @@ function Content({ ownerId, token, handleSubmit, isSubmitting }: { ownerId: numb
       const uploadPromises = Object.keys(urls).map(async (category) => {
         const file = uploadedFiles[category]; // Ensure keys match backend expectations
         if (file) {
-          await axios.put(urls[category], file, {
+          await api.put(urls[category], file, {
             headers: {
               "Content-Type": file.type,
             },

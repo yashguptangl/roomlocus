@@ -5,6 +5,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import api from "../../../utils/api";
 import Link from "next/link";
 import { SideDetail } from "../../../components/sidedetails";
 
@@ -46,7 +47,7 @@ export default function ForgotPassword() {
         try {
             setIsSubmitting(true);
             clearErrors();
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/forgot-password`, {
+            const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/forgot-password`, {
                 mobile: data.mobile,
             });
             setMobileNumber(data.mobile);
@@ -68,7 +69,7 @@ export default function ForgotPassword() {
         try {
             setIsSubmitting(true);
             clearErrors();
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/reset-password`, {
+            const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/reset-password`, {
                 mobile: data.mobile,
                 otp: data.otp,
                 newPassword: data.password,
@@ -94,7 +95,7 @@ export default function ForgotPassword() {
     const handleResendOTP = async () => {
         try {
             setResendLoading(true);
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/resend-otp`, {
+            const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/resend-otp`, {
                 mobile: mobileNumber,
             });
             alert(response.data.message || "OTP has been resent to your mobile number.");

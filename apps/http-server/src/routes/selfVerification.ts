@@ -6,12 +6,12 @@ import { putObject } from '../utils/s3client';
 
 selfVerification.post("/verification-request", authenticate, async (req: AuthenticatedRequest, res) => {
     try {
-        const { listingId, listingType, listingShowNo, location , city, townSector } = req.body;
+        const { listingId, listingType, listingShowNo, location , address, city, townSector } = req.body;
         const ownerId = req.user?.id;
 
         // Validate required fields
-        if (!listingId || !listingType || !listingShowNo || !location || !city || !townSector) {
-            res.status(400).json({ error: 'Missing required fields: listingId, listingType, listingShowNo, location, city, townSector' });
+        if (!listingId || !listingType || !listingShowNo || !location || !address || !city || !townSector) {
+            res.status(400).json({ error: 'Missing required fields: listingId, listingType, listingShowNo, location, address, city, townSector' });
             return;
         }
 
@@ -25,6 +25,7 @@ selfVerification.post("/verification-request", authenticate, async (req: Authent
                 location,
                 city: city,
                 townSector: townSector,
+                address,
                 verificationType: 'SELF',
                 status: 'PENDING',
                 imagesUploaded: false
@@ -111,7 +112,6 @@ selfVerification.post('/owner-update-verification/:requestId', authenticate, asy
         res.status(500).json({ error: 'Failed to update verification request', details: errorMessage });
     }
 });
-
 
 // only presigned url 
 selfVerification.get("/presigned-urls/:requestId", authenticate, async (req : AuthenticatedRequest, res) => {

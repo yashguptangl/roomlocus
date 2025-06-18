@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "../../../utils/api";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import DefaultPropertyImage from "../../../assets/bedroom.jpg";
@@ -46,7 +46,7 @@ export default function UserDashboard() {
 
   const handleDeleteContact = async (id: string) => {
     try {
-      await axios.delete(
+      await api.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/recentContacts/delete`,
         {
           headers: {
@@ -64,7 +64,7 @@ export default function UserDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
+      const response = await api.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/dashboard`,
         {
           headers: {
@@ -104,7 +104,7 @@ export default function UserDashboard() {
 
   const handleRemoveFromWishlist = async (id: string, type: string) => {
     try {
-      await axios.delete(
+      await api.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist/delete`,
         {
           headers: {

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ImageUpload from "../../../../components/imagesUpload";
-import axios from "axios";
+import api from "../../../../utils/api";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
 
@@ -38,7 +38,7 @@ export default function Upload() {
 
       setIsUploading(true);
 
-      const { data } = await axios.post(
+      const { data } = await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/flat/images/presigned-urls`,
         { flatId },
         {
@@ -52,7 +52,7 @@ export default function Upload() {
       const uploadPromises = Object.keys(presignedUrls).map(async (category) => {
         const file = uploadedFiles[category];
         if (file) {
-          await axios.put(presignedUrls[category], file, {
+          await api.put(presignedUrls[category], file, {
             headers: {
               "Content-Type": file.type,
             },

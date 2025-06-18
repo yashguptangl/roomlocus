@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import {useForm} from "react-hook-form";
 
 const VerificationPage = () => {
   const router = useRouter();
   const [token, setToken] = useState("");
   const [existingRequest, setExistingRequest] = useState<VerificationRequest | null>(null);
-
+  const { formState: { isSubmitting } } = useForm();
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -19,7 +20,7 @@ const VerificationPage = () => {
  return (
   <Suspense fallback={<div>Loading...</div>}>
     {token ? (
-      <Content token={token} existingRequest={existingRequest} setExistingRequest={setExistingRequest} />
+      <Content token={token} existingRequest={existingRequest} setExistingRequest={setExistingRequest} isSubmitting={isSubmitting} />
     ) : null}
   </Suspense>
 );
@@ -34,10 +35,12 @@ interface VerificationRequest {
 
 function Content({
   token,
+  isSubmitting,
   existingRequest,
   setExistingRequest,
 }: {
   token: string;
+  isSubmitting: boolean;  
   existingRequest: VerificationRequest | null;
   setExistingRequest: React.Dispatch<React.SetStateAction<VerificationRequest | null>>;
 }) {
@@ -52,6 +55,7 @@ function Content({
   const city = searchParams.get("city");
   const townSector = searchParams.get("townSector");
   const location = searchParams.get("location");
+  const address = searchParams.get("address");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,7 +80,7 @@ function Content({
             verificationRequest.verificationType === "SELF"
           ) {
             if (!verificationRequest.imagesUploaded) {
-              router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}`);
+              router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}&address=${address}`);
             } else {
               alert("Property is verified within 4 - 5 working days");
               router.push(`/owner/dashboard`);
@@ -130,7 +134,7 @@ function Content({
             : 'Agent verification updated successfully';
           alert(message);
           if (selectedOption === 'self') {
-            router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}`);
+            router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}&address=${address}`);
           } else {
             router.push('/owner/dashboard');
           }
@@ -146,7 +150,7 @@ function Content({
     } else {
       // Create new verification request
       if (selectedOption === 'self') {
-        router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}`);
+        router.push(`/owner/selfverification?id=${listingId}&listingType=${listingType}&listingShowNo=${listingShowNo}&city=${city}&townSector=${townSector}&location=${location}&address=${address}`);
       } else if (selectedOption === 'agent' && agentId) {
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/verification-request`, {
@@ -163,6 +167,7 @@ function Content({
               townSector,
               location,
               listingShowNo,
+              address,
             }),
           });
 
@@ -244,11 +249,20 @@ function Content({
 
         {/* Submit Button */}
         <button
+          type="button"
           onClick={handleSubmit}
           className="w-full py-2 sm:py-3 bg-blue-500 text-white text-sm sm:text-base rounded-lg hover:bg-blue-600 transition duration-200"
-          disabled={selectedOption === "agent" && !agentId}
+          disabled={
+            (selectedOption === "agent" && !agentId) || isSubmitting
+          }
         >
-          {existingRequest ? "Update Verification" : (selectedOption === "self" ? "Next" : "Done")}
+          {isSubmitting
+            ? "Processing..."
+            : existingRequest
+            ? "Update Verification"
+            : selectedOption === "self"
+            ? "Next"
+            : "Done"}
         </button>
 
         {/* Benefits of Agent Verification */}

@@ -9,7 +9,7 @@ const verificationRequestRouteByAgent = Router();
 verificationRequestRouteByAgent.post('/verification-request', authenticate, async (req: AuthenticatedRequest, res) => {
     const ownerId = req.user?.id;
     try {
-        const { listingId, listingType, agentId , city , townSector , location ,  listingShowNo } = req.body;
+        const { listingId, listingType, agentId , city , townSector , location , address, listingShowNo } = req.body;
 
         const verification = await prisma.verificationRequest.create({
             data: {
@@ -21,6 +21,7 @@ verificationRequestRouteByAgent.post('/verification-request', authenticate, asyn
                 listingShowNo,
                 ownerId : parseInt(ownerId),
                 agentId,
+                address,
                 verificationType: 'AGENT',
                 status: 'PENDING',
             }

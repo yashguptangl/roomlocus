@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Bedroom from "../../../assets/bedroom.jpg";
 import Delete from "../../../assets/delete.png";
-import axios from "axios";
+import api from "../../../utils/api";
 import Link from "next/link";
 import Image from "next/image";
 import { LeadLog } from "../../../types/lead";
@@ -11,25 +11,130 @@ import { useRouter } from "next/navigation";
 import { Menu, Transition } from "@headlessui/react"; // Add this for dropdown
 import { FaShareAlt } from "react-icons/fa";
 import OwnerGuide from "../../../components/ownerGuide"
+import Script from "next/script";
+import { z } from "zod";
 
 type Tab = "guide" | "myRental" | "usedLead";
 
+// Extend the Window interface to include Razorpay
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 interface UsedLeadsResponse {
   logs: LeadLog[];
 
 }
 
+const leadCountSchema = z.number().min(10, { message: "Minimum 10 leads required" });
+
 export default function Dashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>("myRental"); // Default active tab
   const [showModal, setShowModal] = useState(false); // Show/Hide modal
-  const [leads, setLeads] = useState(10); // Default number of leads
-  const [price, setPrice] = useState(leads * 5); // Calculate price based on leads
+  const [leads, setLeads] = useState(""); // Default number of leads
+  const [price, setPrice] = useState(0); // Calculate price based on leads
   const [isRentalListOpen, setIsRentalListOpen] = useState(false);
   const [listings, setListings] = useState<ListingItem[]>([]); // Ensure listings is always an array
   const [points, setPoints] = useState("");
   const [usedLeads, setUsedLeads] = useState<UsedLeadsResponse>({ logs: [] });
   const [isKycVerified, setIsKycVerified] = useState(true); // Default to true
+  const [payLoading, setPayLoading] = useState(false);
+  const [razorpayReady, setRazorpayReady] = useState(false);
+  const [ownerDetails, setOwnerDetails] = useState<any>(null); 
+
+   const handleScriptLoad = () => setRazorpayReady(true);
+
+// Razorpay checkout open karne ka function
+const openRazorpay = (order : any, paymentFor : any, extraParams = {}) => {
+  if (typeof window === "undefined" || !window.Razorpay) {
+    alert("Payment system not ready. Please refresh the page.");
+    return;
+  }
+  const options = {
+    key: order.keyId,
+    amount: order.amount,
+    currency: order.currency,
+    name: order.name,
+    description: order.description,
+    order_id: order.orderId,
+    prefill: order.prefill,
+    notes: order.notes,
+    handler: async function (response : any) {
+      setPayLoading(true);
+      try {
+        const verifyRes = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay/verify`, {
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+          backendOrderId: order.backendOrderId,
+          paymentFor,
+          ownerId: order.notes.ownerId,
+          leadCount: order.notes.leadCount,
+        });
+        if (verifyRes.data.success && verifyRes.data.redirect) {
+          window.location.href = verifyRes.data.redirect;
+        } else {
+          alert("Payment verification failed!");
+        }
+      } catch (err) {
+        alert("Payment verification failed!");
+      }
+      setPayLoading(false);
+    },
+    theme: { color: "#3399cc" },
+  };
+  // @ts-ignore
+  const rzp = new window.Razorpay(options);
+  rzp.open();
+};
+
+// Listing Verification Payment
+const handleListingVerification = async (listing : any ) => {
+  setPayLoading(true);
+  try {
+
+    const res = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
+      paymentFor: "listing",
+      listingId: String(listing.id),
+      listingType: listing.type,
+      address: listing.address || listing.Adress || listing.adress,
+      location: listing.location,
+      city: listing.city,
+      townSector: listing.townSector,
+      listingShowNo: listing.listingShowNo,
+      firstname: ownerDetails?.username || "Owner",
+      email: ownerDetails?.email || "",
+      phone: ownerDetails?.mobile || "",
+    });
+    openRazorpay(res.data, "listing");
+  } catch (err) {
+    alert("Payment start failed!");
+  }
+  setPayLoading(false);
+};
+
+// Lead Buy Payment
+const handleLeadBuy = async () => {
+  setPayLoading(true);
+  try {
+    const res = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
+      paymentFor: "lead",
+      ownerId: ownerDetails?.id,
+      leadCount: leads,
+      leadPrice: 5,
+      firstname: ownerDetails?.username || "Owner",
+      email: ownerDetails?.email || "",
+      phone: ownerDetails?.mobile || "",
+    });
+    openRazorpay(res.data, "lead", { leadCount: leads });
+    setShowModal(false);
+  } catch (err) {
+    alert("Payment start failed!");
+  }
+  setPayLoading(false);
+};
 
   // Move handleDeleteLead outside useEffect so it's accessible in render
   const handleDeleteLead = async (leadId: number) => {
@@ -39,7 +144,7 @@ export default function Dashboard() {
         alert("User not authenticated");
         return;
       }
-      const response = await axios.delete(
+      const response = await api.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/recentContacts/delete`,
         {
           headers: { token },
@@ -71,15 +176,14 @@ export default function Dashboard() {
 
       const ownerId = payload?.id;
 
-      async function ownerDeatils() {
+      async function ownerDetails() {
         try {
-          const response = await axios.get(
-
-
+          const response = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/details-owner`,
             { headers: { token } }
           );
           console.log("Owner Details:", response.data);
+          setOwnerDetails(response.data.ownerDetails);
           setPoints(response.data.ownerDetails.points);
           setIsKycVerified(response.data.ownerDetails.isKYCVerified);
         } catch (err) {
@@ -89,7 +193,7 @@ export default function Dashboard() {
 
       async function usedLeadData(token: string, ownerId: string) {
         try {
-          const leadResponse = await axios.get(
+          const leadResponse = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-logs/${ownerId}`,
             { headers: { token } }
           );
@@ -102,7 +206,7 @@ export default function Dashboard() {
 
       async function fetchImagesForListing(type: string, listingId: string) {
         try {
-          const res = await axios.get(
+          const res = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/images/${type}/${listingId}`,
             { headers: { token } }
           );
@@ -115,7 +219,7 @@ export default function Dashboard() {
 
       const fetchListings = async (token: string, ownerId: string) => {
         try {
-          const response = await axios.get(
+          const response = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/${ownerId}/listings`,
             { headers: { token } }
           );
@@ -187,13 +291,13 @@ export default function Dashboard() {
           setListings(listingsWithImages);
         } catch (e) {
           console.error("Error fetching listings:", e);
-          alert("Failed to load listings. Please try again.");
+         
         }
       };
 
       usedLeadData(token, ownerId);
       fetchListings(token, ownerId);
-      ownerDeatils();
+      ownerDetails();
     }
   }, []);
 
@@ -209,7 +313,7 @@ export default function Dashboard() {
         return;
       }
 
-      const response = await axios.post(
+      const response = await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/publish`,
         { listingId, type, isVisible },
         { headers: { token } }
@@ -241,7 +345,7 @@ export default function Dashboard() {
         return;
       }
 
-      const response = await axios.delete(
+      const response = await api.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/listing`,
         {
           headers: { token },
@@ -263,19 +367,17 @@ export default function Dashboard() {
     }
   };
 
-  const handleLeadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.max(10, parseInt(e.target.value)); // Minimum value is 10
-    setLeads(value);
-    setPrice(value * 5); // Update price
-  };
 
-  const handlePay = () => {
-    setShowModal(false);
-    alert(`You have successfully purchased ${leads} leads for ₹${price}`);
-    // Integrate payment gateway logic here
-  };
 
-  return (
+
+
+
+  return (<>
+    <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+        onLoad={handleScriptLoad}
+    />
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
       <div className="flex flex-row items-center justify-around bg-white p-3">
@@ -299,14 +401,23 @@ export default function Dashboard() {
             </h2>
             <div className="mb-2">
               <label className="block text-sm font-medium mb-2">
-                Enter Number of Leads (Min 10):
+              Enter Number of Leads (Min 10):
               </label>
               <input
-                type="number"
-                value={leads}
-                onChange={handleLeadChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-                min={10}
+              type="number"
+              value={leads}
+              onChange={(e) => {
+                const value = e.target.value;
+                const num = Number(value);
+                setLeads(value);
+                if (value === "" || num === 0) {
+                setPrice(0);
+                } else {
+                setPrice(num * 5); // ₹5 per lead
+                }
+              }}
+              className="w-full p-2 border border-gray-300 rounded-md placeholder:text-gray-500"
+              placeholder="Enter number of leads"
               />
             </div>
             <div className="text-lg font-semibold text-center mb-4">
@@ -314,20 +425,27 @@ export default function Dashboard() {
             </div>
             <div className="flex justify-between">
               <button
-                onClick={() => setShowModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              onClick={() => setShowModal(false)}
+              className="bg-gray-500 text-white px-4 py-2 rounded-md"
               >
-                Cancel
+              Cancel
               </button>
               <button
-                onClick={handlePay}
-                className="bg-green-500 text-white px-4 py-2 rounded-md"
+              onClick={() => {
+                if (Number(leads) < 10) {
+                alert("Minimum 10 leads required.");
+                return;
+                }
+                handleLeadBuy();
+              }}
+              disabled={payLoading}
+              className="bg-green-500 text-white px-4 py-2 rounded-md"
               >
-                Pay
+              {payLoading ? "Processing..." : "Pay"}
               </button>
             </div>
+            </div>
           </div>
-        </div>
       )}
       {/* Navigation Tabs */}
       <div className="flex justify-between border-b border-gray-300 bg-blue-300">
@@ -557,10 +675,8 @@ export default function Dashboard() {
                           alert("Please complete your listing first.");
                           router.push(`/owner/${listing.type}/images`);
                           localStorage.setItem(`${listing.type}Id`, listing.id);
-                        } else if (isKycVerified) {
-                          router.push(
-                            `/owner/verification?listingId=${listing.id}&listingType=${listing.type}&listingShowNo=${listing.listingShowNo}&city=${listing.city}&townSector=${listing.townSector}&location=${listing.location}` // Ensure location is passed
-                          ); // Redirect to Verification page
+                        } else if (isKycVerified && listing.paymentDone === false ) {
+                          handleListingVerification(listing);
                         } else {
                           alert("Please complete your KYC first."); // Optional alert for better UX
                           router.push(`/owner/owner-kyc`); // Redirect to Owner KYC page
@@ -696,5 +812,5 @@ export default function Dashboard() {
         )}
       </div>
     </div>
-  );
+  </>);
 }

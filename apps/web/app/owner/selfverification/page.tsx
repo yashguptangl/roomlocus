@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
-import axios from "axios";
+import api from "../../../utils/api";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 import imageCompression from "browser-image-compression";
 import { useForm } from "react-hook-form";
@@ -75,7 +75,7 @@ function Content({
   // Helper to get presigned URLs for an existing request
   const fetchPresignedUrls = async (requestId: string) => {
     const token = localStorage.getItem("token");
-    const urlRes = await axios.get(
+    const urlRes = await api.get(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/presigned-urls/${requestId}`,
       { headers: { token } }
     );
@@ -88,7 +88,7 @@ function Content({
       const token = localStorage.getItem("token");
       if (!token || !ownerId) return;
 
-      const response = await axios.get(
+      const response = await api.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verified-requests?listingId=${searchParams.get("id")}&listingType=${searchParams.get("listingType")}`,
         { headers: { token } }
       );
@@ -102,7 +102,7 @@ function Content({
         // Optionally, fetch presigned URLs for this request if needed
         if (!pendingSelf.imagesUploaded) {
           // Get presigned URLs for existing request
-          const urlRes = await axios.get(
+          const urlRes = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/presigned-urls/${pendingSelf.id}`,
             { headers: { token } }
           );
@@ -141,7 +141,7 @@ function Content({
 
       // If no existing request, create one and get presigned URLs
       if (!verificationRequestId) {
-        const response = await axios.post(
+        const response = await api.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/self/verification-request`,
           {
             listingId: parseInt(searchParams.get("id") as string),
@@ -150,6 +150,7 @@ function Content({
             city: searchParams.get("city"),
             townSector: searchParams.get("townSector"),
             location: searchParams.get("location"),
+            address: searchParams.get("address"),
           },
           {
             headers: {
@@ -181,7 +182,7 @@ function Content({
         const file = uploadedFiles[category];
         const url = imageUrls[category];
         if (file && typeof url === "string") {
-          await axios.put(url, file, {
+          await api.put(url, file, {
             headers: {
               "Content-Type": file.type,
             },

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import ComboBox from "../../../components/searchBox";
 import { citiesData } from "../../../data/cities";
 import { useForm } from "react-hook-form";
-import axios from "axios";
+import api from "../../../utils/api";
 import { useRouter } from "next/navigation";
 import { FormData } from "../../../types/formData";
 
@@ -44,7 +44,7 @@ export default function PGListingForm() {
         ...data, city: selectedCity, townSector: selectedTown,
 
       };
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/pg`,
+      const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/pg`,
         formData,
         {
           headers: {
@@ -102,7 +102,7 @@ export default function PGListingForm() {
 
         <div className="flex flex-col gap-4 mt-4">
           {[
-            { label: "Location", name: "location", type: "text" },
+            { label: "Area/Colony", name: "location", type: "text" }, // Area/Colony
             { label: "Landmark", name: "landmark", type: "text" },
             { label: "BHK", name: "Bhk", type: "text" },
             { label: "Maximum Price", name: "maxprice", type: "text" },

@@ -1,5 +1,6 @@
 "use client"
 import axios from "axios";
+import api from "../../../utils/api";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -39,7 +40,7 @@ export default function Signup() {
       try {
         localStorage.clear();
         console.log("Data being sent to API:", data); // Logs the form data
-        const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/signup`, {
+        const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/signup`, {
           username: data.username,
           mobile: data.mobile,
           email: data.email,

@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
+import api from "../../../utils/api";
 import { useRouter } from "next/navigation";
 
 const loginSchema = z.object({
@@ -29,7 +30,7 @@ export default function LoginSignup() {
   // Handle form submission
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/login`,
         data,
         { headers: { "Content-Type": "application/json" } }

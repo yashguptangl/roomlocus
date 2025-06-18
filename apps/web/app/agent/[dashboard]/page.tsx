@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { FaShareAlt } from "react-icons/fa";
 import AgentGuide from "../../../components/agentGuide";
+import api from "../../../utils/api";
 
 type Tab = "guide" | "incoming_request" | "Verified";
 interface DecodedToken {
@@ -24,6 +24,7 @@ export default function Dashboard() {
       listingType: string;
       city: string;
       townSector: string;
+      address: string;
       status: string;
       listingShowNo: string;
       listingId: number;
@@ -38,6 +39,7 @@ export default function Dashboard() {
       listingShowNo: string;
       status: string;
       ownerId: number;
+      address: string;
       updatedAt: string;
       listingId: number;
       createdAt: string;
@@ -125,7 +127,7 @@ export default function Dashboard() {
               router.push("/agent/dashboard");
           }
 
-          const agentData = await axios.get(
+          const agentData = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent/${decodedToken.agentId}`,
             {
               headers: {
@@ -147,7 +149,7 @@ export default function Dashboard() {
     const fetchRequests = async () => {
       if (decodedToken) {
         try {
-          const response = await axios.get(
+          const response = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-requests/${decodedToken.agentId}`,
             {
               headers: {
@@ -173,7 +175,7 @@ export default function Dashboard() {
     const fetchVerifiedRequests = async () => {
       if (decodedToken) {
         try {
-          const response = await axios.get(
+          const response = await api.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-verified-properties/${decodedToken.agentId}?sort=${sortOrder}`,
             {
               headers: {
@@ -206,7 +208,7 @@ export default function Dashboard() {
         </div>
         <div>
           <p className="md:text-base ssm:text-sm">Wallet : {agentData ? agentData.walletRs : "N/A"}</p>
-          <button className="bg-green-600 text-white md:text-base ssm:text-sm py-0.5 px-2 rounded">Withdraw</button>
+          <button className="bg-green-600 text-white md:text-sm ssm:text-xs py-0.5 px-2 rounded">Withdraw</button>
         </div>
       </div>
 
@@ -270,7 +272,7 @@ export default function Dashboard() {
                           {request.listingType}
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
-                          {request.city}, {request.townSector}
+                          {request.address}, {request.city}, {request.townSector}
                         </p>
                         <p className="text-sm text-gray-600 mt-1">
                           Owner: {ownerData?.username}
@@ -368,7 +370,7 @@ export default function Dashboard() {
                           <div>
                             <h3 className="font-medium capitalize">{request.listingType}</h3>
                             <p className="text-sm text-gray-600 mt-1">
-                              {request.city}, {request.townSector}
+                              {request.address}, {request.city}, {request.townSector}
                             </p>
                             <p className="text-sm text-gray-600 mt-1">
                               Verified on: {new Date(request.createdAt).toLocaleDateString()}

@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { SideDetail } from "../../../components/sidedetails";
 import axios from "axios";
+import api from "../../../utils/api";
 import { useRouter, useSearchParams } from "next/navigation";
 
 // Zod schema for validation
@@ -45,7 +46,7 @@ function Signup() {
 
   const onSubmit = async (data: SignupFormValues) => {
     try {
-      await axios.post(
+      await api.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/signup`,
         {
           username: data.username,

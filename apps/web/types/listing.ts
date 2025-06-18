@@ -12,6 +12,7 @@ export interface ListingData {
     MinPrice: string,
     MaxPrice: string;
     security: string;
+    address: string;
     PGType: string;
     totalPG: string;
     image : string;
@@ -56,6 +57,7 @@ export interface ListingData {
 
 
 export interface ListingItem {
+    address: string;
     Adress : string;
     isDraft: boolean;
     id: string;
