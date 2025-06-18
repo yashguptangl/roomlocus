@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ImageUpload from "../../../components/imagesUpload";
-import api from "../../../utils/api";
+import axios from "axios";
 import imageCompression from "browser-image-compression";
 
 export default function UploadDocuments() {
@@ -38,7 +38,7 @@ export default function UploadDocuments() {
       }
 
       // Fetch presigned URLs from the backend
-      const { data } = await api.post(
+      const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/upload-agent-doc`,
         { agentId },
         {
@@ -53,7 +53,7 @@ export default function UploadDocuments() {
       const uploadPromises = Object.keys(presignedUrls).map(async (category) => {
         const file = uploadedFiles[category];
         if (file) {
-          await api.put(presignedUrls[category], file ,{
+          await axios.put(presignedUrls[category], file, {
             headers: {
               "Content-Type": file.type,
             },

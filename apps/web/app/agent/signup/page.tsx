@@ -7,7 +7,7 @@ import {SideDetail} from "../../../components/sidedetails";
 import {useRouter} from "next/navigation";
 import React from "react";
 import Link from "next/link";
-import api from "../../../utils/api";
+
 
 const signupSchema = z
   .object({
@@ -37,8 +37,8 @@ export default function Signup() {
     const onSubmit = async (data: SignupFormValues) => {
       try {
         localStorage.clear();
-        console.log("Data being sent to API:", data); // Logs the form data
-        const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/signup`, {
+        console.log("Data being sent to axios:", data); // Logs the form data
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/signup`, {
           username: data.username,
           mobile: data.mobile,
           email: data.email,

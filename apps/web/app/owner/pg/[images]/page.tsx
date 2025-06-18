@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import ImageUpload from "../../../../components/imagesUpload";
-import api from "../../../../utils/api";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import imageCompression from "browser-image-compression";
 
@@ -41,7 +41,7 @@ export default function Upload() {
       setIsUploading(true); // Disable button during upload
 
       // Fetch presigned URLs from the backend
-      const { data } = await api.post(
+      const { data } = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/pg/images/presigned-urls`,
         { pgId },
         {
@@ -56,7 +56,7 @@ export default function Upload() {
       const uploadPromises = Object.keys(presignedUrls).map(async (category) => {
         const file = uploadedFiles[category];
         if (file) {
-          await api.put(presignedUrls[category], file, {
+          await axios.put(presignedUrls[category], file, {
             headers: {
               "Content-Type": file.type,
             },

@@ -5,7 +5,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import api from "../../../utils/api";
 import Link from "next/link";
 import { SideDetail } from "../../../components/sidedetails";
 
@@ -47,7 +46,7 @@ export default function ForgotPassword() {
     try {
       setIsSubmitting(true);
       clearErrors();
-      const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/forgot-password`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/forgot-password`, {
         mobile: data.mobile,
       });
       setMobileNumber(data.mobile);

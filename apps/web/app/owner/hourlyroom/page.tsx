@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import ComboBox from "../../../components/searchBox";
 import { citiesData } from "../../../data/cities";
 import { useForm } from "react-hook-form";
-import api from "../../../utils/api";
+import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormData } from "../../../types/formData";
 
@@ -43,7 +43,7 @@ export default function RoomDayNightForm() {
         ...data, city: selectedCity, townSector: selectedTown,
 
       };
-      const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/hourlyroom`,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/hourlyroom`,
         formData,
         {
           headers: {

@@ -6,7 +6,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import api from "../../../utils/api";
 import Link from "next/link";
 
 const verifySchema = z.object({
@@ -40,7 +39,7 @@ function Verify() {
 
     const onSubmit = async (data: VerifyFormValues) => {
         try {
-            await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/verify-otp`, {
+            await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/verify-otp`, {
                 mobile: data.mobile,
                 otp: data.otp,
             });
@@ -60,7 +59,7 @@ function Verify() {
     const handleResendOTP = async (data: VerifyFormValues) => {
         try {
             setResendLoading(true);
-            const response = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resend-otp`, {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resend-otp`, {
                 mobile: data.mobile,
             });
             alert(response.data.message || "OTP sent successfully!");

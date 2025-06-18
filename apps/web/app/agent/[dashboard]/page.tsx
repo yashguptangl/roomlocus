@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FaShareAlt } from "react-icons/fa";
 import AgentGuide from "../../../components/agentGuide";
-import api from "../../../utils/api";
+import axios from "axios";
 
 type Tab = "guide" | "incoming_request" | "Verified";
 interface DecodedToken {
@@ -127,7 +127,7 @@ export default function Dashboard() {
               router.push("/agent/dashboard");
           }
 
-          const agentData = await api.get(
+          const agentData = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent/${decodedToken.agentId}`,
             {
               headers: {
@@ -149,7 +149,7 @@ export default function Dashboard() {
     const fetchRequests = async () => {
       if (decodedToken) {
         try {
-          const response = await api.get(
+          const response = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-requests/${decodedToken.agentId}`,
             {
               headers: {
@@ -175,7 +175,7 @@ export default function Dashboard() {
     const fetchVerifiedRequests = async () => {
       if (decodedToken) {
         try {
-          const response = await api.get(
+          const response = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/agent-verified-properties/${decodedToken.agentId}?sort=${sortOrder}`,
             {
               headers: {
@@ -268,7 +268,7 @@ export default function Dashboard() {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-medium capitalize">
+                        <h3 className="font-medium caxiostalize">
                           {request.listingType}
                         </h3>
                         <p className="text-sm text-gray-600 mt-1">
@@ -368,7 +368,7 @@ export default function Dashboard() {
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <h3 className="font-medium capitalize">{request.listingType}</h3>
+                            <h3 className="font-medium caxiostalize">{request.listingType}</h3>
                             <p className="text-sm text-gray-600 mt-1">
                               {request.address}, {request.city}, {request.townSector}
                             </p>

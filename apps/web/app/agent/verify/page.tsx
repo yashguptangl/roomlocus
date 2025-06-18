@@ -6,7 +6,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import api from "../../../utils/api";
 import Link from "next/link";
 
 const verifySchema = z.object({
@@ -29,8 +28,8 @@ export default function Verify() {
 
   const onSubmit = async (data: VerifyFormValues) => {
     try {
-      console.log("Data being sent to API:", data);
-      const response = await api.post(
+      console.log("Data being sent to axios:", data);
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/agent/verify-otp`,
 
         {
@@ -48,7 +47,7 @@ export default function Verify() {
   const handleResendOTP = async (data: VerifyFormValues) => {
     try {
       setResendLoading(true);
-      const response = await api.post(
+      const response = await axios.post(
         `${process.env.BACKEND_URL}/v1/agent/resend-otp`,
         {
           mobile: data.mobile,

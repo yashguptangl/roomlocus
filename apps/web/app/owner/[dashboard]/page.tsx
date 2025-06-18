@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Bedroom from "../../../assets/bedroom.jpg";
 import Delete from "../../../assets/delete.png";
-import api from "../../../utils/api";
+import axios from "axios";
 import Link from "next/link";
 import Image from "next/image";
 import { LeadLog } from "../../../types/lead";
@@ -64,7 +64,7 @@ const openRazorpay = (order : any, paymentFor : any, extraParams = {}) => {
     handler: async function (response : any) {
       setPayLoading(true);
       try {
-        const verifyRes = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay/verify`, {
+        const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay/verify`, {
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_signature: response.razorpay_signature,
@@ -98,7 +98,7 @@ const handleListingVerification = async (listing : any ) => {
   setPayLoading(true);
   try {
 
-    const res = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
       paymentFor: "listing",
       listingId: String(listing.id),
       listingType: listing.type,
@@ -122,7 +122,7 @@ const handleListingVerification = async (listing : any ) => {
 const handleLeadBuy = async () => {
   setPayLoading(true);
   try {
-    const res = await api.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
+    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
       paymentFor: "lead",
       ownerId: ownerDetails?.id,
       leadCount: leads,
@@ -147,7 +147,7 @@ const handleLeadBuy = async () => {
         alert("User not authenticated");
         return;
       }
-      const response = await api.delete(
+      const response = await axios.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/recentContacts/delete`,
         {
           headers: { token },
@@ -181,7 +181,7 @@ const handleLeadBuy = async () => {
 
       async function ownerDetails() {
         try {
-          const response = await api.get(
+          const response = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/details-owner`,
             { headers: { token } }
           );
@@ -196,7 +196,7 @@ const handleLeadBuy = async () => {
 
       async function usedLeadData(token: string, ownerId: string) {
         try {
-          const leadResponse = await api.get(
+          const leadResponse = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/contact-logs/${ownerId}`,
             { headers: { token } }
           );
@@ -209,7 +209,7 @@ const handleLeadBuy = async () => {
 
       async function fetchImagesForListing(type: string, listingId: string) {
         try {
-          const res = await api.get(
+          const res = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/images/${type}/${listingId}`,
             { headers: { token } }
           );
@@ -222,7 +222,7 @@ const handleLeadBuy = async () => {
 
       const fetchListings = async (token: string, ownerId: string) => {
         try {
-          const response = await api.get(
+          const response = await axios.get(
             `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/${ownerId}/listings`,
             { headers: { token } }
           );
@@ -316,7 +316,7 @@ const handleLeadBuy = async () => {
         return;
       }
 
-      const response = await api.post(
+      const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/publish`,
         { listingId, type, isVisible },
         { headers: { token } }
@@ -348,7 +348,7 @@ const handleLeadBuy = async () => {
         return;
       }
 
-      const response = await api.delete(
+      const response = await axios.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/listing`,
         {
           headers: { token },

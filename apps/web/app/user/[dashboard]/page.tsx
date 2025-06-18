@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import api from "../../../utils/api";
+import axios from "axios";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import DefaultPropertyImage from "../../../assets/bedroom.jpg";
@@ -46,7 +46,7 @@ export default function UserDashboard() {
 
   const handleDeleteContact = async (id: string) => {
     try {
-      await api.delete(
+      await axios.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/recentContacts/delete`,
         {
           headers: {
@@ -64,7 +64,7 @@ export default function UserDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(
+      const response = await axios.get(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/dashboard`,
         {
           headers: {
@@ -104,7 +104,7 @@ export default function UserDashboard() {
 
   const handleRemoveFromWishlist = async (id: string, type: string) => {
     try {
-      await api.delete(
+      await axios.delete(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/wishlist/delete`,
         {
           headers: {
@@ -207,7 +207,7 @@ export default function UserDashboard() {
                     <p className="text-green-600 text-center font-medium text-base">
                       ₹ {item.listing.MinPrice} - {item.listing.MaxPrice}
                     </p>
-                    <p className="text-sm text-gray-700 capitalize">
+                    <p className="text-sm text-gray-700 caxiostalize">
                       Type: {item.type}
                     </p>
                   </div>
