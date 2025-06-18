@@ -16,15 +16,10 @@ if (typeof window !== "undefined") {
           window.location.href = "/user/signin";
         } else if (role === "agent" && currentPath !== "/agent/signin") {
           window.location.href = "/agent/signin";
-        } else if (
-          currentPath !== "/login" &&
-          currentPath !== "/owner/login" &&
-          currentPath !== "/user/login" &&
-          currentPath !== "/agent/login"
-        ) {
-          window.location.href = "/login";
+        } else {
+          window.location.href = "/";
         }
-      }
+      }  
       return Promise.reject(error);
     }
   );

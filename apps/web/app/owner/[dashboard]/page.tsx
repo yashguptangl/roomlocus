@@ -83,7 +83,10 @@ const openRazorpay = (order : any, paymentFor : any, extraParams = {}) => {
       }
       setPayLoading(false);
     },
-    theme: { color: "#3399cc" },
+    theme: { color: "#3399cc" , 
+      hide_topbar: false,
+      
+    },
   };
   // @ts-ignore
   const rzp = new window.Razorpay(options);
