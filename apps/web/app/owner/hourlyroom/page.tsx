@@ -132,6 +132,25 @@ export default function RoomDayNightForm() {
             </div>
           ))}
 
+          {/* Luxury Type Select */}
+          <div className="flex items-center gap-4">
+            <label htmlFor="star" className="text-sm w-1/3 sm:text-xl">Luxury Type</label>
+            <select
+              id="luxury"
+              {...register("luxury", { required: "Luxury is required" })}
+              name="luxury"
+              className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base text-gray-500 placeholder-gray-500"
+            >
+              <option value="" className="text-gray-500">Select Luxury Type</option>
+              {["1 star", "2 star", "3 star", "4 star", "5 star", "6 star", "7 star"].map((luxury) => (
+              <option key={luxury} value={luxury} className="text-black">
+                {luxury}
+              </option>
+              ))}
+            </select>
+            {errors.luxury && <span className="text-red-500 text-sm">{String(errors.luxury?.message)}</span>}
+          </div>
+
 
           {/* Full Address Textarea */}
           <div className="flex items-center gap-4">

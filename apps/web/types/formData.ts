@@ -16,6 +16,7 @@ export interface FormData {
     offer: string;
     listingShowNo: string;
     careTaker: string;
+    luxury: string;
     address: string;
     adress: string;
     furnishingType: string;

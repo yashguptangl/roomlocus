@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import ListingData from "../../types/listing";
 import Image from "next/image";
 import Link from "next/link";
-import Verified from "../../assets/not-verified.png";
+import Verified from "../../assets/verified.png";
 import Unverified from "../../assets/not-verified.png";
 
 
@@ -47,26 +47,14 @@ function Listing() {
   }, [lookingFor, city, townSector]);
 
   const handleListingClick = (listing: ListingData) => {
-    sessionStorage.setItem("selectedListing", JSON.stringify(listing));
     router.push(`/hourlyroom/${listing.id}`);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-1">
         {/* <SortFilter /> */}
-
-        <div className="mt-3 mb-2 flex justify-end">
-          <input
-            type="text"
-            placeholder="Search by location"
-            className="w-40 sm:w-80 p-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-700"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-        </div>
-
         {noListings ? (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
             <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
@@ -85,9 +73,22 @@ function Listing() {
           </div>
         ) : (
           <>
-            <p className="text-blue-400 p-1 mt-1 font-medium text-base">- Hourly Room, {city.toString()} , {townSector.toString()}</p>
-            <p className="text-blue-400 p-1 mt-1 font-medium text-base">- Total Hourly Room Search - {listingData?.listings.length}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-2">
+            <div className="flex justify-between items-center gap-1 sticky top-0 bg-white z-30">
+              <div>
+                <p className="text-black font-normal text-xs ">- Hourly Room - {city.toString()} - {townSector.toString()}</p>
+                <p className="text-black font-normal text-xs mb-3 ">- Total Hourly Room Search - {listingData?.listings.length}</p>
+              </div>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Search Area"
+                  className="w-28 sm:w-80 p-0.3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-300"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {listingData?.listings
                 .filter((listing) => {
                   const text = searchText.toLowerCase();
@@ -123,33 +124,31 @@ function Listing() {
                           <Image
                             src={listing.isVerified ? Verified : Unverified}
                             alt={listing.isVerified ? "Verified" : "Not Verified"}
-                            width={60}
-                            height={60}
+                            width={80}
+                            height={80}
                             className="rounded-full "
                           />
                         </div>
-
-                        {/* Optional: Add dark overlay to make icons more visible */}
-                        <div className="absolute inset-0 bg-black bg-opacity-10 z-10"></div>
                       </div>
 
                       {/* Text Part */}
-                      <div className="p-4">
-                        <h3 className="text-lg font-semibold text-gray-800 line-clamp-2">
-                          {listing.location} , {listing.city} , {listing.townSector}
+                      <div className="px-4 py-1">
+                        <h3 className="text-base text-center font-normal text-gray-800 line-clamp-2">
+                          {listing.location}
                         </h3>
-                        <div className="mt-2 space-y-1">
-                          <p className="text-sm text-gray-600">
+                        <div className="mt-0.5 flex justify-start gap-8 md:gap-16 items-center">
+                          <p className="text-xs md:text-sm text-gray-600">
                             {listing.palaceName}
                           </p>
-                          <p className="text-lg font-bold text-green-600 text-center">
+                          <p className="text-lg font-semibold text-green-600 text-center">
                             ₹{listing.MinPrice.toLocaleString()} - ₹
                             {listing.MaxPrice.toLocaleString()}
                           </p>
-                          <p className="text-sm text-gray-600 text-center">
-                            All Hourly Room Prices Different
-                          </p>
+
                         </div>
+                        <p className="text-xs md:text-sm text-gray-600 text-center">
+                          All Hourly Room Prices can be Different
+                        </p>
                       </div>
                     </div>
                   );

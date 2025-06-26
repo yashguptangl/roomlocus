@@ -654,8 +654,12 @@ const handleLeadBuy = async () => {
                   </div>
                   <div className="px-3 pb-3">
                     <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
-                      {listing.BHK} BHK {listing.type} | Security{" "}
-                      {listing.security}{" "}
+                      {listing.type === "hourlyroom"
+                        ? <>Hourly Room | {listing.palaceName}</>
+                        : <>
+                            {listing.BHK} BHK {listing.type} | Security {listing.security}
+                          </>
+                      }
                     </h2>
                     <p className="text-green-600 font-medium text-sm">
                       Rent : {listing.MinPrice} - {listing.MaxPrice}
@@ -680,9 +684,11 @@ const handleLeadBuy = async () => {
                           localStorage.setItem(`${listing.type}Id`, listing.id);
                         } else if (isKycVerified && listing.paymentDone === false ) {
                           handleListingVerification(listing);
-                        } else {
+                        } else if (isKycVerified === false) {
                           alert("Please complete your KYC first."); // Optional alert for better UX
                           router.push(`/owner/owner-kyc`); // Redirect to Owner KYC page
+                        } else {
+                          router.push(`/owner/verification/?listingType=${listing.type}&listingId=${listing.id}&listingShowNo=${listing.listingShowNo}&address=${listing.adress || listing.Adress || listing.adress || ""}&location=${listing.location}&city=${listing.city}&townSector=${listing.townSector}`);
                         }
                       }}
                     >
@@ -716,7 +722,7 @@ const handleLeadBuy = async () => {
                     key={lead.id}
                     className="bg-white rounded-md shadow-md p-4 mb-4"
                   >
-                    <p className="p-1 text-base flex items-center justify-center">
+                    <p className="p-1 text- flex items-center justify-center">
                       {lead.propertyType} | {lead.landmark} | {lead.location}
                     </p>
                     <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">

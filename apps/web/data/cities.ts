@@ -1,29 +1,137 @@
-// data/cities.js
-export const lookingFor = ["Room", "PG", "Flat", "House"];
-export const citiesData : { [key: string]: string[] }  = {
-    Delhi: [
-      "Sector 1",
-      "Sector 2",
-      "Sector 3",
-      "Sector 4",
-      "Town A",
-      "Town B",
-    ],
-    Mumbai: [
-      "Sector 5",
-      "Sector 6",
-      "Sector 7",
-      "Sector 8",
-      "Town C",
-      "Town D",
-    ],
-    Bangalore: [
-      "Sector 9",
-      "Sector 10",
-      "Sector 11",
-      "Town E",
-      "Town F",
-    ],
-    // Add more cities as needed
-  };
-  
+export const citiesData: { [key: string]: string[] } = {
+  "North West Delhi": [
+    "North West Delhi",
+    "Adarsh Nagar",
+    "Keshav Puram",
+    "Pitampura",
+    "Shalimar Bagh",
+    "Shastri Nagar",
+    "Rohini",
+    "Model Town"
+  ],
+  "North Delhi": [
+    "North Delhi",
+    "Azadpur",
+    "Civil Lines",
+    "Kamla Nagar",
+    "Kashmiri Gate",
+    "Sarai Rohilla",
+    "Majnu-ka-tilla",
+    "Aruna Nagar"
+  ],
+  "North East Delhi": [
+    "North East Delhi",
+    "Shahdara",
+    "Shastri Park",
+    "Naveen Shahdara"
+  ],
+  "Central Delhi": [
+    "Central Delhi",
+    "Chandni Chowk",
+    "Paharganj",
+    "Connaught Place",
+    "Karol Bagh",
+    "Sadar Bazaar",
+    "Daryaganj"
+  ],
+  "New Delhi": [
+    "New Delhi",
+    "Lutyens' Delhi",
+    "Raisina Hill",
+    "Palika Bazaar",
+    "Gole Market"
+  ],
+  "West Delhi": [
+    "West Delhi",
+    "Ashok Nagar",
+    "Ashok Vihar",
+    "Ramesh Nagar",
+    "Subhash Nagar",
+    "Nawada",
+    "Kirti Nagar",
+    "Mayapuri",
+    "Moti Nagar",
+    "Patel Nagar",
+    "Paschim Vihar",
+    "Punjabi Bagh",
+    "Rajouri Garden",
+    "Shivaji Place",
+    "Tilak Nagar",
+    "Vikaspuri",
+    "West Patel Nagar",
+    "Uttam Nagar",
+    "Hari Nagar"
+  ],
+  "South West Delhi": [
+    "South West Delhi",
+    "Dwarka Sub City",
+    "Dwarka Sector 8",
+    "Dwarka Sector 9",
+    "Dwarka Sector 10",
+    "Dwarka Sector 11",
+    "Dwarka Sector 12",
+    "Dwarka Sector 13",
+    "Dwarka Sector 14",
+    "Dwarka Sector 21",
+    "Dashrath Puri",
+    "Delhi Cantonment",
+    "Dhaula Kuan",
+    "Ghitorni",
+    "Janakpuri",
+    "Moti Bagh",
+    "Naraina",
+    "Palam",
+    "Rama Krishna Puram",
+    "Sagar Pur",
+    "Vasant Kunj",
+    "Vasant Vihar",
+    "Kalkaji"
+  ],
+  "South Delhi": [
+  "South Delhi",
+    "Defence Colony",
+    "Green Park",
+    "South Extension",
+    "Saket",
+    "Hauz Khas",
+    "Malviya Nagar",
+    "Chandni Chowk", // note: overlaps
+    "Sarai Kale Khan",
+    "New Friends Colony",
+    "Nehru Place",
+    "Munirka",
+    "Mehrauli",
+    "Hauz Khas"
+  ],
+  "South East Delhi": [
+  "South East Delhi",
+    "Ashram Chowk",
+    "Okhla",
+    "Nizamuddin East",
+    "Nizamuddin West",
+    "Sarai Kale Khan",
+    "Jangpura",
+    "New Friends Colony",
+    "Govindpuri",
+    "Greater Kailash"
+  ],
+  "East Delhi": [
+  "East Delhi",
+    "Patparganj",
+    "Preet Vihar",
+    "Nirman Vihar",
+    "Anand Vihar",
+    "Akshardham",
+    "Mayur Vihar"
+  ],
+  "Central Suburbs": [
+  "Central Suburbs",
+    "Mehrauli",
+    "Chittaranjan Park",
+    "Shahpur Jat",
+    "Katwaria Sarai",
+    "Hauz Khas Village",
+    "Ber Sarai",
+    "Chhattarpur Village"
+  ]
+};

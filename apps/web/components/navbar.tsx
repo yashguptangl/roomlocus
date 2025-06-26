@@ -1,11 +1,11 @@
 "use client";
-
 import { useState, useRef, useEffect } from "react";
 import logo from "../assets/logo.png";
 import userIcon from "../assets/user-icon.png";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import activeUser from "../assets/user-active.png"
 
 export default function Navbar() {
   const router = useRouter();
@@ -82,7 +82,12 @@ export default function Navbar() {
           aria-haspopup="true"
           aria-expanded={showDropdown}
         >
-          <Image src={userIcon} fill className="object-contain rounded-full " alt="User Profile" />
+          <Image
+        src={role && token ? activeUser : userIcon}
+        fill
+        className="object-contain rounded-full"
+        alt="User Profile"
+          />
         </div>
 
         {showDropdown && (

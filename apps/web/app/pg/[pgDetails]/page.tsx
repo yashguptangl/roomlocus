@@ -9,7 +9,7 @@ import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import Verified from "../../../assets/not-verified.png";
+import Verified from "../../../assets/verified.png";
 import Unverified from "../../../assets/not-verified.png";
 
 interface WishlistItem {

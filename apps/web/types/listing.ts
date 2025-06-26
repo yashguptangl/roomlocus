@@ -27,6 +27,7 @@ export interface ListingData {
     accomoType: string;
     genderPrefer: string;
     petAllowed: boolean;
+    luxury: string;
     powerBackup: string;
     waterSupply: string;
     flatType: string;
@@ -73,6 +74,7 @@ export interface ListingItem {
     MaxPrice: number;
     isVisible: boolean;
     isVerified: boolean;
+    palaceName: string;
     listingShowNo: string;
     adress : string;
     listingId : number;

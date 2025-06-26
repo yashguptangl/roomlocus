@@ -5,9 +5,8 @@ import { useSearchParams, useRouter } from "next/navigation";
 import ListingData from "../../types/listing";
 import Image from "next/image";
 import Link from "next/link";
-import Verified from "../../assets/not-verified.png";
+import Verified from "../../assets/verified.png";
 import Unverified from "../../assets/not-verified.png";
-
 
 interface ListingResponse {
   listings: ListingData[];
@@ -20,7 +19,6 @@ function Listing() {
   const city = searchParams.get("city") || "";
   const townSector = searchParams.get("townSector") || "";
   const [searchText, setSearchText] = useState("");
-
 
   const [listingData, setListingData] = useState<ListingResponse | null>(null);
   const [noListings, setNoListings] = useState(false);
@@ -47,33 +45,14 @@ function Listing() {
   }, [lookingFor, city, townSector]);
 
   const handleListingClick = (listing: ListingData) => {
-    sessionStorage.setItem("selectedListing", JSON.stringify(listing));
     router.push(`/flat/${listing.id}`);
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <div className="container mx-auto px-4 py-1">
         {/* <SortFilter /> */}
-
-        <div className=" flex justify-between items-center gap-1 sticky top-0 bg-white z-30 ">
-          <div>
-            <p className="text-blue-400 p-1 mt-1 font-medium text-xs ">- Flat, {city.toString()} , {townSector.toString()}</p>
-            <p className="text-blue-400 p-1 mt-1 font-medium text-xs ">- Total Flat Search - {listingData?.listings.length}</p>
-          </div>
-          <div>
-            <input
-            type="text"
-            placeholder="Search by location"
-            className="w-28 sm:w-80 p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-600"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-          />
-
-          </div>
-        </div>
 
         {noListings ? (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
@@ -93,71 +72,93 @@ function Listing() {
           </div>
         ) : (
           <>
+            <div className=" flex justify-between items-center gap-1 sticky top-0 bg-white z-30 ">
+              <div>
+                <p className="text-black font-normal text-xs ">
+                  - Flat - {city.toString()} - {townSector.toString()}
+                </p>
+                <p className="text-black font-normal text-xs mb-3 ">
+                  - Total Flat Search - {listingData?.listings.length}
+                </p>
+              </div>
+              <div>
+                <input
+                  type="text"
+                  placeholder="Search Area"
+                  className="w-28 sm:w-80 p-0.3 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-300"
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                />
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ">
               {listingData?.listings
-              .filter((listing) => {
-              const text = searchText.toLowerCase();
-              return (
-                listing.location.toLowerCase().includes(text) ||
-                listing.landmark.toLowerCase().includes(text) ||
-                listing.city.toLowerCase().includes(text) ||
-                listing.townSector.toLowerCase().includes(text) ||
-                listing.BHK.toString().includes(text)
-              );
-            })
-              .map((listing) => {
-                return (
-                  <div
-                    onClick={() => handleListingClick(listing)}
-                    key={listing.id}
-                    className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-                  >
-                    {/* Image container must be relative */}
-                    <div className="relative w-full h-40">
-                      {/* Image */}
-                      <Image
-                      src={
-                        listing.images && listing.images[0]
-                        ? listing.images[0]
-                        : "/images/placeholder.png"
-                      }
-                      alt="Flat"
-                      fill
-                      className="object-cover"
-                      />
-                      {/* Verified/Not Verified Badge */}
-                      <div className="absolute top-2 left-2 z-20">
-                      <Image
-                        src={listing.isVerified ? Verified : Unverified}
-                        alt={listing.isVerified ? "Verified" : "Not Verified"}
-                        width={80}
-                        height={80}
-                        className="rounded-full "
-                      />
+                .filter((listing) => {
+                  const text = searchText.toLowerCase();
+                  return (
+                    listing.location.toLowerCase().includes(text) ||
+                    listing.landmark.toLowerCase().includes(text) ||
+                    listing.city.toLowerCase().includes(text) ||
+                    listing.townSector.toLowerCase().includes(text) ||
+                    listing.BHK.toString().includes(text)
+                  );
+                })
+                .map((listing) => {
+                  return (
+                    <div
+                      onClick={() => handleListingClick(listing)}
+                      key={listing.id}
+                      className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+                    >
+                      {/* Image container must be relative */}
+                      <div className="relative w-full h-40">
+                        {/* Image */}
+                        <Image
+                          src={
+                            listing.images && listing.images[0]
+                              ? listing.images[0]
+                              : "/images/placeholder.png"
+                          }
+                          alt="Flat"
+                          fill
+                          className="object-cover"
+                        />
+                        {/* Verified/Not Verified Badge */}
+                        <div className="absolute top-2 left-2 z-20">
+                          <Image
+                            src={listing.isVerified ? Verified : Unverified}
+                            alt={
+                              listing.isVerified ? "Verified" : "Not Verified"
+                            }
+                            width={80}
+                            height={80}
+                            className="rounded-full "
+                          />
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Text Part */}
-                    <div className="px-4 py-1">
-                      <h3 className="text-xs md:text-sm font-semibold text-gray-800 line-clamp-2">
-                        {listing.location}
-                      </h3>
-                      <div className="mt-0.5 ">
-                        <p className="text-xs md:text-sm text-gray-600">
-                          {listing.BHK} BHK
-                        </p>
-                        <p className="text-lg font-bold text-green-600 text-center">
-                          ₹{listing.MinPrice.toLocaleString()} - ₹
-                          {listing.MaxPrice.toLocaleString()}
-                        </p>
+                      {/* Text Part */}
+                      <div className="px-4 py-1">
+                        <h3 className="text-base text-center font-normal text-gray-800 line-clamp-2">
+                          {listing.location}
+                        </h3>
+                        <div className="mt-0.5 flex justify-start gap-8 md:gap-16 items-center">
+                          <p className="text-xs md:text-sm text-gray-600">
+                            {listing.BHK} BHK
+                          </p>
+                          <p className="text-lg font-semibold text-green-600 text-center">
+                            ₹{listing.MinPrice.toLocaleString()} - ₹
+                            {listing.MaxPrice.toLocaleString()}
+                          </p>
+                        </div>
                         <p className="text-xs md:text-sm text-gray-600 text-center">
                           All Flat Prices can be Different
                         </p>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
             </div>
           </>
         )}

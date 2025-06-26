@@ -9,7 +9,7 @@ import Image from "next/image";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaHeart, FaRegHeart, FaShareAlt } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import Verified from "../../../assets/not-verified.png";
+import Verified from "../../../assets/verified.png";
 import Unverified from "../../../assets/not-verified.png";
 
 interface WishlistItem {
@@ -358,6 +358,10 @@ export default function ListingDetail() {
                   <div>
                     <p className="text-blue-300 font-semibold">Palace Name</p>
                     <p className="font-normal">{listing.palaceName}</p>
+                  </div>
+                  <div>
+                    <p className="text-blue-300 font-semibold">Luxury Type</p>
+                    <p className="font-normal">{listing.luxury}</p>
                   </div>
                   <div>
                     <p className="text-blue-300 font-semibold">Type</p>

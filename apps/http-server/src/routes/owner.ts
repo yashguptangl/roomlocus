@@ -457,7 +457,7 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
 ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest , res: Response) => {
     const ownerId = req.user?.id;
     try {
-        const {city , townSector , palaceName , location , landmark , maxprice , minprice , adress ,totalRoom ,totalFloor , bedcount,noofGuests,furnishingType , accomoType , foodAvailable ,acType, preferTenants, genderPrefer , roomType , insideFacilities , outsideFacilities , parking , manager , listingShowNo } = req.body;
+        const {city , townSector , palaceName , location , landmark , maxprice , minprice , adress ,totalRoom ,totalFloor , bedcount,noofGuests,furnishingType , accomoType , foodAvailable ,acType, preferTenants, genderPrefer , roomType , luxury ,insideFacilities , outsideFacilities , parking , manager , listingShowNo } = req.body;
         
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -486,6 +486,7 @@ ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest
                 accomoType : accomoType,
                 acType : acType,
                 noofGuests : parseInt(noofGuests),
+                luxury : luxury,
                 foodAvailable : Boolean(foodAvailable),
                 preferTenants : filteredPreferTenants,
                 genderPrefer : genderPrefer,
@@ -499,10 +500,10 @@ ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest
             }
         })
 
-        res.status(200).json({ message: "Day Night Room  uploaded successfully", hourlyroom });
+        res.status(200).json({ message: "Hourly Room uploaded successfully", hourlyroom });
     } catch (err) {
-        console.error("Error during Day Night Room upload:", err);
-        res.status(500).json({ message: "Failed to upload Day Night Room" });
+        console.error("Error during Hourly Room upload:", err);
+        res.status(500).json({ message: "Failed to upload Hourly Room" });
     }
 })
 

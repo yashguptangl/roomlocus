@@ -197,18 +197,21 @@ export default function UserDashboard() {
                   </button>
                 </div>
                 <div className="px-3 py-1">
-                  <p className="ssm:text-base md:text-base ">
-                    {item.listing.location} {item.listing.townSector} {item.listing.city}
+                  <p className="ssm:text-base md:text-base text-center ">
+                    {item.listing.location} , {item.listing.city}
                   </p>
                   <div className="text-xl font-medium ssm:text-xs mod:text-base">
-                    <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
-                      {item.listing.BHK} BHK {item.listing.type} | Security {item.listing.security}{" "}
-                    </h2>
+                    {item.type === "hourlyroom" ? (
+                      <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
+                        {item.listing.palaceName} | Hourly Room
+                      </h2>
+                    ) : (
+                      <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
+                        {item.listing.BHK} BHK {item.listing.type} | Security {item.listing.security}{" "}
+                      </h2>
+                    )}
                     <p className="text-green-600 text-center font-medium text-base">
-                      ₹ {item.listing.MinPrice} - {item.listing.MaxPrice}
-                    </p>
-                    <p className="text-sm text-gray-700 caxiostalize">
-                      Type: {item.type}
+                      ₹ {item.listing.MinPrice} - ₹ {item.listing.MaxPrice}
                     </p>
                   </div>
                   <button
@@ -233,7 +236,7 @@ export default function UserDashboard() {
               .filter((contact) => !contact.userDeleted)
               .map((contact) => (
                 <div key={contact.id} className="bg-white rounded-md shadow-md p-2 mb-1">
-                  <p className="p-2 text-base flex items-center justify-center ">
+                  <p className="p-1 text-sm flex items-center justify-center ">
                     {contact.propertyType} | {contact.landmark} | {contact.location}
                   </p>
                   <div className="flex flex-col items-center gap-6 p-1 border-b border-gray-300">

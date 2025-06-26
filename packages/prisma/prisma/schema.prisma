@@ -115,7 +115,7 @@ model FlatInfo {
     postPropertyByAdmin Boolean   @default(false)  
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
-
+    createdAt          DateTime  @default(now())
 }
 
 model PgInfo {
@@ -160,6 +160,7 @@ model PgInfo {
     postPropertyByAdmin Boolean   @default(false)
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
+    createdAt          DateTime  @default(now())
 }
   
 model RoomInfo {
@@ -202,6 +203,7 @@ model RoomInfo {
     postPropertyByAdmin Boolean   @default(false)
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
+    createdAt          DateTime  @default(now())
 }
 
 model hourlyInfo {
@@ -232,6 +234,7 @@ model hourlyInfo {
     roomOutside     String[]
     manager         String
     listingShowNo   String
+    luxury          String
     owner               Owner      @relation(fields: [ownerId], references: [id])  
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
@@ -241,6 +244,7 @@ model hourlyInfo {
     postPropertyByAdmin Boolean   @default(false)
     updatedByOwner      DateTime  @updatedAt
     verifiedByAdminOrAgent   DateTime  @updatedAt
+    createdAt          DateTime  @default(now())
 }
   
 model ContactLog {

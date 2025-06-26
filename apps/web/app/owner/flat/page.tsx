@@ -99,7 +99,7 @@ export default function FlatListingForm() {
           {[
             { label: "Area/Colony", name: "location", type: "text" },   // Area/Colony
             { label: "Landmark", name: "landmark", type: "text" },
-            { label: "BHK", name: "Bhk", type: "text" },
+            // { label: "BHK", name: "Bhk", type: "text" },
             { label: "Maximum Price", name: "maxprice", type: "text" },
             { label: "Minimum Price", name: "minprice", type: "text" },
             { label: "Total Floor", name: "totalFloor", type: "text" },
@@ -137,6 +137,25 @@ export default function FlatListingForm() {
               placeholder="Care Taker Name"
             />
             {errors.careTaker && <span className="text-red-500 text-sm">{String(errors.careTaker?.message)}</span>}
+          </div>
+
+          {/* BHK Select */}
+          <div className="flex items-center gap-4">
+            <label htmlFor="Bhk" className="text-sm w-1/3 sm:text-xl">BHK</label>
+            <select
+              id="Bhk"
+              {...register("Bhk", { required: "BHK is required" })}
+              name="Bhk"
+              className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base text-gray-500 placeholder-gray-500"
+            >
+              <option value="" className="text-gray-500">Select BHK</option>
+              {[1, 2, 3, 4, 5].map((bhk) => (
+              <option key={bhk} value={bhk} className="text-black">
+                {bhk} BHK
+              </option>
+              ))}
+            </select>
+            {errors.Bhk && <span className="text-red-500 text-sm">{String(errors.Bhk?.message)}</span>}
           </div>
 
           {/* Full Address Textarea */}

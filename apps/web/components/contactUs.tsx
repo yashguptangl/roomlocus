@@ -10,13 +10,7 @@ export default function Conatct(){
 
           <div className="space-y-6 text-gray-700 text-base sm:text-lg">
             <div>
-              <span className="font-semibold">Phone:</span>{" "}
-              <a
-                href="tel:9045668197"
-                className="text-blue-600 hover:underline break-all"
-              >
-                9045668197
-              </a>
+              <p>If you have any questions, feel free to contact us <a href="https://forms.gle/1uPBkfsqzqCBJmvLA" className="text-blue-500 hover:underline" rel="noopener noreferrer" target="_blank" title="Contact Us for any query or help">Click</a></p>
             </div>
 
             <div>
@@ -26,16 +20,6 @@ export default function Conatct(){
                 className="text-blue-600 hover:underline break-all"
               >
                 roomlocus@gmail.com
-              </a>
-            </div>
-
-            <div>
-              <span className="font-semibold">Business Email:</span>{" "}
-              <a
-                href="mailto:roomlocusbusiness@gmail.com"
-                className="text-blue-600 hover:underline break-all"
-              >
-                roomlocusbusiness@gmail.com
               </a>
             </div>
 
