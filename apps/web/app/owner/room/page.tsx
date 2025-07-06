@@ -103,17 +103,17 @@ export default function RoomListingForm() {
           {[
             { label: "Area/Colony", name: "location", type: "text" },   // Area/Colony
             { label: "Landmark", name: "landmark", type: "text" },
-            { label: "Minimum Price", name: "minprice", type: "text" },
-            { label: "Maximum Price", name: "maxprice", type: "text" },
-            { label: "Total Floor", name: "totalFloor", type: "text" },
-            { label: "Water Supply in hr", name: "waterSupply", type: "text" },
-            { label: "Power Backup in hr", name: "powerBackup", type: "text" },
-            { label: "Notice Period in M", name: "noticePeriod", type: "text" },
-            { label: "Security", name: "security", type: "text" },
-            { label: "Maintenance", name: "maintenance", type: "text" },
+            { label: "Min Price Per Month", name: "minprice", type: "number" },
+            { label: "Max Price Per Month", name: "maxprice", type: "number" },
+            { label: "Security", name: "security", type: "number" },
+            { label: "Maintenance", name: "maintenance", type: "number" },
+            { label: "Total Floor", name: "totalFloor", type: "number" },
             { label: "Total Room", name: "totalRoom", type: "number" },
+            { label: "Water Supply in hr", name: "waterSupply", type: "number" },
+            { label: "Power Backup in hr", name: "powerBackup", type: "number" },
+            { label: "Notice Period", name: "noticePeriod", type: "text" },
             { label: "Offer if any", name: "offer", type: "text" },
-            { label: "Contact Number", name: "listingShowNo", type: "text" },
+            { label: "Contact Number", name: "listingShowNo", type: "number" },
           ].map(({ label, name, type }) => (
             <div
               key={name}
@@ -134,13 +134,13 @@ export default function RoomListingForm() {
             </div>
           ))}
           <div className="flex items-center gap-4">
-            <label htmlFor="description" className="text-sm w-1/3 sm:text-xl">Care Taker if any</label>
+            <label htmlFor="careTaker" className="text-sm w-1/3 sm:text-xl">Contact Name</label>
             <input
-              id="description"
+              id="careTaker"
               {...register("careTaker")}
               name="careTaker"
               className="w-2/3  sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base resize-none placeholder-gray-500"
-              placeholder="Care Taker Name"
+              placeholder="Contact Name"
             />
             {errors.careTaker && <span className="text-red-500 text-sm">{String(errors.careTaker?.message)}</span>}
           </div>
@@ -246,13 +246,13 @@ export default function RoomListingForm() {
           {
             title: "Room Inside Facility",
             name: "insideFacilities",
-            options: ["Fan", "TV", "AC", "Table", "Chair", "Clipboard"],
+            options: ["Single Bed", "Double Bed" , "Almirah / Wardrobe" , "Sofa", "Fan", "AC", "TV", "Attached Bathroom", "Geyser", "WiFi", "Gas / Induction", "Fridge", "Utensils", "Washing Machine", "RO Water"],
             isMultiple: true,
           },
           {
             title: "Room Outside Facility",
             name: "outsideFacilities",
-            options: ["Gym", "School", "Park", "Lift", "Near Metro Station"],
+            options: ["Bus Stop", "Metro Station", "Railway Station", "School", "College" , "University", "Shopping Mall" ,"Market" , "Hospital" , "Bank ATM", "Park", "Gated Society", "Security Guard", "Gym", "CCTV Camera", "Tiffin/Mess Service" , "Dhabas/Restaurants"],
             isMultiple: true,
           },
         ].map(({ title, options, name, isMultiple }) => (

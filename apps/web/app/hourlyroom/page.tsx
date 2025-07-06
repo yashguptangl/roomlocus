@@ -124,8 +124,8 @@ function Listing() {
                           <Image
                             src={listing.isVerified ? Verified : Unverified}
                             alt={listing.isVerified ? "Verified" : "Not Verified"}
-                            width={80}
-                            height={80}
+                            width={120}
+                            height={120}
                             className="rounded-full "
                           />
                         </div>
@@ -134,17 +134,21 @@ function Listing() {
                       {/* Text Part */}
                       <div className="px-4 py-1">
                         <h3 className="text-base text-center font-normal text-gray-800 line-clamp-2">
-                          {listing.location}
+                          {listing.location}, {listing.landmark}
                         </h3>
-                        <div className="mt-0.5 flex justify-start gap-8 md:gap-16 items-center">
+                        <div className="mt-0.5 flex justify-evenly gap-8 md:gap-16 items-center">
                           <p className="text-xs md:text-sm text-gray-600">
                             {listing.palaceName}
                           </p>
-                          <p className="text-lg font-semibold text-green-600 text-center">
+                          <p className="text-sm  text-yellow-500 font-medium">
+                            {listing.luxury}
+                          </p>
+                        </div>
+                        <div>
+                           <p className="text-lg font-semibold text-green-600 text-center">
                             ₹{listing.MinPrice.toLocaleString()} - ₹
                             {listing.MaxPrice.toLocaleString()}
                           </p>
-
                         </div>
                         <p className="text-xs md:text-sm text-gray-600 text-center">
                           All Hourly Room Prices can be Different

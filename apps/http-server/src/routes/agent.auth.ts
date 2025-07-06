@@ -162,7 +162,7 @@ agentRouter.post("/login", async (req: Request, res: Response) => {
       return;
     }
 
-    const token = jwt.sign({ id: agent.id, mobile: agent.mobile, username: agent.username, agentId: agent.agentId ,  role : agent.role }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: agent.id, mobile: agent.mobile, username: agent.username, agentId: agent.agentId ,  role : agent.role }, JWT_SECRET);
     res.status(200).json({
       message: "Login Successfully",
       token: token,

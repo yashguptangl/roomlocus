@@ -120,7 +120,6 @@ export default function UploadDocuments() {
 
         <form onSubmit={handleSubmit(handleUpload)}>  
         <button
-          onClick={handleUpload}
           type="submit"
           disabled={isSubmitting}
           className="bg-blue-500 text-white p-2 rounded text-center"

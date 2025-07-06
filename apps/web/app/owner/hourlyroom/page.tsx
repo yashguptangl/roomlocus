@@ -103,13 +103,13 @@ export default function RoomDayNightForm() {
           {[
             { label: "Area/Colony", name: "location", type: "text" },   // Area/Colony
             { label: "Landmark", name: "landmark", type: "text" },
+            { label: "Min Price Per Night", name: "minprice", type: "number" },
+            { label: "Max Price Per Night", name: "maxprice", type: "number" },
             { label: "Bedcount", name: "bedcount", type: "number" },
             { label: "No of Guest Allowed", name: "noofGuests", type: "number" },
-            { label: "Total Floor", name: "totalFloor", type: "text" },
-            { label: "Minimum Price", name: "minprice", type: "text" },
-            { label: "Maximum Price", name: "maxprice", type: "text" },
-            { label: "Palace Name", name: "palaceName", type: "text" },
+            { label: "Total Floor", name: "totalFloor", type: "number" },
             { label: "Total Room", name: "totalRoom", type: "number" },
+            { label: "Palace Name", name: "palaceName", type: "text" },         
             { label: "Manager/Owner", name: "manager", type: "text" },
             { label: "Contact Number", name: "listingShowNo", type: "number" },
           ].map(({ label, name, type }) => (
@@ -237,13 +237,13 @@ export default function RoomDayNightForm() {
           {
             title: "Room Inside Facility",
             name: "insideFacilities",
-            options: ["Fan", "TV", "AC", "Table", "Chair", "Clipboard"],
+            options: ["Single Bed", "Double Bed" , "Almirah / Wardrobe" , "Sofa", "Fan", "AC", "TV", "Attached Bathroom", "Geyser", "WiFi", "Gas / Induction", "Fridge", "Utensils", "Washing Machine", "RO Water"],
             isMultiple: true,
           },
           {
             title: "Room Outside Facility",
             name: "outsideFacilities",
-            options: ["Gym", "School", "Park", "Lift", "Near Metro Station"],
+            options: ["Bus Stop", "Metro Station", "Railway Station", "School", "College" , "University", "Shopping Mall" ,"Market" , "Hospital" , "Bank ATM", "Park", "Gated Society", "Security Guard", "Gym", "CCTV Camera", "Tiffin/Mess Service" , "Dhabas/Restaurants"],
             isMultiple: true,
           },
         ].map(({ title, options, name, isMultiple }) => (

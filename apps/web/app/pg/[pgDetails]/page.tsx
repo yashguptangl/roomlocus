@@ -36,6 +36,7 @@ export default function ListingDetail() {
   const [images, setImages] = useState<string[]>([]);
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [token, setToken] = useState<string | null>(null);
+  const [showContactPopup, setShowContactPopup] = useState(false);
 
   // Fetch PG details from backend
   useEffect(() => {
@@ -258,8 +259,8 @@ export default function ListingDetail() {
                     <Image
                       src={listing.isVerified ? Verified : Unverified}
                       alt={listing.isVerified ? "Verified" : "Not Verified"}
-                      width={80}
-                      height={80}
+                      width={150}
+                      height={150}
                       className="inline-block mr-2"
                     />
                   </div>
@@ -343,8 +344,8 @@ export default function ListingDetail() {
                 {listing.adress}
               </h1>
 
-              <h2 className="text-2xl font-semibold text-center text-green-600 my-2">
-                ₹{listing.MinPrice} - ₹{listing.MaxPrice}
+              <h2 className="text-xl font-semibold text-center text-green-600 my-2">
+                ₹{listing.MinPrice} - ₹{listing.MaxPrice} Per Month
               </h2>
 
             </div>
@@ -471,18 +472,53 @@ export default function ListingDetail() {
 
             </div>
 
-            <div className="pt-4 ">
+            <div className="pt-4">
               {!ownerContact ? (
-                <form onSubmit={handleSubmit(contactOwner)}>
+                <>
                   <button
-                    type="submit"
+                    type="button"
                     disabled={isSubmitting}
-                    onClick={handleSubmit(contactOwner)}
-                    className="bg-blue-300 text-white font-medium py-2 px-3 rounded-lg transition-colors ssm:ml-10 mod:ml-14 md:ml-20"
+                    onClick={() => setShowContactPopup(true)}
+                    className="bg-blue-300 text-white font-medium py-3 px-4 rounded-lg transition-colors ssm:ml-10 mod:ml-14 md:ml-20"
                   >
                     {isSubmitting ? "Contacting..." : "Contact Owner"}
                   </button>
-                </form>
+                  {showContactPopup && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 ">
+                      <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
+                        <h4 className="text-lg font-semibold mb-2 text-gray-800 text-center">Note</h4>
+                          <ul className="mb-4 text-gray-600 list-disc list-inside space-y-1 text-sm">
+                          <li>RoomLocus only provides listings for rooms, flats, PGs, and hourly rooms.</li>
+                          <li>We do not handle payments, rent collection, or finalize any deals.</li>
+                          <li>Always communicate directly with the property owner before making any decisions.</li>
+                          <li>Do not pay any advance or security deposit without meeting the owner and verifying their identity.</li>
+                          <li>If any unknown person asks for money claiming to be from RoomLocus — it's a fraud. Please stay alert.</li>
+                          </ul>
+                          <p className="mb-3 text-gray-700 text-xs">
+                          <strong>RoomLocus</strong> aims to connect renters with property owners, not to act as a middleman in any transactions.<br />
+                          <span className="text-red-500 font-semibold">Stay Alert. Verify Before You Pay.</span>
+                          </p>
+                        <div className="flex justify-end gap-2">
+                          <button
+                            className="px-2 py-0.5 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
+                            onClick={() => setShowContactPopup(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            className="px-2 py-0.5 rounded bg-blue-300  text-white"
+                            onClick={async () => {
+                              setShowContactPopup(false);
+                              await handleSubmit(contactOwner)();
+                            }}
+                          >
+                            Agree
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               ) : (
                 <div className="flex justify-evenly border border-green-200 bg-green-50 p-4 rounded-lg">
                   <div>
@@ -493,12 +529,11 @@ export default function ListingDetail() {
                   <div>
                     <a
                       href={`tel:${listing.listingShowNo}`}
-                      className="mt-8 inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-2 rounded-xl text-center transition-colors"
+                      className="mt-8 inline-block bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-2 rounded-xl text-center transition-colors "
                     >
                       Call
                     </a>
                   </div>
-
                 </div>
               )}
             </div>

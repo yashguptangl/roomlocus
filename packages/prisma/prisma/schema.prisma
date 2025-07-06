@@ -59,7 +59,6 @@ model Agent {
     isVerifiedByAdmin  Boolean    @default(false)
     isKYCVerified      Boolean    @default(false)
     personverifiedName String
-    earnings           Int       @default(0)  // Initial earnings amount
     walletRs           Int       @default(0)  // Initial wallet amount
     Agentprogress      Agentprogress[]
     VerificationRequests VerificationRequest[]
@@ -85,16 +84,16 @@ model FlatInfo {
     location            String
     landmark            String
     BHK                 String
-    MaxPrice            String
-    MinPrice            String
-    Offer               String      
-    security            String
-    maintenance         String
+    MaxPrice            Int
+    MinPrice            Int
+    Offer               String
+    security            Int
+    maintenance         Int
     totalFlat           Int
     Adress              String
-    totalFloor          String
-    waterSupply         String
-    powerBackup         String
+    totalFloor          Int
+    waterSupply         Int
+    powerBackup         Int
     noticePeriod        String
     furnishingType      String
     accomoType          String
@@ -104,7 +103,7 @@ model FlatInfo {
     genderPrefer        String
     flatType            String
     careTaker           String
-    listingShowNo       String
+    listingShowNo       Int
     flatInside          String[]
     flatOutside         String[]
     isVerified          Boolean   @default(false)
@@ -128,18 +127,18 @@ model PgInfo {
     location            String
     landmark            String
     BHK                 String
-    MinPrice            String
-    MaxPrice            String
+    MinPrice            Int
+    MaxPrice            Int
     adress              String
     Offer               String
-    security            String
-    maintenance         String
+    security            Int
+    maintenance         Int
     totalPG             Int
-    totalFloor          String
-    waterSupply         String
+    totalFloor          Int
+    waterSupply         Int
     PGType              String
     bedCount            Int
-    powerBackup         String
+    powerBackup         Int
     noticePeriod        String
     furnishingType      String
     accomoType          String
@@ -151,7 +150,7 @@ model PgInfo {
     PGInside          String[]
     PGOutside         String[]
     careTaker           String
-    listingShowNo       String
+    listingShowNo       Int
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
     paymentDone         Boolean   @default(false)
@@ -173,17 +172,17 @@ model RoomInfo {
     location            String
     BHK                 String
     landmark            String
-    MinPrice            String
-    MaxPrice            String
+    MinPrice            Int
+    MaxPrice            Int
     Offer               String
     adress              String
-    security            String
-    maintenance         String
+    security            Int
+    maintenance         Int
     totalRoom           Int
-    totalFloor          String
-    powerBackup         String
+    totalFloor          Int
+    powerBackup         Int
     noticePeriod        String
-    waterSupply         String
+    waterSupply         Int
     furnishingType      String
     accomoType          String
     parking             String[]
@@ -193,7 +192,7 @@ model RoomInfo {
     roomInside          String[]
     roomOutside         String[]
     careTaker           String
-    listingShowNo       String
+    listingShowNo       Int
     RoomAvailable       String
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
@@ -216,11 +215,11 @@ model hourlyInfo {
     landmark        String
     palaceName      String
     BedCount        Int
-    MinPrice        String
-    MaxPrice        String
+    MinPrice        Int
+    MaxPrice        Int
     adress          String
     totalRoom       Int
-    totalFloor      String
+    totalFloor      Int
     noofGuests      Int
     furnishingType  String
     accomoType      String
@@ -233,7 +232,7 @@ model hourlyInfo {
     roomInside      String[]
     roomOutside     String[]
     manager         String
-    listingShowNo   String
+    listingShowNo   Int
     luxury          String
     owner               Owner      @relation(fields: [ownerId], references: [id])  
     isVerified          Boolean   @default(false)

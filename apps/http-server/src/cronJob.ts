@@ -110,22 +110,3 @@ cron.schedule("0 * * * *", async () => {
         console.error("❌ Error deleting expired self verification requests:", error);
     }
 });
-
-cron.schedule("1 0 * * *", async () => {
-    try {
-        const agents = await prisma.agent.findMany();
-        for (const agent of agents) {
-            await prisma.agent.update({
-                where: { id: agent.id },
-                data: {
-                    walletRs: { increment: agent.earnings },
-                    earnings: { set: 0 },
-                },
-            });
-        }
-    } catch (error) {
-        console.error("❌ Error updating agent earnings:", error);
-    }
-});
-
-console.log("⏳ Cron job started: Checking for expired contact logs every hour...");

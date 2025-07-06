@@ -71,12 +71,12 @@ function EditFormContent() {
        {listingType === "flat" && (
                     <div className="flex flex-col gap-4 mt-4">
                         {[
-                            { label: "Security", name: "security", type: "text" },
-                            { label: "Maintenance", name: "maintenance", type: "text" },
+                            { label: "Security", name: "security", type: "number" },
+                            { label: "Maintenance", name: "maintenance", type: "number" },
                             { label: "Offer if any", name: "offer", type: "text" },
-                            { label: "Min Price", name: "minPrice", type: "text" },
-                            { label: "Max Price", name: "maxPrice", type: "text" },
-                            { label: "Contact Number", name: "listingShowNo", type: "text" },
+                            { label: "Min Price Per Month", name: "minPrice", type: "number" },
+                            { label: "Max Price Per Month", name: "maxPrice", type: "number" },
+                            { label: "Contact Number", name: "listingShowNo", type: "number" },
                         ].map(({ label, name, type }) => (
                             <div key={name} className="flex items-center gap-4">
                                 <label className="text-sm w-1/3 sm:text-xl">{label}</label>
@@ -101,13 +101,13 @@ function EditFormContent() {
 {listingType === "pg" && (
                     <div className="flex flex-col gap-4 mt-4">
                         {[
-                            { label: "Security", name: "security", type: "text" },
-                            { label: "Maintenance", name: "maintenance", type: "text" },
-                            { label: "Min Price", name: "minPrice", type: "text" },
-                            { label: "Max Price", name: "maxPrice", type: "text" },
+                            { label: "Security", name: "security", type: "number" },
+                            { label: "Maintenance", name: "maintenance", type: "number" },
+                            { label: "Min Price Per Month", name: "minPrice", type: "number" },
+                            { label: "Max Price Per Month", name: "maxPrice", type: "number" },
                             { label: "Offer if any", name: "offer", type: "text" },
                             { label: "Bed Count", name: "bedCount", type: "number" },
-                            { label: "Contact Number", name: "listingShowNo", type: "text" },
+                            { label: "Contact Number", name: "listingShowNo", type: "number" },
                         ].map(({ label, name, type }) => (
                             <div key={name} className="flex items-center gap-4">
                                 <label className="text-sm w-1/3 sm:text-xl">{label}</label>
@@ -132,12 +132,12 @@ function EditFormContent() {
                 {listingType === "room" && (
                     <div className="flex flex-col gap-4 mt-4">
                         {[
-                            { label: "Security", name: "security", type: "text" },
-                            { label: "Maintenance", name: "maintenance", type: "text" },
-                            { label: "Min Price", name: "minPrice", type: "text" },
-                            { label: "Max Price", name: "maxPrice", type: "text" },
+                            { label: "Security", name: "security", type: "number" },
+                            { label: "Maintenance", name: "maintenance", type: "number" },
+                            { label: "Min Price Per Month", name: "minPrice", type: "number" },
+                            { label: "Max Price Per Month", name: "maxPrice", type: "number" },
                             { label: "Offer if any", name: "offer", type: "text" },
-                            { label: "Contact Number", name: "listingShowNo", type: "text" },
+                            { label: "Contact Number", name: "listingShowNo", type: "number" },
                         ].map(({ label, name, type }) => (
                             <div key={name} className="flex items-center gap-4">
                                 <label className="text-sm w-1/3 sm:text-xl">{label}</label>
@@ -162,8 +162,8 @@ function EditFormContent() {
                 {listingType === "hourlyroom" && (
                     <div className="flex flex-col gap-4 mt-4">
                         {[
-                            { label: "Min Price", name: "minPrice", type: "text" },
-                            { label: "Max Price", name: "maxPrice", type: "text" },
+                            { label: "Min Price Per Night", name: "minPrice", type: "number" },
+                            { label: "Max Price Per Night", name: "maxPrice", type: "number" },
                             { label: "Number of Guests", name: "noOfGuests", type: "number" },
                             { label: "Manager Name", name: "manager", type: "text" },
                             { label: "Manager Contact", name: "listingShowNo", type: "number" },

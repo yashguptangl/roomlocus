@@ -204,9 +204,6 @@ export default function Dashboard() {
       <div className="flex flex-row items-center justify-around bg-white px-0.5 py-2">
         <div className="flex flex-col gap-0.5 items-center mt-0.5">
           <p className="md:text-base ssm:text-sm">Agent Id : {decodedToken?.agentId || "N/A"}</p>
-          <p className="md:text-base ssm:text-sm">Earnings: {agentData ? agentData.earnings : "N/A"}</p>
-        </div>
-        <div>
           <p className="md:text-base ssm:text-sm">Wallet : {agentData ? agentData.walletRs : "N/A"}</p>
           <button className="bg-green-600 text-white md:text-sm ssm:text-xs py-0.5 px-2 rounded">Withdraw</button>
         </div>

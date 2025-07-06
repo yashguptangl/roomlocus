@@ -42,102 +42,110 @@ export default function Dashboard() {
   const [isKycVerified, setIsKycVerified] = useState(true); // Default to true
   const [payLoading, setPayLoading] = useState(false);
   const [razorpayReady, setRazorpayReady] = useState(false);
-  const [ownerDetails, setOwnerDetails] = useState<any>(null); 
+  const [ownerDetails, setOwnerDetails] = useState<any>(null);
+  const [offerModal, setOfferModal] = useState<{
+    open: boolean;
+    listing?: ListingItem;
+  }>({
+    open: false,
+    listing: undefined,
+  });
 
-   const handleScriptLoad = () => setRazorpayReady(true);
+  const handleScriptLoad = () => setRazorpayReady(true);
 
-// Razorpay checkout open karne ka function
-const openRazorpay = (order : any, paymentFor : any, extraParams = {}) => {
-  if (typeof window === "undefined" || !window.Razorpay) {
-    alert("Payment system not ready. Please refresh the page.");
-    return;
-  }
-  const options = {
-    key: order.keyId,
-    amount: order.amount,
-    currency: order.currency,
-    name: order.name,
-    description: order.description,
-    order_id: order.orderId,
-    prefill: order.prefill,
-    notes: order.notes,
-    handler: async function (response : any) {
-      setPayLoading(true);
-      try {
-        const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay/verify`, {
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_signature: response.razorpay_signature,
-          backendOrderId: order.backendOrderId,
-          paymentFor,
-          ownerId: order.notes.ownerId,
-          leadCount: order.notes.leadCount,
-        });
-        if (verifyRes.data.success && verifyRes.data.redirect) {
-          window.location.href = verifyRes.data.redirect;
-        } else {
+  // Razorpay checkout open karne ka function
+  const openRazorpay = (order: any, paymentFor: any, extraParams = {}) => {
+    if (typeof window === "undefined" || !window.Razorpay) {
+      alert("Payment system not ready. Please refresh the page.");
+      return;
+    }
+    const options = {
+      key: order.keyId,
+      amount: order.amount,
+      currency: order.currency,
+      name: order.name,
+      description: order.description,
+      order_id: order.orderId,
+      prefill: order.prefill,
+      notes: order.notes,
+      handler: async function (response: any) {
+        setPayLoading(true);
+        try {
+          const verifyRes = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay/verify`, {
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+            backendOrderId: order.backendOrderId,
+            paymentFor,
+            ownerId: order.notes.ownerId,
+            leadCount: order.notes.leadCount,
+          });
+          if (verifyRes.data.success && verifyRes.data.redirect) {
+            window.location.href = verifyRes.data.redirect;
+          } else {
+            alert("Payment verification failed!");
+          }
+        } catch (err) {
           alert("Payment verification failed!");
         }
-      } catch (err) {
-        alert("Payment verification failed!");
-      }
-      setPayLoading(false);
-    },
-    theme: { color: "#3399cc" , 
-      hide_topbar: false,
-      
-    },
+        setPayLoading(false);
+      },
+      theme: {
+        color: "#3399cc",
+        hide_topbar: false,
+
+      },
+    };
+    // @ts-ignore
+    const rzp = new window.Razorpay(options);
+    rzp.open();
   };
-  // @ts-ignore
-  const rzp = new window.Razorpay(options);
-  rzp.open();
-};
 
-// Listing Verification Payment
-const handleListingVerification = async (listing : any ) => {
-  setPayLoading(true);
-  try {
+  // Listing Verification Payment
+  const handleListingVerification = async (listing: any) => {
+    setPayLoading(true);
+    try {
 
-    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
-      paymentFor: "listing",
-      listingId: String(listing.id),
-      listingType: listing.type,
-      address: listing.address || listing.Adress || listing.adress,
-      location: listing.location,
-      city: listing.city,
-      townSector: listing.townSector,
-      listingShowNo: listing.listingShowNo,
-      firstname: ownerDetails?.username || "Owner",
-      email: ownerDetails?.email || "",
-      phone: ownerDetails?.mobile || "",
-    });
-    openRazorpay(res.data, "listing");
-  } catch (err) {
-    alert("Payment start failed!");
-  }
-  setPayLoading(false);
-};
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
+        paymentFor: "listing",
+        listingId: String(listing.id),
+        listingType: listing.type,
+        address: listing.address || listing.Adress || listing.adress,
+        location: listing.location,
+        city: listing.city,
+        townSector: listing.townSector,
+        listingShowNo: listing.listingShowNo,
+        firstname: ownerDetails?.username || "Owner",
+        email: ownerDetails?.email || "",
+        phone: ownerDetails?.mobile || "",
+      });
+      openRazorpay(res.data, "listing");
+    } catch (err) {
+      alert("Payment start failed!");
+    }
+    setPayLoading(false);
+  };
 
-// Lead Buy Payment
-const handleLeadBuy = async () => {
-  setPayLoading(true);
-  try {
-    const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
-      paymentFor: "lead",
-      ownerId: ownerDetails?.id,
-      leadCount: leads,
-      leadPrice: 5,
-      firstname: ownerDetails?.username || "Owner",
-      email: ownerDetails?.email || "",
-      phone: ownerDetails?.mobile || "",
-    });
-    openRazorpay(res.data, "lead", { leadCount: leads });
-    setShowModal(false);
-  } catch (err) {
-    alert("Payment start failed!");
-  }
-  setPayLoading(false);
-};
+  // Lead Buy Payment
+  const handleLeadBuy = async () => {
+    setPayLoading(true);
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/payment/razorpay`, {
+        paymentFor: "lead",
+        ownerId: ownerDetails?.id,
+        leadCount: leads,
+        leadPrice: 5,
+        firstname: ownerDetails?.username || "Owner",
+        email: ownerDetails?.email || "",
+        phone: ownerDetails?.mobile || "",
+      });
+      openRazorpay(res.data, "lead", { leadCount: leads });
+      setShowModal(false);
+    } catch (err) {
+      alert("Payment start failed!");
+    }
+    setPayLoading(false);
+  };
 
   // Move handleDeleteLead outside useEffect so it's accessible in render
   const handleDeleteLead = async (leadId: number) => {
@@ -294,7 +302,7 @@ const handleLeadBuy = async () => {
           setListings(listingsWithImages);
         } catch (e) {
           console.error("Error fetching listings:", e);
-         
+
         }
       };
 
@@ -377,9 +385,9 @@ const handleLeadBuy = async () => {
 
   return (<>
     <Script
-        src="https://checkout.razorpay.com/v1/checkout.js"
-        strategy="afterInteractive"
-        onLoad={handleScriptLoad}
+      src="https://checkout.razorpay.com/v1/checkout.js"
+      strategy="afterInteractive"
+      onLoad={handleScriptLoad}
     />
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
@@ -404,23 +412,23 @@ const handleLeadBuy = async () => {
             </h2>
             <div className="mb-2">
               <label className="block text-sm font-medium mb-2">
-              Enter Number of Leads (Min 10):
+                Enter Number of Leads (Min 10):
               </label>
               <input
-              type="number"
-              value={leads}
-              onChange={(e) => {
-                const value = e.target.value;
-                const num = Number(value);
-                setLeads(value);
-                if (value === "" || num === 0) {
-                setPrice(0);
-                } else {
-                setPrice(num * 5); // ₹5 per lead
-                }
-              }}
-              className="w-full p-2 border border-gray-300 rounded-md placeholder:text-gray-500"
-              placeholder="Enter number of leads"
+                type="number"
+                value={leads}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const num = Number(value);
+                  setLeads(value);
+                  if (value === "" || num === 0) {
+                    setPrice(0);
+                  } else {
+                    setPrice(num * 5); // ₹5 per lead
+                  }
+                }}
+                className="w-full p-2 border border-gray-300 rounded-md placeholder:text-gray-500"
+                placeholder="Enter number of leads"
               />
             </div>
             <div className="text-lg font-semibold text-center mb-4">
@@ -428,34 +436,34 @@ const handleLeadBuy = async () => {
             </div>
             <div className="flex justify-between">
               <button
-              onClick={() => setShowModal(false)}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                onClick={() => setShowModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-md"
               >
-              Cancel
+                CANCEL
               </button>
               <button
-              onClick={() => {
-                if (Number(leads) < 10) {
-                alert("Minimum 10 leads required.");
-                return;
-                }
-                handleLeadBuy();
-              }}
-              disabled={payLoading}
-              className="bg-green-500 text-white px-4 py-2 rounded-md"
+                onClick={() => {
+                  if (Number(leads) < 10) {
+                    alert("Minimum 10 leads required.");
+                    return;
+                  }
+                  handleLeadBuy();
+                }}
+                disabled={payLoading}
+                className="bg-green-500 text-white px-4 py-2 rounded-md"
               >
-              {payLoading ? "Processing..." : "Pay"}
+                {payLoading ? "PROCESSING..." : "PAY"}
               </button>
             </div>
-            </div>
           </div>
+        </div>
       )}
       {/* Navigation Tabs */}
       <div className="flex justify-between border-b border-gray-300 bg-blue-300">
         <button
           onClick={() => setActiveTab("myRental")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "myRental"
-            ? "text-blue-500 border-b-3 border-blue-500"
+            ? "text-blue-400 border-b-3 border-blue-500"
             : "text-white"
             }`}
         >
@@ -464,7 +472,7 @@ const handleLeadBuy = async () => {
         <button
           onClick={() => setActiveTab("usedLead")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "usedLead"
-            ? "text-blue-500 border-b-3 border-blue-500"
+            ? "text-blue-400 border-b-3 border-blue-500"
             : "text-white"
             }`}
         >
@@ -473,7 +481,7 @@ const handleLeadBuy = async () => {
         <button
           onClick={() => setActiveTab("guide")}
           className={`flex-1 text-center py-2 font-semibold ${activeTab === "guide"
-            ? "text-blue-500 border-b-2 border-blue-500"
+            ? "text-blue-400 border-b-2 border-blue-500"
             : "text-white"
             }`}
         >
@@ -547,10 +555,10 @@ const handleLeadBuy = async () => {
                     <button
                       onClick={() => {
                         if (Number(points) <= 0) {
-                        setShowModal(true);
-                        alert("You need to buy leads to publish your property.");
-                        return;
-                      }
+                          setShowModal(true);
+                          alert("You need to buy leads to publish your property.");
+                          return;
+                        }
                         toggleButton(
                           listing.id,
                           listing.type,
@@ -657,8 +665,8 @@ const handleLeadBuy = async () => {
                       {listing.type === "hourlyroom"
                         ? <>Hourly Room | {listing.palaceName}</>
                         : <>
-                            {listing.BHK} BHK {listing.type} | Security {listing.security}
-                          </>
+                          {listing.BHK} BHK {listing.type} | Security {listing.security}
+                        </>
                       }
                     </h2>
                     <p className="text-green-600 font-medium text-sm">
@@ -682,11 +690,15 @@ const handleLeadBuy = async () => {
                           alert("Please complete your listing first.");
                           router.push(`/owner/${listing.type}/images`);
                           localStorage.setItem(`${listing.type}Id`, listing.id);
-                        } else if (isKycVerified && listing.paymentDone === false ) {
-                          handleListingVerification(listing);
+                        } else if (isKycVerified && listing.paymentDone === false) {
+                          // Show offer popup before payment
+                          setOfferModal({
+                            open: true,
+                            listing,
+                          });
                         } else if (isKycVerified === false) {
-                          alert("Please complete your KYC first."); // Optional alert for better UX
-                          router.push(`/owner/owner-kyc`); // Redirect to Owner KYC page
+                          alert("Please complete your KYC first.");
+                          router.push(`/owner/owner-kyc`);
                         } else {
                           router.push(`/owner/verification/?listingType=${listing.type}&listingId=${listing.id}&listingShowNo=${listing.listingShowNo}&address=${listing.adress || listing.Adress || listing.adress || ""}&location=${listing.location}&city=${listing.city}&townSector=${listing.townSector}`);
                         }
@@ -698,6 +710,41 @@ const handleLeadBuy = async () => {
                           ? "Verified"
                           : "Pending Verification"}
                     </button>
+
+                    {/* Offer Modal */}
+                    {offerModal?.open && offerModal.listing?.id === listing.id && (
+                      <div
+                        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm p-4"
+                        onClick={() => setOfferModal({ open: false })}
+                      >
+                        <div
+                          className="bg-white rounded-lg shadow-lg p-6 w-80 flex flex-col items-center relative"
+                          onClick={e => e.stopPropagation()}
+                        >
+                          <button
+                            className="absolute top-1 right-4 text-gray-800 text-4xl"
+                            onClick={() => setOfferModal({ open: false })}
+                          >
+                            ×
+                          </button>
+                          <div className="mb-3 text-center">
+                            <span className="block text-lg font-bold text-gray-700 mb-1">Annual Fee</span>
+                            <span className="block text-lg font-normal text-red-500 line-through">₹ 3999 /-</span>
+                            <span className="block text-xl font-semibold text-green-600 mt-1">₹ 365 <span className="text-base font-medium">only</span></span>
+                            <span className="block text-xs text-gray-700 mt-2">Limited time offer for property verification</span>
+                          </div>
+                          <button
+                            className="px-6 py-1 bg-green-600 rounded-md text-white "
+                            onClick={() => {
+                              setOfferModal({ open: false });
+                              handleListingVerification(listing);
+                            }}
+                          >
+                            PAY
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -726,7 +773,7 @@ const handleLeadBuy = async () => {
                       {lead.propertyType} | {lead.landmark} | {lead.location}
                     </p>
                     <div className="flex flex-col items-center gap-10 p-2 border-b border-gray-300">
-                      <div className="flex items-center gap-20">
+                      <div className="flex items-center gap-16">
                         <div className="flex item-center gap-4">
                           <div className="flex flex-col">
                             <span className="text-sm font-semibold">
@@ -769,53 +816,91 @@ const handleLeadBuy = async () => {
 
         {/* Rental List Modal */}
         {isRentalListOpen && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div className="bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4">
-              <h2 className="text-xl font-semibold mb-4 text-center">
-                Add Rental
-              </h2>
-
-              {/* Links to Rentals */}
-              <div className="space-y-4 text-center flex flex-col">
-                <Link
-                  className="text-blue-500 hover:underline"
-                  href="/owner/flat"
-                >
-                  FLAT
-                </Link>
-                <Link
-                  className="text-blue-500 hover:underline"
-                  href="/owner/room"
-                >
-                  ROOM
-                </Link>
-                <Link
-                  className="text-blue-500 hover:underline"
-                  href="/owner/pg"
-                >
-                  PG
-                </Link>
-                <Link
-                  className="text-blue-500 hover:underline"
-                  href="/owner/hourlyroom"
-                >
-                  HOURLY ROOM
-                </Link>
-              </div>
-
-              {/* Close Button */}
-              <div className="flex justify-center mt-4">
-                <button
-                  onClick={() => setIsRentalListOpen(false)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-md"
-                >
-                  Close
-                </button>
-              </div>
+          <div
+            className="fixed inset-0 flex items-center justify-center z-50"
+            onClick={() => {
+              setIsRentalListOpen(false);
+              setOwnerDetails((prev: any) => ({ ...prev, agreedToTerms: false }));
+            }}
+          >
+            {/* Blurred background */}
+            <div className="absolute inset-0 bg-gray-800 bg-opacity-50 backdrop-blur-sm"></div>
+            <div
+              className="relative bg-white p-4 rounded-md shadow-md w-9/12 sm:w-2/3 md:w-1/3 lg:w-1/4"
+              onClick={e => e.stopPropagation()}
+            >
+              {!ownerDetails?.agreedToTerms ? (
+          <>
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Note
+            </h2>
+            <p className="text-sm text-gray-700 mb-6 text-justify">
+              If the owner posts property details or photos illegally or incorrectly on the website, the Roomlocus team can block your ID and may also take legal action against you.
+              The owner will be fully responsible for any illegal or incorrect posting of property details or photos on the website.
+            </p>
+            <div className="flex justify-end">
+              <button
+                className="bg-blue-300 text-white px-2 py-1 rounded-md font-normal"
+                onClick={() => {
+            setOwnerDetails((prev: any) => ({ ...prev, agreedToTerms: true }));
+            // Open the rental list after agreeing
+            // No need to close the modal here, let the component re-render to show the links
+                }}
+              >
+                Agree
+              </button>
+            </div>
+          </>
+              ) : (
+          <>
+            <h2 className="text-xl font-semibold mb-4 text-center">
+              Add Rental
+            </h2>
+            {/* Links to Rentals */}
+            <div className="space-y-4 text-center flex flex-col">
+              <Link
+                className="text-blue-500 hover:underline"
+                href="/owner/flat"
+              >
+                FLAT
+              </Link>
+              <Link
+                className="text-blue-500 hover:underline"
+                href="/owner/room"
+              >
+                ROOM
+              </Link>
+              <Link
+                className="text-blue-500 hover:underline"
+                href="/owner/pg"
+              >
+                PG
+              </Link>
+              <Link
+                className="text-blue-500 hover:underline"
+                href="/owner/hourlyroom"
+              >
+                HOURLY ROOM
+              </Link>
+            </div>
+            {/* Close Button */}
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={() => {
+            setIsRentalListOpen(false);
+            setOwnerDetails((prev: any) => ({ ...prev, agreedToTerms: false }));
+                }}
+                className="bg-gray-500 text-white px-4 py-2 rounded-md"
+              >
+                Close
+              </button>
+            </div>
+          </>
+              )}
             </div>
           </div>
         )}
-
+                 
         {activeTab === "guide" && (
           <OwnerGuide />
         )}
