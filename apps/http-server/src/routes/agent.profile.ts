@@ -35,6 +35,10 @@ agentProfileRouter.post("/bank-details", authenticate, async (req: Request, res:
       update: { step: 'bankDetails', data },
       create: { agentId: String(agentId), step: 'bankDetails', data },
     });
+    await prisma.agent.update({
+      where: { agentId: String(agentId) },
+      data: { isProfileComplete: true }, // Mark profile as complete
+    });
 
     res.status(200).json({ message: 'Bank details saved successfully', progress });
     return;

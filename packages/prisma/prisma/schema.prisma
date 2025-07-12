@@ -17,7 +17,7 @@ datasource db {
 model User {
     id              Int      @id @default(autoincrement())  
     username        String
-    email           String
+    email           String     @unique
     mobile          String     @unique
     password        String   
     otp             Int
@@ -60,6 +60,7 @@ model Agent {
     isKYCVerified      Boolean    @default(false)
     personverifiedName String
     walletRs           Int       @default(0)  // Initial wallet amount
+    isProfileComplete Boolean    @default(false)
     Agentprogress      Agentprogress[]
     VerificationRequests VerificationRequest[]
 }

@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [decodedToken, setDecodedToken] = useState<DecodedToken | null>(null);
   const [ownerData, setOwnerData] = useState<{ username: string; mobile: string } | null>(null);
   const [ownerNameVerified, setOwnerNameVerified] = useState<{ id: number; username: string } | null>(null);
-  const [agentData, setAgentData] = useState<{ walletRs: string; earnings: string } | null>(null);
+  const [agentData, setAgentData] = useState<{ walletRs: string; earnings: string; isKYCVerified: boolean } | null>(null);
   const [requests, setRequests] = useState<
     {
       id: number;
@@ -206,6 +206,19 @@ export default function Dashboard() {
           <p className="md:text-base ssm:text-sm">Agent Id : {decodedToken?.agentId || "N/A"}</p>
           <p className="md:text-base ssm:text-sm">Wallet : {agentData ? agentData.walletRs : "N/A"}</p>
           <button className="bg-green-600 text-white md:text-sm ssm:text-xs py-0.5 px-2 rounded">Withdraw</button>
+        </div>
+        <div className="absolute right-4 top-16 md:right-4 md:top-14 ssm:right-1 ssm:top-12 z-10">
+          <span
+            className={`md:text-base ssm:text-xs px-1 py-0.5 rounded-full font-semibold transition-all duration-200
+              ${agentData
+                ? agentData.isKYCVerified
+                  ? "bg-green-100 text-green-500 border border-green-300"
+                  : "bg-red-100 text-red-500 border border-red-300"
+                : "bg-gray-100 text-gray-500 border border-gray-300"
+              }`}
+          >
+            {agentData ? (agentData.isKYCVerified ? "Verified" : "Not Verified") : "N/A"}
+          </span>
         </div>
       </div>
 
