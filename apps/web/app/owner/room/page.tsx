@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormData } from "../../../types/formData";
+import Sample from "../../../assets/sample.jpg"
+import Image from "next/image"; 
 
 export default function RoomListingForm() {
   const router = useRouter();
@@ -17,7 +19,7 @@ export default function RoomListingForm() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedTown, setSelectedTown] = useState("");
   const [token, setToken] = useState<string | null>(null);
-
+  const [showSample, setShowSample] = useState(false);
 
   const handleTownChange = (town: React.SetStateAction<string>) => {
     setSelectedTown(town);
@@ -41,6 +43,17 @@ export default function RoomListingForm() {
     try {
       const formData = {
         ...data, city: selectedCity, townSector: selectedTown,
+        maxprice: data.maxprice ? parseInt(data.maxprice) : undefined,
+        minprice: data.minprice ? parseInt(data.minprice) : undefined,
+        ageOfProperty: data.ageOfProperty ? parseInt(data.ageOfProperty) : undefined,
+        totalFloor: data.totalFloor ? parseInt(data.totalFloor.toString()) : undefined,
+        waterSupply: data.waterSupply ? parseInt(data.waterSupply) : undefined,
+        powerBackup: data.powerBackup ? parseInt(data.powerBackup) : undefined,
+        noticePeriod: data.noticePeriod ? data.noticePeriod.toString() : undefined,
+        totalRoom: data.totalRoom ? parseInt(data.totalRoom.toString()) : undefined,
+        security: data.security ? parseInt(data.security) : undefined,
+        maintenance: data.maintenance ? parseInt(data.maintenance) : undefined,
+        listingShowNo: data.listingShowNo ? parseInt(data.listingShowNo) : undefined,
 
       };
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/room`,
@@ -58,7 +71,7 @@ export default function RoomListingForm() {
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to list flat. Please try again.");
+      alert("Failed to list Room. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -68,14 +81,41 @@ export default function RoomListingForm() {
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
-      <h2 className="text-xl sm:text-3xl font-semibold text-blue-500 mb-4 text-center">
+      <h2 className="text-xl sm:text-3xl font-semibold text-blue-500 mb-2 text-center">
         I&apos;m listing my Room
       </h2>
       <h3 className="text-lg sm:text-2xl font-semibold">I&apos;m Owner</h3>
-
+      <div className="flex justify-end mb-1 ">
+        <button
+          type="button"
+          className="ssm:text-sm sm:text-base font-semibold text-blue-400 underline"
+          onClick={() => setShowSample(true)}
+        >
+          Show listing Sample
+        </button>
+      </div>
+      {showSample && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+          <div className="bg-white rounded shadow-lg p-4 relative max-w-xs sm:max-w-md">
+        <button
+          type="button"
+          className="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl"
+          onClick={() => setShowSample(false)}
+          aria-label="Close"
+        >
+          &times;
+        </button>
+        <Image src={Sample.src} alt="Sample Listing" className="max-w-full max-h-[70vh] rounded" 
+        height={500}
+        width={500}
+        />
+          </div>
+        </div>
+      )}
+     
       {/* Location and Details */}
       <form onSubmit={handleSubmit(onSubmit)} >
-        <div className="flex flex-col gap-4 mt-4">
+        <div className="flex flex-col gap-4 mt-2">
           {/* City ComboBox */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
             <label className="text-sm sm:text-xl">City</label>
@@ -86,7 +126,6 @@ export default function RoomListingForm() {
             />
             {errors.city && <span className="text-red-500 text-sm">City is required</span>}
           </div>
-
           {/* Town & Sector ComboBox */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
             <label className="text-sm sm:text-xl">Town & Sector</label>
@@ -137,7 +176,7 @@ export default function RoomListingForm() {
             <label htmlFor="careTaker" className="text-sm w-1/3 sm:text-xl">Contact Name</label>
             <input
               id="careTaker"
-              {...register("careTaker")}
+              {...register("careTaker", { required: "Contact Name is required" })}
               name="careTaker"
               className="w-2/3  sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base resize-none placeholder-gray-500"
               placeholder="Contact Name"
@@ -156,9 +195,9 @@ export default function RoomListingForm() {
             >
               <option value="" className="text-gray-500">Select BHK</option>
               {[1, 2, 3, 4, 5].map((bhk) => (
-              <option key={bhk} value={bhk} className="text-black">
-                {bhk} BHK
-              </option>
+                <option key={bhk} value={bhk} className="text-black">
+                  {bhk} BHK
+                </option>
               ))}
             </select>
             {errors.Bhk && <span className="text-red-500 text-sm">{String(errors.Bhk?.message)}</span>}
@@ -246,13 +285,13 @@ export default function RoomListingForm() {
           {
             title: "Room Inside Facility",
             name: "insideFacilities",
-            options: ["Single Bed", "Double Bed" , "Almirah / Wardrobe" , "Sofa", "Fan", "AC", "TV", "Attached Bathroom", "Geyser", "WiFi", "Gas / Induction", "Fridge", "Utensils", "Washing Machine", "RO Water"],
+            options: ["Single Bed", "Double Bed", "Almirah / Wardrobe", "Sofa", "Fan", "AC", "TV", "Attached Bathroom", "Geyser", "WiFi", "Gas / Induction", "Fridge", "Utensils", "Washing Machine", "RO Water"],
             isMultiple: true,
           },
           {
             title: "Room Outside Facility",
             name: "outsideFacilities",
-            options: ["Bus Stop", "Metro Station", "Railway Station", "School", "College" , "University", "Shopping Mall" ,"Market" , "Hospital" , "Bank ATM", "Park", "Gated Society", "Security Guard", "Gym", "CCTV Camera", "Tiffin/Mess Service" , "Dhabas/Restaurants"],
+            options: ["Bus Stop", "Metro Station", "Railway Station", "School", "College", "University", "Shopping Mall", "Market", "Hospital", "Bank ATM", "Park", "Gated Society", "Security Guard", "Gym", "CCTV Camera", "Tiffin/Mess Service", "Dhabas/Restaurants"],
             isMultiple: true,
           },
         ].map(({ title, options, name, isMultiple }) => (

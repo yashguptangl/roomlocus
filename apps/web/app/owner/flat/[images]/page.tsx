@@ -105,7 +105,7 @@ export default function Upload() {
       <ImageUpload label="Kitchen" onFileChange={(file) => handleFileChange("kitchen", file)} />
       <ImageUpload label="Bathroom" onFileChange={(file) => handleFileChange("bathroom", file)} />
       <ImageUpload label="Toilet" onFileChange={(file) => handleFileChange("toilet", file)} />
-      <ImageUpload label="Care Taker if any" onFileChange={(file) => handleFileChange("caretaker", file)} />
+      <ImageUpload label="Contact Person" onFileChange={(file) => handleFileChange("caretaker", file)} />
 
       <center>
         <button

@@ -140,7 +140,7 @@ export default function ListingDetail() {
     if (!listing) return;
     if (navigator.share) {
       navigator.share({
-        title: "Check this listing",
+        title: "Check this Flat at Roomlocus , India largest Room Collection , Trust on Verified Listings",
         text: `${listing.location}, ${listing.city}`,
         url: `${window.location.origin}/flat/${listing.id}`,
       });
@@ -193,6 +193,7 @@ export default function ListingDetail() {
           location: listing.location,
           landmark: listing.landmark,
           listingShowNo: listing.listingShowNo,
+          ownerName: listing.careTaker,
         }),
       });
       if (response.status === 401) {
@@ -499,8 +500,8 @@ export default function ListingDetail() {
                 ) : (
                   <><div className="flex justify-evenly border border-green-200 bg-green-50 p-4 rounded-lg">
                       <div>
-                        <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                        <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
+                        <h4 className="font-medium text-green-800 mb-2">Contact Details</h4>
+                        <p className="text-gray-700">Name: {listing.careTaker}</p>
                         <p className="text-gray-700">Phone: {listing.listingShowNo}</p>
                       </div>
                       <div>

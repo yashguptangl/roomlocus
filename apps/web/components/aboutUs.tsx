@@ -54,6 +54,19 @@ export default function AboutUs() {
           <p>
             With Roomlocus, finding your ideal rental is just a few clicks away—fast, free, and hassle-free.
           </p>
+
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mt-6">For Owner - Annual Subscription Fee</h2>
+          <p>
+            As per Roomlocus current policy, an annual subscription fee of Rs. 365 is charged from the property owner after successful verification of the listed property. This fee enables continued listing, visibility, and access to exclusive features on the Roomlocus platform. Please note that property verification charges and subscription policies are subject to change annually, based on updates in service offerings and operational costs.
+          </p>
+
+          <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mt-6">Property Verification & Agent Commission Policy</h2>
+          <p>
+            After a successful property verification conducted by our registered Property Verification Agents — whether it's a Room, Flat, PG (Paying Guest), or Hourly Room — a fixed commission of ₹200 is rewarded per property verification. This commission is credited to the agent's Roomlocus wallet, or can alternatively be transferred via UPI or directly to their bank account, based on their preferred payment method.
+          </p>
+          <p>
+            Roomlocus encourages part-time earning opportunities, and hence multiple agents from different cities and localities can join our platform as verification partners. These agents play a key role in ensuring that listed properties are genuine, safe, and meet platform standards. Through their efforts, they not only help maintain trust on the platform but also earn regular commissions for each verified property. This model promotes flexibility, reliability, and transparent earnings for individuals working with Roomlocus.
+          </p>
         </div>
       </div>
     </div>

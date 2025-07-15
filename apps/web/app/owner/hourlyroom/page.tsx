@@ -6,6 +6,8 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormData } from "../../../types/formData";
+import Sample from "../../../assets/sample.jpg";
+import Image from "next/image";
 
 export default function RoomDayNightForm() {
   const router = useRouter();
@@ -17,6 +19,7 @@ export default function RoomDayNightForm() {
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedTown, setSelectedTown] = useState("");
   const [token, setToken] = useState<string | null>(null);
+  const [showSample, setShowSample] = useState(false);
 
 
   const handleTownChange = (town: React.SetStateAction<string>) => {
@@ -41,7 +44,14 @@ export default function RoomDayNightForm() {
     try {
       const formData = {
         ...data, city: selectedCity, townSector: selectedTown,
-
+        minprice: data.minprice ? parseInt(data.minprice.toString()) : undefined,
+        maxprice: data.maxprice ? parseInt(data.maxprice.toString()) : undefined,
+        bedcount: data.bedcount ? parseInt(data.bedcount.toString()) : undefined,
+        noofGuests: data.noofGuests ? parseInt(data.noofGuests.toString()) : undefined,
+        totalFloor: data.totalFloor ? parseInt(data.totalFloor.toString()) : undefined,
+        totalRoom: data.totalRoom ? parseInt(data.totalRoom.toString()) : undefined,
+        listingShowNo: data.listingShowNo ? parseInt(data.listingShowNo.toString()) : undefined,
+        foodAvailable: data.foodAvailable === "Yes" ? true : false,
       };
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/hourlyroom`,
         formData,
@@ -68,14 +78,41 @@ export default function RoomDayNightForm() {
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
-      <h2 className="text-xl sm:text-3xl font-semibold text-blue-500 mb-4 text-center">
+      <h2 className="text-xl sm:text-3xl font-semibold text-blue-500 mb-2 text-center">
         I&apos;m listing my Hourly Room
       </h2>
       <h3 className="text-lg sm:text-2xl font-semibold">I&apos;m Owner</h3>
+      <div className="flex justify-end mb-1 ">
+        <button
+          type="button"
+          className="ssm:text-sm sm:text-base font-semibold text-blue-400 underline"
+          onClick={() => setShowSample(true)}
+        >
+          Show listing Sample
+        </button>
+      </div>
+      {showSample && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+          <div className="bg-white rounded shadow-lg p-4 relative max-w-xs sm:max-w-md">
+            <button
+              type="button"
+              className="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl"
+              onClick={() => setShowSample(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <Image src={Sample.src} alt="Sample Listing" className="max-w-full max-h-[70vh] rounded"
+              height={500}
+              width={500}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Location and Details */}
       <form onSubmit={handleSubmit(onSubmit)} >
-        <div className="flex flex-col gap-4 mt-4">
+        <div className="flex flex-col gap-4 mt-2">
           {/* City ComboBox */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
             <label className="text-sm sm:text-xl">City</label>
@@ -109,7 +146,7 @@ export default function RoomDayNightForm() {
             { label: "No of Guest Allowed", name: "noofGuests", type: "number" },
             { label: "Total Floor", name: "totalFloor", type: "number" },
             { label: "Total Room", name: "totalRoom", type: "number" },
-            { label: "Palace Name", name: "palaceName", type: "text" },         
+            { label: "Palace Name", name: "palaceName", type: "text" },
             { label: "Manager/Owner", name: "manager", type: "text" },
             { label: "Contact Number", name: "listingShowNo", type: "number" },
           ].map(({ label, name, type }) => (
@@ -143,9 +180,9 @@ export default function RoomDayNightForm() {
             >
               <option value="" className="text-gray-500">Select Luxury Type</option>
               {["1 star", "2 star", "3 star", "4 star", "5 star", "6 star", "7 star"].map((luxury) => (
-              <option key={luxury} value={luxury} className="text-black">
-                {luxury}
-              </option>
+                <option key={luxury} value={luxury} className="text-black">
+                  {luxury}
+                </option>
               ))}
             </select>
             {errors.luxury && <span className="text-red-500 text-sm">{String(errors.luxury?.message)}</span>}
@@ -237,13 +274,13 @@ export default function RoomDayNightForm() {
           {
             title: "Room Inside Facility",
             name: "insideFacilities",
-            options: ["Single Bed", "Double Bed" , "Almirah / Wardrobe" , "Sofa", "Fan", "AC", "TV", "Attached Bathroom", "Geyser", "WiFi", "Gas / Induction", "Fridge", "Utensils", "Washing Machine", "RO Water"],
+            options: ["Single Bed", "Double Bed", "Almirah / Wardrobe", "Sofa", "Fan", "AC", "TV", "Attached Bathroom", "Geyser", "WiFi", "Gas / Induction", "Fridge", "Utensils", "Washing Machine", "RO Water"],
             isMultiple: true,
           },
           {
             title: "Room Outside Facility",
             name: "outsideFacilities",
-            options: ["Bus Stop", "Metro Station", "Railway Station", "School", "College" , "University", "Shopping Mall" ,"Market" , "Hospital" , "Bank ATM", "Park", "Gated Society", "Security Guard", "Gym", "CCTV Camera", "Tiffin/Mess Service" , "Dhabas/Restaurants"],
+            options: ["Bus Stop", "Metro Station", "Railway Station", "School", "College", "University", "Shopping Mall", "Market", "Hospital", "Bank ATM", "Park", "Gated Society", "Security Guard", "Gym", "CCTV Camera", "Tiffin/Mess Service", "Dhabas/Restaurants"],
             isMultiple: true,
           },
         ].map(({ title, options, name, isMultiple }) => (

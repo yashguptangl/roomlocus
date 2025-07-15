@@ -145,7 +145,7 @@ export default function ListingDetail() {
 
     if (navigator.share) {
       navigator.share({
-        title: "Check this listing",
+        title: "Check this Room at Roomlocus , India largest Room Collection , Trust on Verified Listings",
         text: `${listing.location}, ${listing.city}`,
         url: `${window.location.origin}/room/${listing.id}`,
       });
@@ -199,6 +199,7 @@ export default function ListingDetail() {
           location: listing.location,
           landmark: listing.landmark,
           listingShowNo: listing.listingShowNo,
+          ownerName: listing.careTaker
         }),
       });
       if (response.status === 401) {
@@ -482,17 +483,17 @@ export default function ListingDetail() {
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 ">
                       <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
                         <h4 className="text-lg font-semibold mb-2 text-gray-800 text-center">Note</h4>
-                          <ul className="mb-4 text-gray-600 list-disc list-inside space-y-1 text-sm">
+                        <ul className="mb-4 text-gray-600 list-disc list-inside space-y-1 text-sm">
                           <li>RoomLocus only provides listings for rooms, flats, PGs, and hourly rooms.</li>
                           <li>We do not handle payments, rent collection, or finalize any deals.</li>
                           <li>Always communicate directly with the property owner before making any decisions.</li>
                           <li>Do not pay any advance or security deposit without meeting the owner and verifying their identity.</li>
                           <li>If any unknown person asks for money claiming to be from RoomLocus — it's a fraud. Please stay alert.</li>
-                          </ul>
-                          <p className="mb-3 text-gray-700 text-xs">
+                        </ul>
+                        <p className="mb-3 text-gray-700 text-xs">
                           <strong>RoomLocus</strong> aims to connect renters with property owners, not to act as a middleman in any transactions.<br />
                           <span className="text-red-500 font-semibold">Stay Alert. Verify Before You Pay.</span>
-                          </p>
+                        </p>
                         <div className="flex justify-end gap-2">
                           <button
                             className="px-2 py-0.5 rounded bg-gray-200 hover:bg-gray-300 text-gray-700"
@@ -514,11 +515,11 @@ export default function ListingDetail() {
                     </div>
                   )}
                 </>
-              ) : (
+              ) : (<>
                 <div className="flex justify-evenly border border-green-200 bg-green-50 p-4 rounded-lg">
                   <div>
-                    <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                    <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
+                    <h4 className="font-medium text-green-800 mb-2">Contact Details</h4>
+                    <p className="text-gray-700">Name: {listing.careTaker}</p>
                     <p className="text-gray-700">Phone: {listing.listingShowNo}</p>
                   </div>
                   <div>
@@ -530,6 +531,10 @@ export default function ListingDetail() {
                     </a>
                   </div>
                 </div>
+                <p
+                  className="text-green-600 text-justify mt-2 text-xs"
+                >Thank you! Your request has been sent to the owner successfully.</p>
+              </>
               )}
             </div>
           </div>

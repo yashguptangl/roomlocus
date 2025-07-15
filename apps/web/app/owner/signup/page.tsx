@@ -73,7 +73,7 @@ export default function Signup() {
             <form onSubmit={handleSubmit(onSubmit)}>    
               <input
                 type="text"
-                placeholder="UserName"
+                placeholder="Name"
                 {...register("username")}
                 className="w-full px-4 py-2 mb-4 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
               />

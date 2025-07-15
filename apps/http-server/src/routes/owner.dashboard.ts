@@ -293,7 +293,7 @@ ownerDashboard.get("/details-owner", authenticate, async (req: AuthenticatedRequ
 
 ownerDashboard.post("/contact-owner", authenticate, async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     try {
-        const { propertyId, propertyType, ownerId, location, landmark, listingShowNo } = req.body;
+        const { propertyId, propertyType, ownerId, location, ownerName, landmark, listingShowNo } = req.body;
         const token = req.headers.token as string;
         console.log(token);
         console.log(req.body);
@@ -330,7 +330,7 @@ ownerDashboard.post("/contact-owner", authenticate, async (req: AuthenticatedReq
                 accessDate: new Date(),
                 isExpired: false,
                 propertyType: propertyType,
-                ownerName: owner.username,
+                ownerName: ownerName,
                 ownerPhone: listingShowNo,
                 expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // Valid for 15 days
             },

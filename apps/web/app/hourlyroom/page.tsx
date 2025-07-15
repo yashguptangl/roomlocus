@@ -75,8 +75,8 @@ function Listing() {
           <>
             <div className="flex justify-between items-center gap-1 sticky top-0 bg-white z-30">
               <div>
-                <p className="text-black font-normal text-xs ">- Hourly Room - {city.toString()} - {townSector.toString()}</p>
-                <p className="text-black font-normal text-xs mb-3 ">- Total Hourly Room Search - {listingData?.listings.length}</p>
+                <p className="text-black font-normal text-xs ">{city.toString()} - {townSector.toString()}</p>
+                <p className="text-black font-normal text-xs mb-3 ">Total Hourly Room Search - {listingData?.listings.length}</p>
               </div>
               <div>
                 <input

@@ -3,6 +3,8 @@ export interface ListingData {
   
     contactInfo: any;
     ownerId: number;
+    careTaker: string;
+    manager: string;
     id : number;
     images?: string[];
     location: string;

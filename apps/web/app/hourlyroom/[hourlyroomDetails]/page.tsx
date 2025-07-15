@@ -142,7 +142,7 @@ export default function ListingDetail() {
 
     if (navigator.share) {
       navigator.share({
-        title: `Check this ${listing.Type} listing`,
+        title: `CCheck this Hourly Room at Roomlocus , India largest Room Collection , Trust on Verified Listings`,
         text: `${listing.location}, ${listing.city} - ${listing.palaceName}`,
         url: `${window.location.origin}/hourlyroom/${listing.id}`,
       }).catch(err => console.log('Error sharing:', err));
@@ -199,7 +199,8 @@ export default function ListingDetail() {
           ownerId: listing.ownerId,
           location: listing.location,
           landmark: listing.landmark,
-          listingShowNo: listing.listingShowNo
+          listingShowNo: listing.listingShowNo,
+          ownerName : listing.manager
         }),
       });
       if (response.status === 401) {
@@ -517,11 +518,11 @@ export default function ListingDetail() {
                       </div>
                     )}
                   </>
-                ) : (
+                ) : (<>
                   <div className="flex justify-evenly border border-green-200 bg-green-50 p-4 rounded-lg">
                     <div>
-                      <h4 className="font-medium text-green-800 mb-2">Owner Contact Details</h4>
-                      <p className="text-gray-700">Name: {ownerContact.ownerName}</p>
+                      <h4 className="font-medium text-green-800 mb-2">Contact Details</h4>
+                      <p className="text-gray-700">Name: {listing.manager}</p>
                       <p className="text-gray-700">Phone: {listing.listingShowNo}</p>
                     </div>
                     <div>
@@ -533,6 +534,10 @@ export default function ListingDetail() {
                       </a>
                     </div>
                   </div>
+                  <p
+                      className="text-green-600 text-justify mt-2 text-xs"
+                    >Thank you! Your request has been sent to the owner successfully.</p>
+                    </>
                 )}
               </div>
             </div>

@@ -75,10 +75,10 @@ function Listing() {
             <div className=" flex justify-between items-center gap-1 sticky top-0 bg-white z-30 ">
               <div>
                 <p className="text-black font-normal text-xs ">
-                  - Flat - {city.toString()} - {townSector.toString()}
+                  {city.toString()} - {townSector.toString()}
                 </p>
                 <p className="text-black font-normal text-xs mb-3 ">
-                  - Total Flat Search - {listingData?.listings.length}
+                  Total Flat Search - {listingData?.listings.length}
                 </p>
               </div>
               <div>

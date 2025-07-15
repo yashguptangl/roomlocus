@@ -127,7 +127,7 @@ export default function Upload() {
         onFileChange={(file) => handleFileChange("toilet", file)}
       />
       <ImageUpload
-        label="Care Taker if any"
+        label="Contact Person"
         onFileChange={(file) => handleFileChange("caretaker", file)}
       />
       <center>
