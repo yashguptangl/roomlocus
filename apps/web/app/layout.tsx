@@ -1,12 +1,7 @@
-"use client";
-
-import Script from "next/script";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { pageview } from "../lib/gtag";
 import "./globals.css";
-import { useEffect } from "react";
-import { usePathname } from "next/navigation";
+import Analytics from "../components/Analytics"; 
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,32 +26,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const pathname = usePathname();
-
-  useEffect(() => {
-    pageview(pathname);
-  }, [pathname]);
-
+  
   return (
     <html lang="en">
-      <head>
-        {/* Google Analytics */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-YCP6THP3CG"
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){window.dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-YCP6THP3CG', {
-              page_path: window.location.pathname,
-            });
-          `}
-        </Script>
-      </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
+        <Analytics />
         {children}
       </body>
     </html>
