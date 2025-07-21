@@ -53,7 +53,6 @@ export default function FlatListingForm() {
         totalFloor: data.totalFloor ? Number(data.totalFloor) : undefined,
         waterSupply: data.waterSupply ? Number(data.waterSupply) : undefined,
         powerBackup: data.powerBackup ? Number(data.powerBackup) : undefined,
-        listingShowNo: data.listingShowNo ? Number(data.listingShowNo) : undefined,
       };
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/flat`,
@@ -147,7 +146,7 @@ export default function FlatListingForm() {
             { label: "Power Backup in Hours", name: "powerBackup", type: "number" },
             { label: "Notice Period", name: "noticePeriod", type: "text" },
             { label: "Offer if any", name: "offer", type: "text" },
-            { label: "Contact Number", name: "listingShowNo", type: "number" },
+            { label: "Contact Number", name: "listingShowNo", type: "text" },
           ].map(({ label, name, type }) => (
             <div key={name} className="flex items-center gap-4">
               <label htmlFor={name} className="text-sm w-1/3 sm:text-xl">

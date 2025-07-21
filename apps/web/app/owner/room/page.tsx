@@ -53,8 +53,6 @@ export default function RoomListingForm() {
         totalRoom: data.totalRoom ? parseInt(data.totalRoom.toString()) : undefined,
         security: data.security ? parseInt(data.security) : undefined,
         maintenance: data.maintenance ? parseInt(data.maintenance) : undefined,
-        listingShowNo: data.listingShowNo ? parseInt(data.listingShowNo) : undefined,
-
       };
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/room`,
         formData,
@@ -152,7 +150,7 @@ export default function RoomListingForm() {
             { label: "Power Backup in hr", name: "powerBackup", type: "number" },
             { label: "Notice Period", name: "noticePeriod", type: "text" },
             { label: "Offer if any", name: "offer", type: "text" },
-            { label: "Contact Number", name: "listingShowNo", type: "number" },
+            { label: "Contact Number", name: "listingShowNo", type: "text" },
           ].map(({ label, name, type }) => (
             <div
               key={name}

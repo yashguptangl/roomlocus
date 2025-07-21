@@ -104,7 +104,13 @@ model FlatInfo {
     genderPrefer        String
     flatType            String
     careTaker           String
-    listingShowNo       Int
+    listingShowNo       String
+
+    latitude            Decimal
+    longitude           Decimal
+    AdressByAPI         String 
+    isLiveLocation      Boolean   @default(false)
+
     flatInside          String[]
     flatOutside         String[]
     isVerified          Boolean   @default(false)
@@ -151,7 +157,14 @@ model PgInfo {
     PGInside          String[]
     PGOutside         String[]
     careTaker           String
-    listingShowNo       Int
+    listingShowNo       String
+
+    
+    latitude            Decimal
+    longitude           Decimal
+    AdressByAPI         String 
+    isLiveLocation      Boolean   @default(false)
+
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
     paymentDone         Boolean   @default(false)
@@ -193,7 +206,15 @@ model RoomInfo {
     roomInside          String[]
     roomOutside         String[]
     careTaker           String
-    listingShowNo       Int
+    listingShowNo       String
+
+    
+    latitude            Decimal
+    longitude           Decimal
+    AdressByAPI         String 
+    isLiveLocation      Boolean   @default(false)
+
+
     RoomAvailable       String
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
@@ -233,7 +254,13 @@ model hourlyInfo {
     roomInside      String[]
     roomOutside     String[]
     manager         String
-    listingShowNo   Int
+    listingShowNo   String
+    latitude            Decimal   @default(0)
+    longitude           Decimal   @default(0)
+    AdressByAPI         String    @default("")
+    isLiveLocation      Boolean   @default(false)
+
+
     luxury          String
     owner               Owner      @relation(fields: [ownerId], references: [id])  
     isVerified          Boolean   @default(false)
@@ -270,7 +297,7 @@ model ContactLog {
 
 model VerificationRequest {
   id                   String   @id @default(uuid())
-  listingType          String   // "Flat" | "Room" | "PG"
+  listingType          String   
   ownerId              Int
   owner                Owner      @relation(fields: [ownerId], references: [id])
   agent                Agent?     @relation(fields: [agentId], references: [agentId])

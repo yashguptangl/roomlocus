@@ -13,6 +13,7 @@ export interface ListingData {
     adress : string; 
     MinPrice: string,
     MaxPrice: string;
+    isLiveLocation: boolean;
     security: string;
     address: string;
     PGType: string;
@@ -78,6 +79,7 @@ export interface ListingItem {
     isVerified: boolean;
     palaceName: string;
     listingShowNo: string;
+    isLiveLocation: boolean;
     adress : string;
     listingId : number;
     listingType : string;

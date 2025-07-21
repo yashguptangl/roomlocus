@@ -699,6 +699,8 @@ export default function Dashboard() {
                         } else if (isKycVerified === false) {
                           alert("Please complete your KYC first.");
                           router.push(`/owner/owner-kyc`);
+                        } else if (listing.isLiveLocation === false) {
+                          router.push(`/owner/location?listingType=${listing.type}&listingId=${listing.id}&listingShowNo=${listing.listingShowNo}&address=${listing.adress || listing.Adress || listing.adress || ""}&location=${listing.location}&city=${listing.city}&townSector=${listing.townSector}`);
                         } else {
                           router.push(`/owner/verification/?listingType=${listing.type}&listingId=${listing.id}&listingShowNo=${listing.listingShowNo}&address=${listing.adress || listing.Adress || listing.adress || ""}&location=${listing.location}&city=${listing.city}&townSector=${listing.townSector}`);
                         }

@@ -330,6 +330,10 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
                 careTaker: careTaker,
                 listingShowNo: listingShowNo,
                 isDraft: true,
+                latitude : 0, 
+                longitude : 0,
+                AdressByAPI: "",
+                isLiveLocation: false,
             },
         });
         res.status(201).json({ message: "Flat listing uploaded successfully", flat });
@@ -386,6 +390,10 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
                 careTaker: careTaker,
                 listingShowNo: listingShowNo,
                 isDraft: true,
+                latitude : 0,
+                longitude : 0,
+                AdressByAPI: "",
+                isLiveLocation: false,
             },
         });
         res.status(201).json({ message: "Room listing uploaded successfully", room });
@@ -444,6 +452,11 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
                 careTaker: careTaker,
                 listingShowNo: listingShowNo,
                 isDraft:  true,
+                latitude : 0,
+                longitude : 0,
+                AdressByAPI: "",
+                isLiveLocation: false,
+
             },
         });
         res.status(201).json({ message: "PG listing uploaded successfully", pg });
@@ -497,6 +510,10 @@ ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest
                 parking         : filteredParking,
                 listingShowNo : listingShowNo,
                 isDraft: true,
+                latitude : 0,
+                longitude : 0,
+                AdressByAPI: "",
+                isLiveLocation: false,
             }
         })
 

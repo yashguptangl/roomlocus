@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "hourlyInfo" ALTER COLUMN "AdressByAPI" SET DEFAULT '',
+ALTER COLUMN "latitude" SET DEFAULT 0,
+ALTER COLUMN "longitude" SET DEFAULT 0;

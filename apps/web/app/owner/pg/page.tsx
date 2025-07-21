@@ -53,7 +53,6 @@ export default function PGListingForm() {
         powerBackup: data.powerBackup ? parseInt(data.powerBackup) : undefined,
         security: data.security ? parseInt(data.security) : undefined,
         maintenance: data.maintenance ? parseInt(data.maintenance) : undefined,
-        listingShowNo: data.listingShowNo ? parseInt(data.listingShowNo) : undefined,
         bedCount: data.bedCount ? parseInt(data.bedCount.toString()) : undefined,
         timeRestriction: data.timeRestriction === "Yes" ? true : false,
         foodAvailable: data.foodAvailable === "Yes" ? true : false,
@@ -157,7 +156,7 @@ export default function PGListingForm() {
             { label: "Power Backup in hr", name: "powerBackup", type: "number" },
             { label: "Notice Period", name: "noticePeriod", type: "text" },
             { label: "Offer if any", name: "offer", type: "text" },
-            { label: "Contact Number", name: "listingShowNo", type: "number" },
+            { label: "Contact Number", name: "listingShowNo", type: "text" },
             { label: "BedCount", name: "bedCount", type: "number" },
           ].map(({ label, name, type }) => (
             <div

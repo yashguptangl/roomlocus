@@ -30,6 +30,10 @@ cron.schedule("0 * * * *", async () => {
                 paymentDone: false,
                 verificationPending: true,
                 verifiedByAdminOrAgent: undefined,
+                latitude: 0,
+                longitude: 0,
+                AdressByAPI: "",
+                isLiveLocation: false,
             },
         });
 
@@ -43,6 +47,10 @@ cron.schedule("0 * * * *", async () => {
                 paymentDone: false,
                 verificationPending: true,
                 verifiedByAdminOrAgent: undefined,
+                latitude: 0,
+                longitude: 0,
+                AdressByAPI: "",
+                isLiveLocation: false,
             },
         });
 
@@ -55,6 +63,11 @@ cron.schedule("0 * * * *", async () => {
                 isVerified: false,
                 paymentDone: false,
                 verificationPending: true,
+                verifiedByAdminOrAgent: undefined,
+                latitude: 0,
+                longitude: 0,
+                AdressByAPI: "",
+                isLiveLocation: false,
             },
         });
 
@@ -68,6 +81,10 @@ cron.schedule("0 * * * *", async () => {
                 paymentDone: false,
                 verificationPending: true,
                 verifiedByAdminOrAgent: undefined,
+                latitude: 0,
+                longitude: 0,   
+                AdressByAPI: "",
+                isLiveLocation: false,
             },
         });
 

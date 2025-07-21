@@ -50,7 +50,6 @@ export default function RoomDayNightForm() {
         noofGuests: data.noofGuests ? parseInt(data.noofGuests.toString()) : undefined,
         totalFloor: data.totalFloor ? parseInt(data.totalFloor.toString()) : undefined,
         totalRoom: data.totalRoom ? parseInt(data.totalRoom.toString()) : undefined,
-        listingShowNo: data.listingShowNo ? parseInt(data.listingShowNo.toString()) : undefined,
         foodAvailable: data.foodAvailable === "Yes" ? true : false,
       };
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/hourlyroom`,
@@ -148,7 +147,7 @@ export default function RoomDayNightForm() {
             { label: "Total Room", name: "totalRoom", type: "number" },
             { label: "Palace Name", name: "palaceName", type: "text" },
             { label: "Manager/Owner", name: "manager", type: "text" },
-            { label: "Contact Number", name: "listingShowNo", type: "number" },
+            { label: "Contact Number", name: "listingShowNo", type: "text" },
           ].map(({ label, name, type }) => (
             <div
               key={name}
