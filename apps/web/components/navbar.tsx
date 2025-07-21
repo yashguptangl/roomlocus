@@ -85,7 +85,7 @@ export default function Navbar() {
           <Image
         src={role && token ? activeUser : userIcon}
         fill
-        className="object-contain rounded-full"
+        className="object-contain"
         alt="User Profile"
           />
         </div>

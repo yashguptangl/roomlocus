@@ -76,7 +76,7 @@ function EditFormContent() {
                             { label: "Offer if any", name: "offer", type: "text" },
                             { label: "Min Price Per Month", name: "minPrice", type: "number" },
                             { label: "Max Price Per Month", name: "maxPrice", type: "number" },
-                            { label: "Contact Number", name: "listingShowNo", type: "number" },
+                            { label: "Contact Number", name: "listingShowNo", type: "text" },
                         ].map(({ label, name, type }) => (
                             <div key={name} className="flex items-center gap-4">
                                 <label className="text-sm w-1/3 sm:text-xl">{label}</label>
@@ -107,7 +107,7 @@ function EditFormContent() {
                             { label: "Max Price Per Month", name: "maxPrice", type: "number" },
                             { label: "Offer if any", name: "offer", type: "text" },
                             { label: "Bed Count", name: "bedCount", type: "number" },
-                            { label: "Contact Number", name: "listingShowNo", type: "number" },
+                            { label: "Contact Number", name: "listingShowNo", type: "text" },
                         ].map(({ label, name, type }) => (
                             <div key={name} className="flex items-center gap-4">
                                 <label className="text-sm w-1/3 sm:text-xl">{label}</label>
@@ -137,7 +137,7 @@ function EditFormContent() {
                             { label: "Min Price Per Month", name: "minPrice", type: "number" },
                             { label: "Max Price Per Month", name: "maxPrice", type: "number" },
                             { label: "Offer if any", name: "offer", type: "text" },
-                            { label: "Contact Number", name: "listingShowNo", type: "number" },
+                            { label: "Contact Number", name: "listingShowNo", type: "text" },
                         ].map(({ label, name, type }) => (
                             <div key={name} className="flex items-center gap-4">
                                 <label className="text-sm w-1/3 sm:text-xl">{label}</label>
@@ -166,7 +166,7 @@ function EditFormContent() {
                             { label: "Max Price Per Night", name: "maxPrice", type: "number" },
                             { label: "Number of Guests", name: "noOfGuests", type: "number" },
                             { label: "Manager Name", name: "manager", type: "text" },
-                            { label: "Manager Contact", name: "listingShowNo", type: "number" },
+                            { label: "Manager Contact", name: "listingShowNo", type: "text" },
                         ].map(({ label, name, type }) => (
                             <div key={name} className="flex items-center gap-4">
                                 <label className="text-sm w-1/3 sm:text-xl">{label}</label>

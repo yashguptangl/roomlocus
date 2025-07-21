@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function MainFooter() {
   return (
-    <div className="flex flex-col items-center bg-gray-400 w-full gap-4 mt-32 relative bottom-0 ">     
+    <div className="flex flex-col items-center bg-gray-400 w-full gap-4 mt-20 relative bottom-0 ">     
 
       <div className="relative flex justify-center gap-5 mt-4">
         <div className="relative h-8 sm:h-10 w-8 sm:w-10">

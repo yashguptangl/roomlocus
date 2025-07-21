@@ -15,6 +15,8 @@ import ComboBox from "../components/searchBox";
 import Navbar from "../components/navbar";
 import MainFooter from "../components/mainfooter";
 import { citiesData } from "../data/cities";
+import { IoLocationOutline } from "react-icons/io5";
+
 
 export default function Home() {
   const [lookingFor, setLookingFor] = useState("");
@@ -39,6 +41,29 @@ export default function Home() {
   const handleSearch = () => {
     router.push(`/${lookingFor}?look=${lookingFor}&city=${selectedCity}&townSector=${selectedTownSector}`);
   };
+
+  const handleNearMe = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        router.push(`/near-me?look=${lookingFor}&latitude=${latitude}&longitude=${longitude}`);
+      },
+      (error) => {
+        console.log("Error getting location: ", error);
+        alert(`Error getting location: ${error.message}`);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      }
+    );
+  }
 
 
   if (!isMounted) {
@@ -70,7 +95,7 @@ export default function Home() {
         ))}
       </div>
 
-      <div className="flex flex-col items-center justify-center mt-14 space-y-4 text-black-300 px-4">
+      <div className="flex flex-col items-center justify-center mt-12 space-y-4 text-black-300 px-4">
         <p className="bg-gray-500 px-3 py-1 rounded text-left relative font-medium ssm:mr-[11.5rem] mod:mr-[15.5rem] ml:mr-[18.5rem] sm:mr-[18rem] top-4">
           For Rent
         </p>
@@ -97,16 +122,34 @@ export default function Home() {
           Let&apos;s Search ...
         </button>
 
-        <div className="h-6 w-40 ml-28 ssm:ml-32 mod:ml-44 ml:ml-56 relative">
-          <Image
-            src={rent}
-            alt="sec"
-            layout="fill"
-            objectFit="contain"
+        <div className="flex w-full sm:w-96 justify-between items-start">
+            <button
+            className="font-semibold text-sm  bg-blue-300 rounded text-white p-1 flex items-center -mt-1 cursor-pointer"
+            onClick={() => {
+              if (!lookingFor) {
+              alert("Please select Looking for");
+              return;
+              }
+              handleNearMe();
+            }}
+            style={{ minWidth: "80px" }}
+            >
+            Near Me <IoLocationOutline size={16} className="ml-1" />
+            </button>
+          <div
+            className="relative h-16 sm:h-16 w-36 sm:w-40 cursor-pointer"
             onClick={() => router.push("/owner/signin")}
-          />
+          >
+            <Image
+              src={rent}
+              alt="sec"
+              fill
+              style={{ objectFit: "contain" }}
+              className="-mt-5"
+            />
+          </div>
         </div>
-        <div className="text-end mt-2">
+        <div className="text-end -mt-10">
           <p className="text-blue-300 text-lg ml-20 ssm:ml-6 mod:ml-20 sm:ml-28 ml:ml-32 sm:text-lg md:text-xl font-semibold">
             India&apos;s Largest Room Collection
           </p>

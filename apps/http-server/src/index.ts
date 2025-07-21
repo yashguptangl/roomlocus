@@ -12,6 +12,7 @@ import userDashboard from "./routes/user.dashboard";
 import selfVerification from "./routes/selfVerification";
 import  paymentRouter  from "./routes/payment";
 import locationRouter from "./routes/location";
+import nearmeRouter from "./routes/nearme";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use("/api/v1/agent" , verificationRequestRouteByAgent);
 app.use("/api/v1/owner/self", selfVerification);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/location", locationRouter);
+app.use("/api/v1/near-me" , nearmeRouter)
 
 app.get("/api/health",(req,res) => {
     res.send("Hello World");
