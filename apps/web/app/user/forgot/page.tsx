@@ -42,16 +42,18 @@ export default function ForgotPassword() {
     resolver: zodResolver(verifySchema),
   });
 
+  // Request OTP (resend-otp route)
   const handleRequestOTP = async (data: Pick<VerifyFormValues, "mobile">) => {
     try {
       setIsSubmitting(true);
       clearErrors();
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/forgot-password`, {
-        mobile: data.mobile,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resend-otp`,
+        { mobile: data.mobile }
+      );
       setMobileNumber(data.mobile);
       setOtpSent(true);
-      alert(response.data.message || "OTP has been sent to your mobile number.");
+      alert(response.data.message || "OTP has been sent to registered Whatsapp No. Please check Whatsapp!");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.message || "Error sending OTP";
@@ -64,15 +66,19 @@ export default function ForgotPassword() {
     }
   };
 
+  // Reset password (reset-password route)
   const handleResetPassword = async (data: VerifyFormValues) => {
     try {
       setIsSubmitting(true);
       clearErrors();
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/reset-password`, {
-        mobile: data.mobile,
-        otp: data.otp,
-        newPassword: data.password,
-      });
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/reset-password`,
+        {
+          mobile: data.mobile,
+          otp: data.otp,
+          newPassword: data.password,
+        }
+      );
       alert(response.data.message || "Password has been reset successfully.");
       router.push("/user/signin");
     } catch (error) {
@@ -93,13 +99,15 @@ export default function ForgotPassword() {
     }
   };
 
+  // Resend OTP (resend-otp route)
   const handleResendOTP = async () => {
     try {
       setResendLoading(true);
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resend-otp`, {
-        mobile: mobileNumber,
-      });
-      alert(response.data.message || "OTP has been resent to your mobile number.");
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/user/resend-otp`,
+        { mobile: mobileNumber }
+      );
+      alert(response.data.message || "OTP has been resent to registered Whatsapp No. Please check Whatsapp!");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         alert(error.response?.data?.message || "Error resending OTP");
@@ -130,12 +138,12 @@ export default function ForgotPassword() {
           <form onSubmit={handleSubmit(otpSent ? handleResetPassword : handleRequestOTP)}>
             <div className="mb-4">
               <label htmlFor="mobile" className="block text-sm font-medium text-gray-700 mb-1">
-                Mobile Number
+                Whatsapp Number
               </label>
               <input
                 id="mobile"
                 type="text"
-                placeholder="Enter 10-digit mobile number"
+                placeholder="Enter 10-digit Whatsapp number"
                 className="w-full px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
                 {...register("mobile")}
                 disabled={otpSent}
@@ -229,7 +237,7 @@ export default function ForgotPassword() {
           </form>
 
           <div className="mt-6 text-center">
-            <Link href="/user/signin" className="text-blue-700 font-semibold hover:underline">
+            <Link href="/user/signin" className="text-blue-600 font-semibold hover:underline">
               Back to Sign In
             </Link>
           </div>

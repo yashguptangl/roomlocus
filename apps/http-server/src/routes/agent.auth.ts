@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { prisma } from "@repo/db/prisma";
 import { jwt, JWT_SECRET } from "../config";
+import sendOtpViaWhatsApp from "../utils/sendOtpViaWhatsapp";
 
 const agentRouter = express.Router();
 agentRouter.use(express.json());
@@ -19,9 +20,13 @@ agentRouter.post("/signup", async (req: Request, res: Response) => {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
+    // Check for existing agent by email OR mobile
     let agent = await prisma.agent.findFirst({
       where: {
-        email: email,
+        OR: [
+          { email: email },
+          { mobile: mobile }
+        ]
       },
     });
     if (agent) {
@@ -41,13 +46,23 @@ agentRouter.post("/signup", async (req: Request, res: Response) => {
         otp: parseInt(otp),
         isPhoneVerified: false,
         agentId: `RL${mobile}`,
-        personverifiedName: "Blank", // Add a default or dynamic value for personverifiedName
+        personverifiedName: "Blank",
       },
     });
-    console.log("Generated OTP:", otp); // Log the generated OTP
+    const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+    if (!otpResult.success) {
+      res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+      return;
+    }
+
     res.status(201).json({ message: "Agent registered. OTP sent to mobile" });
     return;
-  } catch (e) {
+  } catch (e: any) {
+    // Prisma unique constraint error handling
+    if (e.code === "P2002") {
+      res.status(400).json({ message: "Agent already exists", code: "P2002" });
+      return;
+    }
     console.log(e);
     res.status(500).json({ message: "Failed to register agent" });
   }
@@ -68,8 +83,7 @@ agentRouter.post("/verify-otp", async (req: Request, res: Response) => {
       res.status(404).json({ error: "Agent not found." });
       return;
     }
-    console.log("Stored OTP:", agent.otp); // Log the stored OTP
-    console.log("Received OTP:", otp); // Log the received OTP
+    
     if (agent.otp !== parseInt(otp)) {
       res.status(400).json({ error: "Invalid OTP." });
       return;
@@ -124,9 +138,15 @@ agentRouter.post("/resend", async (req: Request, res: Response) => {
 
     console.log("Updated Agent OTP:", updatedAgent);
 
-    // Return a success response (exclude OTP in production)
+    // Send the OTP via WhatsApp
+    const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+    if (!otpResult.success) {
+      res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+      return;
+    }
+
     res.status(200).json({
-      message: "OTP has been resent to the registered mobile number.",
+      message: "OTP has been resent to registered Whatsapp number.",
     });
     return;
   } catch (error) {
@@ -209,10 +229,14 @@ agentRouter.post("/forgot-password", async (req: Request, res: Response) => {
              },
          });
  
-         // Simulate sending OTP (replace with actual SMS service in production)
-         console.log(`OTP sent to ${mobile}: ${otp}`);
- 
-         res.status(200).json({ message: "OTP has been sent to the registered mobile number" });
+         // Send the OTP via WhatsApp
+         const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+          if (!otpResult.success) {
+              res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+              return;
+          }
+
+         res.status(200).json({ message: "OTP has been sent to the registered Whatsapp No." });
      } catch (e) {
          console.error("Error during forgot password process:", e);
          res.status(500).json({ message: "Failed to send OTP. Please try again later." });

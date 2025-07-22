@@ -16,6 +16,9 @@ const signupSchema = z
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
+    terms: z.boolean().refine((val) => val, {
+      message: "You must accept the terms and conditions",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -65,14 +68,23 @@ function Signup() {
       // --- Redirect logic end ---
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        alert("Mobile number already exist");
-        const redirect = searchParams.get("redirect");
-        if (redirect) {
-          router.push(`/user/signin?redirect=${encodeURIComponent(redirect)}`);
-        } else {
-          router.push("/user/signin");
+
+        if (error.response.data?.error) {
+          alert("OTP send failed: " + error.response.data.error);
+          return;
         }
-        return;
+
+        if (error.response.data?.message === "User already exists") {
+          alert("Mobile number already exist");
+          const redirect = searchParams.get("redirect");
+          if (redirect) {
+            router.push(`/user/signin?redirect=${encodeURIComponent(redirect)}`);
+          } else {
+            router.push("/user/signin");
+          }
+          return;
+
+        }
       } else {
         alert("An error occurred during signup.");
       }
@@ -105,7 +117,7 @@ function Signup() {
 
             <input
               type="text"
-              placeholder="Mobile Number"
+              placeholder="Whatsapp Number"
               {...register("mobile")}
               className="w-full px-4 py-2 mt-4 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
             />
@@ -131,11 +143,23 @@ function Signup() {
               type="password"
               placeholder="Confirm Password"
               {...register("confirmPassword")}
-              className="w-full px-4 py-2 mt-4 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
+              className="w-full px-4 py-2 mt-4 border mb-2 border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
             />
             <p className="text-red-600 text-sm">
               {errors.confirmPassword?.message}
             </p>
+
+            <div className="flex items-center mb-2 mt-1">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  {...register("terms", { required: "You must accept the terms and conditions" })}
+                  className="mr-2"
+                />
+                <label htmlFor="terms" className="text-sm text-gray-600">
+                  I agree to all <a href="/terms-and-condition" className="text-blue-600 hover:underline">terms and conditions</a> and <a href="/privacy-policy" className="text-blue-600 hover:underline">privacy policy</a>
+                </label>
+              </div>
 
             <button
               type="submit"

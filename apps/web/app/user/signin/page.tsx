@@ -94,13 +94,13 @@ function LoginSignup() {
           <h1 className="text-3xl text-black-300 font-normal text-center mb-6">Login & Signup</h1>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div>
-              <label htmlFor="mobile" className="block font-normal text-gray-700">Mob No:</label>
+              <label htmlFor="mobile" className="block font-normal text-gray-700">Whatsapp No:</label>
               <div className="relative">
                 <FaMobileAlt className="absolute left-2 top-4 text-gray-700" />
                 <input
                   type="text"
                   id="mobile"
-                  placeholder="Mobile No."
+                  placeholder="Whatsapp No."
                   {...register("mobile")}
                   className={`w-full pl-8 p-2 border border-gray-600 rounded mt-1 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />

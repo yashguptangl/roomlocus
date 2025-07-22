@@ -1,9 +1,10 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
-import {jwt ,JWT_SECRET} from "../config";
-import {prisma} from "@repo/db/prisma";
-  
+import { jwt, JWT_SECRET } from "../config";
+import { prisma } from "@repo/db/prisma";
+import sendOtpViaWhatsApp from "../utils/sendOtpViaWhatsapp";
+
 const userRouter = express.Router();
 userRouter.use(express.json());
 
@@ -12,43 +13,55 @@ const generateOTP = (): string => {
 };
 
 //SIGN UP ROUTE
-userRouter.post("/signup",async (req : Request,res : Response) =>{
-    try{
-        const {email , username , mobile , password } = req.body;
+userRouter.post("/signup", async (req: Request, res: Response) => {
+    try {
+        const { email, username, mobile, password } = req.body;
 
         if (!email || !username || !mobile || !password) {
             console.error("Missing fields:", { email, username, mobile, password });
             res.status(400).json({ message: "All fields are required" });
             return;
-          }
+        }
         let user = await prisma.user.findFirst({
             where: {
-                email : email,
-        }})
-        if(user){
-           res.status(400).json({message : "User already exists"});
-           return;
+                email: email,
+            }
+        })
+        if (user) {
+            res.status(400).json({ message: "User already exists" });
+            return;
         }
-        const hashedPass = await bcrypt.hash(password , 8);
+        const hashedPass = await bcrypt.hash(password, 8);
 
         const otp = parseInt(generateOTP());
 
         user = await prisma.user.create({
-            data : {
-                email : email,
-                username : username,
-                mobile : mobile,
-                password : hashedPass,
-                otp : otp ,
-                isPhoneVerified : false
+            data: {
+                email: email,
+                username: username,
+                mobile: mobile,
+                password: hashedPass,
+                otp: otp,
+                isPhoneVerified: false
             }
         })
-        res.status(201).json({message : "User registered .Otp sent to mobile" });
+        const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+        if (!otpResult.success) {
+            await prisma.user.delete({
+                where: {
+                    id: user.id,
+                },
+            });
+            res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+            return;
+        }
+
+        res.status(201).json({ message: "User registered. OTP sent to mobile" });
         return;
 
-    }catch(e){
+    } catch (e) {
         console.log(e);
-        res.status(500).json({message : "Failed to register user"});
+        res.status(500).json({ message: "Failed to register user" });
     }
 })
 
@@ -83,7 +96,7 @@ userRouter.post("/verify-otp", async (req: Request, res: Response) => {
                 otp: 0,
             },
         });
-        
+
         res.status(200).json({ message: "User verified" });
     } catch (e) {
         console.error("Error during OTP verification:", e);
@@ -96,18 +109,14 @@ userRouter.post("/verify-otp", async (req: Request, res: Response) => {
 userRouter.post("/resend-otp", async (req: Request, res: Response) => {
     const { mobile } = req.body;
 
-    // Validate the input
     if (!mobile) {
-        res.status(400).json({ error: "Empty." });
+        res.status(400).json({ message: "Mobile number is required." });
         return;
     }
 
     try {
-        // Check if the user exists
         const user = await prisma.user.findUnique({
-            where: {
-                mobile : mobile,
-            },
+            where: { mobile }
         });
 
         if (!user) {
@@ -115,32 +124,27 @@ userRouter.post("/resend-otp", async (req: Request, res: Response) => {
             return;
         }
 
-        // Generate a new OTP
         const otp = generateOTP();
 
-        // Update the OTP in the database
-        const updatedUser = await prisma.user.update({
-            where: {
-                mobile  : mobile,
-            },
-            data: {
-                otp: parseInt(otp),
-            },
+        await prisma.user.update({
+            where: { mobile },
+            data: { otp: parseInt(otp) }
         });
 
-        console.log("Updated User OTP:", updatedUser);
+        const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+        if (!otpResult.success) {
+            res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+            return;
+        }
 
-        // Return a success response (exclude OTP in production)
         res.status(200).json({
-            message: "OTP has been resent to the registered mobile number.",
+            message: "OTP has been resent to the registered Whatsapp number.",
         });
-        return;
     } catch (error) {
         console.error("Error resending OTP:", error);
         res.status(500).json({ message: "Failed to resend OTP. Please try again later." });
     }
 });
-
 
 //LOGIN ROUTE
 userRouter.post("/login", async (req: Request, res: Response) => {
@@ -181,7 +185,7 @@ userRouter.post("/login", async (req: Request, res: Response) => {
         }
 
         // Generate a JWT token
-        const token = jwt.sign({ id: user.id , username : user.username , mobile : user.mobile , role : user.role }, JWT_SECRET);
+        const token = jwt.sign({ id: user.id, username: user.username, mobile: user.mobile, role: user.role }, JWT_SECRET);
 
         // Return the token in the response
         res.status(200).json({
@@ -229,10 +233,17 @@ userRouter.post("/forgot-password", async (req: Request, res: Response) => {
             },
         });
 
+        const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+
+        if (!otpResult.success) {
+            res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+            return;
+        }
+
         // Simulate sending OTP (replace with actual SMS service in production)
         console.log(`OTP sent to ${mobile}: ${otp}`);
 
-        res.status(200).json({ message: "OTP has been sent to the registered mobile number" });
+        res.status(200).json({ message: "OTP has been sent to the registered Whatsapp number." });
     } catch (e) {
         console.error("Error during forgot password process:", e);
         res.status(500).json({ message: "Failed to send OTP. Please try again later." });
@@ -249,11 +260,8 @@ userRouter.post("/reset-password", async (req: Request, res: Response) => {
             return;
         }
 
-        // Check if the user exists
         const user = await prisma.user.findUnique({
-            where: {
-                mobile: mobile,
-            },
+            where: { mobile }
         });
 
         if (!user) {
@@ -261,43 +269,38 @@ userRouter.post("/reset-password", async (req: Request, res: Response) => {
             return;
         }
 
-        // Verify the OTP
         if (user.otp !== parseInt(otp)) {
             res.status(400).json({ message: "Invalid OTP" });
             return;
         }
 
-        // Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 8);
 
-        // Update the user's password and reset the OTP
         await prisma.user.update({
-            where: {
-                mobile: mobile,
-            },
+            where: { mobile },
             data: {
                 password: hashedPassword,
-                otp: 0, // Reset OTP after successful password reset
-            },
+                otp: 0 // Reset OTP after successful password reset
+            }
         });
 
         res.status(200).json({ message: "Password has been reset successfully" });
-    } catch (e) {
-        console.error("Error during reset password process:", e);
+    } catch (error) {
+        console.error("Error during reset password process:", error);
         res.status(500).json({ message: "Failed to reset password. Please try again later." });
     }
 });
 
 
 //LOGOUT ROUTE
-userRouter.post("/logout" , async (req: Request, res: Response) => {
+userRouter.post("/logout", async (req: Request, res: Response) => {
     try {
         localStorage.removeItem("token");
         localStorage.clear();
-        res.status(200).json({ message: "Logout successful" }); 
-    }catch(e){
+        res.status(200).json({ message: "Logout successful" });
+    } catch (e) {
         console.log(e);
-        res.status(500).json({message : "Failed to logout user"});
+        res.status(500).json({ message: "Failed to logout user" });
     }
 })
 

@@ -4,8 +4,9 @@ import { Request, Response } from "express";
 import { AuthenticatedRequest } from "../middleware/auth"; // Adjust the path as necessary
 import { jwt, JWT_SECRET } from "../config";
 import { authenticate } from "../middleware/auth";
-import { putObject, getObjectURL } from "../utils/s3client";
+import { putObject } from "../utils/s3client";
 import { prisma } from "@repo/db/prisma";
+import sendOtpViaWhatsApp from "../utils/sendOtpViaWhatsapp";
 
 const ownerRouter = express.Router();
 ownerRouter.use(express.json());
@@ -47,7 +48,13 @@ ownerRouter.post("/signup", async (req: Request, res: Response) => {
                 isPhoneVerified: false
             }
         })
-        res.status(201).json({ message: "Owner registered .Otp sent to mobile" });
+        const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+        if (!otpResult.success) {
+            res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+            return;
+        }
+
+        res.status(201).json({ message: "Owner registered. OTP sent to mobile" });
         return;
 
     } catch (e) {
@@ -131,12 +138,18 @@ ownerRouter.post("/resend-otp", async (req: Request, res: Response) => {
                 otp: parseInt(otp),
             },
         });
+        // Send the OTP via WhatsApp
+        const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+        if (!otpResult.success) {
+            res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+            return;
+        }
 
         console.log("Updated Owner OTP:", updatedOwner);
 
         // Return a success response (exclude OTP in production)
         res.status(200).json({
-            message: "OTP has been resent to the registered mobile number.",
+            message: "OTP has been resent to the registered Whatsapp number.",
         });
         return;
     } catch (error) {
@@ -176,7 +189,7 @@ ownerRouter.post("/login", async (req: Request, res: Response) => {
             return;
         }
 
-        const token = jwt.sign({ id: owner.id, owner , role : owner.role }, JWT_SECRET);
+        const token = jwt.sign({ id: owner.id, owner, role: owner.role }, JWT_SECRET);
 
         res.status(200).json({
             message: "Login successful",
@@ -224,10 +237,14 @@ ownerRouter.post("/forgot-password", async (req: Request, res: Response) => {
             },
         });
 
-        // Simulate sending OTP (replace with actual SMS service in production)
-        console.log(`OTP sent to ${mobile}: ${otp}`);
+        // Send the OTP via WhatsApp
+        const otpResult = await sendOtpViaWhatsApp(mobile, otp.toString());
+        if (!otpResult.success) {
+            res.status(500).json({ message: "Failed to send OTP", error: otpResult.error });
+            return;
+        }
 
-        res.status(200).json({ message: "OTP has been sent to the registered mobile number" });
+        res.status(200).json({ message: "OTP has been sent to the registered Whatsapp number." });
     } catch (e) {
         console.error("Error during forgot password process:", e);
         res.status(500).json({ message: "Failed to send OTP. Please try again later." });
@@ -287,7 +304,7 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, landmark, maxprice , minprice, offer ,Bhk,  security, maintenance, totalFlat , adress , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants, petsAllowed, genderPrefer, flatType, insideFacilities, outsideFacilities, careTaker , careTakerNo , listingShowNo } = req.body;
+            city, townSector, location, landmark, maxprice, minprice, offer, Bhk, security, maintenance, totalFlat, adress, totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants, petsAllowed, genderPrefer, flatType, insideFacilities, outsideFacilities, careTaker, careTakerNo, listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -302,13 +319,13 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
                         id: ownerId,
                     },
                 },
-                city : city,
-                townSector : townSector,
+                city: city,
+                townSector: townSector,
                 location: location,
                 landmark: landmark,
-                BHK : Bhk,
-                MaxPrice : maxprice,
-                MinPrice : minprice,
+                BHK: Bhk,
+                MaxPrice: maxprice,
+                MinPrice: minprice,
                 Offer: offer,
                 security: security,
                 maintenance: maintenance,
@@ -330,8 +347,8 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
                 careTaker: careTaker,
                 listingShowNo: listingShowNo,
                 isDraft: true,
-                latitude : 0, 
-                longitude : 0,
+                latitude: 0,
+                longitude: 0,
                 AdressByAPI: "",
                 isLiveLocation: false,
             },
@@ -343,11 +360,11 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
     }
 });
 
-ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , res : Response) =>{
+ownerRouter.post("/room", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, landmark,Bhk, maxprice , minprice, offer ,  security, maintenance, totalRoom   , adress , totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants,RoomAvailable,  genderPrefer, roomType, insideFacilities, outsideFacilities, careTaker, listingShowNo } = req.body;
+            city, townSector, location, landmark, Bhk, maxprice, minprice, offer, security, maintenance, totalRoom, adress, totalFloor, waterSupply, powerBackup, noticePeriod, furnishingType, accomoType, parking, preferTenants, RoomAvailable, genderPrefer, roomType, insideFacilities, outsideFacilities, careTaker, listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -362,14 +379,14 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
                         id: ownerId,
                     },
                 },
-                city : city,
-                townSector : townSector,
+                city: city,
+                townSector: townSector,
                 location: location,
                 landmark: landmark,
-                BHK : Bhk,
+                BHK: Bhk,
                 security: security,
-                MaxPrice : maxprice,
-                MinPrice : minprice,
+                MaxPrice: maxprice,
+                MinPrice: minprice,
                 Offer: offer,
                 maintenance: maintenance,
                 adress: adress,
@@ -383,15 +400,15 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
                 parking: filteredParking,
                 preferTenants: filteredPreferTenants,
                 genderPrefer: genderPrefer,
-                RoomAvailable : RoomAvailable,
+                RoomAvailable: RoomAvailable,
                 roomType: roomType,
                 roomInside: filteredRoomInside,
                 roomOutside: filteredRoomOutside,
                 careTaker: careTaker,
                 listingShowNo: listingShowNo,
                 isDraft: true,
-                latitude : 0,
-                longitude : 0,
+                latitude: 0,
+                longitude: 0,
                 AdressByAPI: "",
                 isLiveLocation: false,
             },
@@ -403,11 +420,11 @@ ownerRouter.post("/room", authenticate , async (req :  AuthenticatedRequest , re
     }
 })
 
-ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : Response ) =>{
+ownerRouter.post("/pg", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     const ownerId = req.user?.id;
     try {
         const {
-            city , townSector , location, Bhk, landmark, maxprice , minprice, offer ,  security, maintenance, totalPG , adress , totalFloor, waterSupply, powerBackup, noticePeriod, PGType , bedCount,timeRestriction ,   foodAvailable , furnishingType, accomoType, parking, preferTenants, genderPrefer, insideFacilities, outsideFacilities, careTaker  , listingShowNo } = req.body;
+            city, townSector, location, Bhk, landmark, maxprice, minprice, offer, security, maintenance, totalPG, adress, totalFloor, waterSupply, powerBackup, noticePeriod, PGType, bedCount, timeRestriction, foodAvailable, furnishingType, accomoType, parking, preferTenants, genderPrefer, insideFacilities, outsideFacilities, careTaker, listingShowNo } = req.body;
 
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
@@ -422,14 +439,14 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
                         id: ownerId,
                     },
                 },
-                city : city,
-                townSector : townSector,
+                city: city,
+                townSector: townSector,
                 location: location,
                 landmark: landmark,
-                BHK : Bhk,
+                BHK: Bhk,
                 security: security,
-                MaxPrice : maxprice,
-                MinPrice : minprice,
+                MaxPrice: maxprice,
+                MinPrice: minprice,
                 Offer: offer,
                 maintenance: maintenance,
                 adress: adress,
@@ -451,9 +468,9 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
                 PGOutside: filteredPGOutside,
                 careTaker: careTaker,
                 listingShowNo: listingShowNo,
-                isDraft:  true,
-                latitude : 0,
-                longitude : 0,
+                isDraft: true,
+                latitude: 0,
+                longitude: 0,
                 AdressByAPI: "",
                 isLiveLocation: false,
 
@@ -467,51 +484,51 @@ ownerRouter.post("/pg", authenticate , async (req: AuthenticatedRequest , res : 
 
 })
 
-ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest , res: Response) => {
+ownerRouter.post("/hourlyroom", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     const ownerId = req.user?.id;
     try {
-        const {city , townSector , palaceName , location , landmark , maxprice , minprice , adress ,totalRoom ,totalFloor , bedcount,noofGuests,furnishingType , accomoType , foodAvailable ,acType, preferTenants, genderPrefer , roomType , luxury ,insideFacilities , outsideFacilities , parking , manager , listingShowNo } = req.body;
-        
+        const { city, townSector, palaceName, location, landmark, maxprice, minprice, adress, totalRoom, totalFloor, bedcount, noofGuests, furnishingType, accomoType, foodAvailable, acType, preferTenants, genderPrefer, roomType, luxury, insideFacilities, outsideFacilities, parking, manager, listingShowNo } = req.body;
+
         const filteredParking: string[] = parking ? parking.filter((item: string) => item !== undefined) : [];
         const filteredPreferTenants: string[] = preferTenants ? preferTenants.filter((item: string) => item !== undefined) : [];
         const filteredRoomDayNightInside: string[] = insideFacilities ? insideFacilities.filter((item: string) => item !== undefined) : [];
         const filteredRoomDayNightOutside: string[] = outsideFacilities ? outsideFacilities.filter((item: string) => item !== undefined) : [];
 
         const hourlyroom = await prisma.hourlyInfo.create({
-            data : {
-                owner : {
-                    connect : {
-                        id : ownerId
+            data: {
+                owner: {
+                    connect: {
+                        id: ownerId
                     }
                 },
-                city : city,
-                townSector : townSector,
-                location    : location,
-                landmark    : landmark,
-                palaceName : palaceName,
-                BedCount : bedcount, // Ensure bedcount is parsed as an integer
-                MaxPrice : maxprice,
-                MinPrice : minprice,
-                adress : adress,
-                totalRoom : totalRoom,
-                totalFloor : totalFloor,
-                furnishingType : furnishingType,
-                accomoType : accomoType,
-                acType : acType,
-                noofGuests : noofGuests,
-                luxury : luxury,
-                foodAvailable : foodAvailable,
-                preferTenants : filteredPreferTenants,
-                genderPrefer : genderPrefer,
-                roomType : roomType,
-                roomInside : filteredRoomDayNightInside,
-                roomOutside : filteredRoomDayNightOutside,
-                manager   : manager,
-                parking         : filteredParking,
-                listingShowNo : listingShowNo,
+                city: city,
+                townSector: townSector,
+                location: location,
+                landmark: landmark,
+                palaceName: palaceName,
+                BedCount: bedcount, // Ensure bedcount is parsed as an integer
+                MaxPrice: maxprice,
+                MinPrice: minprice,
+                adress: adress,
+                totalRoom: totalRoom,
+                totalFloor: totalFloor,
+                furnishingType: furnishingType,
+                accomoType: accomoType,
+                acType: acType,
+                noofGuests: noofGuests,
+                luxury: luxury,
+                foodAvailable: foodAvailable,
+                preferTenants: filteredPreferTenants,
+                genderPrefer: genderPrefer,
+                roomType: roomType,
+                roomInside: filteredRoomDayNightInside,
+                roomOutside: filteredRoomDayNightOutside,
+                manager: manager,
+                parking: filteredParking,
+                listingShowNo: listingShowNo,
                 isDraft: true,
-                latitude : 0,
-                longitude : 0,
+                latitude: 0,
+                longitude: 0,
                 AdressByAPI: "",
                 isLiveLocation: false,
             }
@@ -524,7 +541,7 @@ ownerRouter.post("/hourlyroom" , authenticate , async (req: AuthenticatedRequest
     }
 })
 
-ownerRouter.post("/flat/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
+ownerRouter.post("/flat/images/presigned-urls", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { flatId } = req.body;
         const parsedFlatId = parseInt(flatId); // Ensure flatId is an integer
@@ -535,7 +552,7 @@ ownerRouter.post("/flat/images/presigned-urls", authenticate , async (req: Authe
         }
 
         // Define specific categories for images
-        const categories = ["front", "lobby", "inside" ,"kitchen", "toilet", "bathroom", "careTaker"];
+        const categories = ["front", "lobby", "inside", "kitchen", "toilet", "bathroom", "careTaker"];
         const urls: { [key: string]: string } = {};
 
         for (const category of categories) {
@@ -551,18 +568,18 @@ ownerRouter.post("/flat/images/presigned-urls", authenticate , async (req: Authe
         });
 
 
-         res.json({ presignedUrls: urls });
-         return;
+        res.json({ presignedUrls: urls });
+        return;
     } catch (err) {
         console.error("Error during image upload:", err);
         res.status(500).json({
-             message: "Failed to generate presigned URLs. Please try again later." 
+            message: "Failed to generate presigned URLs. Please try again later."
         });
         return;
     }
 });
 
-ownerRouter.post("/room/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
+ownerRouter.post("/room/images/presigned-urls", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { roomId } = req.body;
         const parsedRoomId = parseInt(roomId); // Ensure roomId is an integer
@@ -573,7 +590,7 @@ ownerRouter.post("/room/images/presigned-urls", authenticate , async (req: Authe
         }
 
         // Define specific categories for images
-        const categories = ["front", "lobby", "inside", "roomAngle" ,"kitchen", "toilet", "bathroom", "careTaker"];
+        const categories = ["front", "lobby", "inside", "roomAngle", "kitchen", "toilet", "bathroom", "careTaker"];
         const urls: { [key: string]: string } = {};
 
         for (const category of categories) {
@@ -589,18 +606,18 @@ ownerRouter.post("/room/images/presigned-urls", authenticate , async (req: Authe
         });
 
 
-         res.json({ presignedUrls: urls });
-         return;
+        res.json({ presignedUrls: urls });
+        return;
     } catch (err) {
         console.error("Error during image upload:", err);
         res.status(500).json({
-             message: "Failed to generate presigned URLs. Please try again later." 
+            message: "Failed to generate presigned URLs. Please try again later."
         });
         return;
     }
 });
 
-ownerRouter.post("/pg/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
+ownerRouter.post("/pg/images/presigned-urls", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { pgId } = req.body;
         const parsedPgId = parseInt(pgId); // Ensure pgId is an integer
@@ -611,7 +628,7 @@ ownerRouter.post("/pg/images/presigned-urls", authenticate , async (req: Authent
         }
 
         // Define specific categories for images
-        const categories = ["front", "inside" ,"kitchen" , "lobby" , "toilet", "bathroom" , "careTaker"];
+        const categories = ["front", "inside", "kitchen", "lobby", "toilet", "bathroom", "careTaker"];
         const urls: { [key: string]: string } = {};
 
         for (const category of categories) {
@@ -626,18 +643,18 @@ ownerRouter.post("/pg/images/presigned-urls", authenticate , async (req: Authent
             data: { isDraft: false }, // Update the isDraft field to false
         });
 
-         res.json({ presignedUrls: urls });
-         return;
+        res.json({ presignedUrls: urls });
+        return;
     } catch (err) {
         console.error("Error during image upload:", err);
         res.status(500).json({
-             message: "Failed to generate presigned URLs. Please try again later." 
+            message: "Failed to generate presigned URLs. Please try again later."
         });
         return;
     }
 });
 
-ownerRouter.post("/hourlyroom/images/presigned-urls", authenticate , async (req: AuthenticatedRequest, res: Response) => {
+ownerRouter.post("/hourlyroom/images/presigned-urls", authenticate, async (req: AuthenticatedRequest, res: Response) => {
     try {
         const { hourlyroomId } = req.body; // Updated variable name
         const parsedHourlyroomId = parseInt(hourlyroomId); // Ensure hourlyroomId is an integer
@@ -648,7 +665,7 @@ ownerRouter.post("/hourlyroom/images/presigned-urls", authenticate , async (req:
         }
 
         // Define specific categories for images
-        const categories = ["front", "inside" ,"lobby" , "toilet", "bathroom" , "manager"];
+        const categories = ["front", "inside", "lobby", "toilet", "bathroom", "manager"];
         const urls: { [key: string]: string } = {};
 
         for (const category of categories) {
@@ -664,19 +681,19 @@ ownerRouter.post("/hourlyroom/images/presigned-urls", authenticate , async (req:
         });
 
 
-         res.json({ presignedUrls: urls });
-         return;
+        res.json({ presignedUrls: urls });
+        return;
     } catch (err) {
         console.error("Error during image upload:", err);
         res.status(500).json({
-             message: "Failed to generate presigned URLs. Please try again later." 
+            message: "Failed to generate presigned URLs. Please try again later."
         });
         return;
-    }``
+    } ``
 })
 
 ownerRouter.post("/logout", (req: AuthenticatedRequest, res: Response) => {
-    localStorage.clear(); 
+    localStorage.clear();
     res.status(200).json({ message: "Logout successful" });
 });
 

@@ -124,7 +124,7 @@ export default function Home() {
 
         <div className="flex w-full sm:w-96 justify-between items-start">
             <button
-            className="font-semibold text-sm  bg-blue-300 rounded text-white p-1 flex items-center -mt-1 cursor-pointer"
+            className="font-semibold text-sm  bg-blue-300 rounded text-white px-1 py-0.5 flex items-center -ml-0.5 cursor-pointer"
             onClick={() => {
               if (!lookingFor) {
               alert("Please select Looking for");

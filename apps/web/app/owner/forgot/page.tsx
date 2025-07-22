@@ -42,6 +42,7 @@ export default function ForgotPassword() {
         resolver: zodResolver(verifySchema),
     });
 
+    // Request OTP
     const handleRequestOTP = async (data: Pick<VerifyFormValues, "mobile">) => {
         try {
             setIsSubmitting(true);
@@ -51,11 +52,18 @@ export default function ForgotPassword() {
             });
             setMobileNumber(data.mobile);
             setOtpSent(true);
-            alert(response.data.message || "OTP has been sent to your mobile number.");
+            alert(response.data.message || "OTP has been sent to registered Whatsapp No. Please check Whatsapp!");
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                const errorMessage = error.response?.data?.message || "Error sending OTP";
-                setError("mobile", { message: errorMessage });
+                if (error.response?.status === 404) {
+                    setError("mobile", { message: "Owner not found" });
+                } else if (error.response?.status === 400) {
+                    setError("mobile", { message: error.response?.data?.message || "Mobile number is required" });
+                } else if (error.response?.status === 500) {
+                    setError("mobile", { message: error.response?.data?.message || "Failed to send OTP" });
+                } else {
+                    setError("mobile", { message: error.response?.data?.message || "Error sending OTP" });
+                }
             } else {
                 setError("mobile", { message: "Error sending OTP" });
             }
@@ -64,6 +72,7 @@ export default function ForgotPassword() {
         }
     };
 
+    // Reset password
     const handleResetPassword = async (data: VerifyFormValues) => {
         try {
             setIsSubmitting(true);
@@ -74,14 +83,17 @@ export default function ForgotPassword() {
                 newPassword: data.password,
             });
             alert(response.data.message || "Password has been reset successfully.");
-            router.push("/user/signin");
+            router.push("/owner/signin");
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                const errorMessage = error.response?.data?.message || "Error resetting password";
-                if (error.response?.status === 400) {
-                    setError("otp", { message: errorMessage });
+                if (error.response?.status === 404) {
+                    setError("mobile", { message: "Owner not found" });
+                } else if (error.response?.status === 400) {
+                    setError("otp", { message: error.response?.data?.message || "Invalid OTP" });
+                } else if (error.response?.status === 500) {
+                    alert(error.response?.data?.message || "Failed to reset password. Please try again later.");
                 } else {
-                    alert(errorMessage);
+                    alert(error.response?.data?.message || "Error resetting password");
                 }
             } else {
                 alert("Error resetting password");
@@ -91,16 +103,25 @@ export default function ForgotPassword() {
         }
     };
 
+    // Resend OTP
     const handleResendOTP = async () => {
         try {
             setResendLoading(true);
             const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/resend-otp`, {
                 mobile: mobileNumber,
             });
-            alert(response.data.message || "OTP has been resent to your mobile number.");
+            alert(response.data.message || "OTP has been resent to registered Whatsapp No. Please check Whatsapp!");
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                alert(error.response?.data?.message || "Error resending OTP");
+                if (error.response?.status === 404) {
+                    setError("mobile", { message: "Owner not found" });
+                } else if (error.response?.status === 400) {
+                    setError("mobile", { message: error.response?.data?.message || "Mobile number is required" });
+                } else if (error.response?.status === 500) {
+                    alert(error.response?.data?.message || "Failed to resend OTP. Please try again later.");
+                } else {
+                    alert(error.response?.data?.message || "Error resending OTP");
+                }
             } else {
                 alert("Error resending OTP");
             }
@@ -128,12 +149,12 @@ export default function ForgotPassword() {
                     <form onSubmit={handleSubmit(otpSent ? handleResetPassword : handleRequestOTP)}>
                         <div className="mb-4">
                             <label htmlFor="mobile" className="block text-sm font-medium text-gray-700 mb-1">
-                                Mobile Number
+                                Whatsapp Number
                             </label>
                             <input
                                 id="mobile"
                                 type="text"
-                                placeholder="Enter 10-digit mobile number"
+                                placeholder="Enter 10-digit Whatsapp number"
                                 className="w-full px-4 py-2 border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
                                 {...register("mobile")}
                                 disabled={otpSent}
@@ -227,7 +248,7 @@ export default function ForgotPassword() {
                     </form>
 
                     <div className="mt-6 text-center">
-                        <Link href="/owner/signin" className="text-blue-700 font-semibold hover:underline">
+                        <Link href="/owner/signin" className="text-blue-600 font-semibold hover:underline">
                             Back to Sign In
                         </Link>
                     </div>
