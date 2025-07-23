@@ -8,6 +8,7 @@ export interface FormData {
     minprice: string;
     ageOfProperty: string;
     totalFloor : number;
+    listingOtp : string;
     waterSupply: string;
     powerBackup: string;
     noticePeriod: string;

@@ -367,7 +367,9 @@ export default function Dashboard() {
       if (response.status === 200) {
         alert(response.data.message);
         setListings((prevListings) =>
-          prevListings.filter((listing) => listing.id !== listingId)
+          prevListings.filter(
+            (listing) => !(listing.id === listingId && listing.type === type)
+          )
         );
       } else {
         alert("Failed to delete listing");
@@ -377,9 +379,6 @@ export default function Dashboard() {
       alert("An error occurred while deleting the listing");
     }
   };
-
-
-
 
 
 
@@ -641,6 +640,10 @@ export default function Dashboard() {
                                       : "text-gray-900"
                                       } group flex rounded-md items-center w-full px-2 py-2 text-sm`}
                                     onClick={() => {
+                                      if (!listing.isVerified) {
+                                        alert("You can edit the listing only after verification is complete.");
+                                        return;
+                                      }
                                       router.push(
                                         `/owner/edit?listingType=${listing.type}&listingId=${listing.id}`
                                       );
@@ -665,7 +668,9 @@ export default function Dashboard() {
                       {listing.type === "hourlyroom"
                         ? <>Hourly Room | {listing.palaceName}</>
                         : <>
-                          {listing.BHK} BHK {listing.type} | Security {listing.security}
+                          {listing.BHK === "1 RK" || listing.BHK === "2 RK"
+                            ? `${listing.BHK} | ${listing.type} | Security ${listing.security}`
+                            : `${listing.BHK} BHK | ${listing.type} | Security ${listing.security}`}
                         </>
                       }
                     </h2>
@@ -832,77 +837,77 @@ export default function Dashboard() {
               onClick={e => e.stopPropagation()}
             >
               {!ownerDetails?.agreedToTerms ? (
-          <>
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              Note
-            </h2>
-            <p className="text-sm text-gray-700 mb-6 text-justify">
-              If the owner posts property details or photos illegally or incorrectly on the website, the Roomlocus team can block your ID and may also take legal action against you.
-              The owner will be fully responsible for any illegal or incorrect posting of property details or photos on the website.
-            </p>
-            <div className="flex justify-end">
-              <button
-                className="bg-blue-300 text-white px-2 py-1 rounded-md font-normal"
-                onClick={() => {
-            setOwnerDetails((prev: any) => ({ ...prev, agreedToTerms: true }));
-            // Open the rental list after agreeing
-            // No need to close the modal here, let the component re-render to show the links
-                }}
-              >
-                Agree
-              </button>
-            </div>
-          </>
+                <>
+                  <h2 className="text-xl font-semibold mb-4 text-center">
+                    Note
+                  </h2>
+                  <p className="text-sm text-gray-700 mb-6 text-justify">
+                    If the owner posts property details or photos illegally or incorrectly on the website, the Roomlocus team can block your ID and may also take legal action against you.
+                    The owner will be fully responsible for any illegal or incorrect posting of property details or photos on the website.
+                  </p>
+                  <div className="flex justify-end">
+                    <button
+                      className="bg-blue-300 text-white px-2 py-1 rounded-md font-normal"
+                      onClick={() => {
+                        setOwnerDetails((prev: any) => ({ ...prev, agreedToTerms: true }));
+                        // Open the rental list after agreeing
+                        // No need to close the modal here, let the component re-render to show the links
+                      }}
+                    >
+                      Agree
+                    </button>
+                  </div>
+                </>
               ) : (
-          <>
-            <h2 className="text-xl font-semibold mb-4 text-center">
-              Add Rental
-            </h2>
-            {/* Links to Rentals */}
-            <div className="space-y-4 text-center flex flex-col">
-              <Link
-                className="text-blue-500 hover:underline"
-                href="/owner/flat"
-              >
-                FLAT
-              </Link>
-              <Link
-                className="text-blue-500 hover:underline"
-                href="/owner/room"
-              >
-                ROOM
-              </Link>
-              <Link
-                className="text-blue-500 hover:underline"
-                href="/owner/pg"
-              >
-                PG
-              </Link>
-              <Link
-                className="text-blue-500 hover:underline"
-                href="/owner/hourlyroom"
-              >
-                HOURLY ROOM
-              </Link>
-            </div>
-            {/* Close Button */}
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={() => {
-            setIsRentalListOpen(false);
-            setOwnerDetails((prev: any) => ({ ...prev, agreedToTerms: false }));
-                }}
-                className="bg-gray-500 text-white px-4 py-2 rounded-md"
-              >
-                Close
-              </button>
-            </div>
-          </>
+                <>
+                  <h2 className="text-xl font-semibold mb-4 text-center">
+                    Add Rental
+                  </h2>
+                  {/* Links to Rentals */}
+                  <div className="space-y-4 text-center flex flex-col">
+                    <Link
+                      className="text-blue-500 hover:underline"
+                      href="/owner/flat"
+                    >
+                      FLAT
+                    </Link>
+                    <Link
+                      className="text-blue-500 hover:underline"
+                      href="/owner/room"
+                    >
+                      ROOM
+                    </Link>
+                    <Link
+                      className="text-blue-500 hover:underline"
+                      href="/owner/pg"
+                    >
+                      PG
+                    </Link>
+                    <Link
+                      className="text-blue-500 hover:underline"
+                      href="/owner/hourlyroom"
+                    >
+                      HOURLY ROOM
+                    </Link>
+                  </div>
+                  {/* Close Button */}
+                  <div className="flex justify-center mt-4">
+                    <button
+                      onClick={() => {
+                        setIsRentalListOpen(false);
+                        setOwnerDetails((prev: any) => ({ ...prev, agreedToTerms: false }));
+                      }}
+                      className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>
         )}
-                 
+
         {activeTab === "guide" && (
           <OwnerGuide />
         )}

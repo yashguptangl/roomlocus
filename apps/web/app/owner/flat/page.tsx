@@ -6,40 +6,93 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormData } from "../../../types/formData";
-import Sample from "../../../assets/sample.jpg"
-import Image from "next/image"; 
-
+import Sample from "../../../assets/sample.jpg";
+import Image from "next/image";
 
 export default function FlatListingForm() {
   const router = useRouter();
   const {
     register,
     handleSubmit,
+    getValues,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<FormData>();
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedTown, setSelectedTown] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [showSample, setShowSample] = useState(false);
-
-
-
-  const handleTownChange = (town: React.SetStateAction<string>) => {
-    setSelectedTown(town);
-  };
-
-  const handleCityChange = (city: React.SetStateAction<string>) => {
-    setSelectedCity(city);
-    setSelectedTown(""); // Reset town/sector when city changes
-  };
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpVerified, setOtpVerified] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     setToken(token);
-    console.log(token?.toString());
   }, []);
 
+  // Send OTP for listingShowNo
+  const handleSendOtp = async () => {
+    clearErrors("listingShowNo");
+    setOtpError(null);
+    setOtpVerified(false);
+    const mobile = getValues("listingShowNo");
+    if (!mobile || mobile.length !== 10 || !/^\d{10}$/.test(mobile)) {
+      setError("listingShowNo", { message: "Enter valid 10-digit contact number" });
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing-no-check/preverify/send-otp`,
+        { mobile }
+      );
+      setOtpSent(true);
+      alert(response.data.message || "OTP sent successfully to registered Whatsapp number");
+    } catch (error) {
+      setOtpError("Failed to send OTP. Try again.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Verify OTP for listingShowNo
+  const handleVerifyOtp = async () => {
+    clearErrors("listingOtp");
+    setOtpError(null);
+    const mobile = getValues("listingShowNo");
+    const otp = getValues("listingOtp");
+    if (!otp || otp.length !== 4 || !/^\d{4}$/.test(otp)) {
+      setError("listingOtp", { message: "Enter 4-digit OTP" });
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing-no-check/preverify/verify-otp`,
+        { mobile, otp }
+      );
+      setOtpVerified(true);
+      alert(response.data.message || "Mobile verified successfully");
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        setOtpError(error.response.data?.message || "OTP verification failed");
+      } else {
+        setOtpError("OTP verification failed");
+      }
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Prevent form submission if OTP not verified
   const onSubmit = async (data: FormData) => {
+    if (!otpVerified) {
+      setError("listingShowNo", { message: "Please verify contact number with OTP before submitting." });
+      return;
+    }
     try {
       const formData = {
         ...data,
@@ -63,15 +116,19 @@ export default function FlatListingForm() {
           },
         }
       );
-      console.log(response);
       if (response.status === 201) {
         localStorage.setItem("flatId", response.data.flat.id);
         router.push("/owner/flat/[images]");
       }
     } catch (error) {
-      console.error("Error:", error);
       alert("Failed to list flat. Please try again.");
     }
+  };
+
+  const handleTownChange = (town: string) => setSelectedTown(town);
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+    setSelectedTown("");
   };
 
   return (
@@ -100,41 +157,39 @@ export default function FlatListingForm() {
               &times;
             </button>
             <Image src={Sample.src} alt="Sample Listing" className="max-w-full max-h-[70vh] rounded"
-            height={500}
-            width={500} 
+              height={500}
+              width={500}
             />
           </div>
         </div>
       )}
-    {/* Location and Details */}
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 mt-2">
           {/* City ComboBox */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
             <label className="text-sm sm:text-xl">City</label>
             <ComboBox
-              options={Object.keys(citiesData)} // City options from citiesData (keys)
+              options={Object.keys(citiesData)}
               placeholder="City"
               onChange={handleCityChange}
             />
             {errors.city && <span className="text-red-500 text-sm">City is required</span>}
           </div>
-
           {/* Town & Sector ComboBox */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
             <label className="text-sm sm:text-xl">Town & Sector</label>
             <ComboBox
-              options={selectedCity && citiesData[selectedCity] ? citiesData[selectedCity] : []} // Filtered town/sector options based on selected city
+              options={selectedCity && citiesData[selectedCity] ? citiesData[selectedCity] : []}
               placeholder="Town & Sector"
               onChange={handleTownChange}
             />
             {errors.townSector && <span className="text-red-500 text-sm">Town & Sector is required</span>}
           </div>
         </div>
-
         <div className="flex flex-col gap-4 mt-4">
+          {/* Main fields */}
           {[
-            { label: "Area/Colony", name: "location", type: "text" },   // Area/Colony
+            { label: "Area/Colony", name: "location", type: "text" },
             { label: "Landmark", name: "landmark", type: "text" },
             { label: "Min Price Per Month", name: "minprice", type: "number" },
             { label: "Max Price Per Month", name: "maxprice", type: "number" },
@@ -146,7 +201,6 @@ export default function FlatListingForm() {
             { label: "Power Backup in Hours", name: "powerBackup", type: "number" },
             { label: "Notice Period", name: "noticePeriod", type: "text" },
             { label: "Offer if any", name: "offer", type: "text" },
-            { label: "Contact Number", name: "listingShowNo", type: "text" },
           ].map(({ label, name, type }) => (
             <div key={name} className="flex items-center gap-4">
               <label htmlFor={name} className="text-sm w-1/3 sm:text-xl">
@@ -162,7 +216,60 @@ export default function FlatListingForm() {
               />
               {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
             </div>
-          ))}
+          ))}<div className="flex items-center gap-2 flex-col justify-between ">
+            <div className="flex items-center gap-4 w-full">
+              <label htmlFor="listingShowNo" className="text-sm w-1/3 sm:text-xl">Whatsapp No</label>
+              <input
+                id="listingShowNo"
+                {...register("listingShowNo", { required: "Whatsapp Number is required" })}
+                name="listingShowNo"
+                className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+                placeholder="Enter Whatsapp number"
+                maxLength={10}
+              />
+            </div>
+
+            <div className="flex justify-end w-full">
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={otpLoading || otpVerified}
+                className="bg-blue-500 text-white px-2 py-1 text-xs rounded"
+              >
+                {otpLoading ? "Sending..." : otpVerified ? "Verified" : "Send OTP"}
+              </button>
+            </div>
+
+          </div>
+          {errors.listingShowNo && <span className="text-red-500 text-sm">{String(errors.listingShowNo?.message)}</span>}
+          {otpSent && !otpVerified && (
+            <div className="flex items-center justify-end gap-2 mt-2 flex-col">
+              <div className="flex justify-end w-full">
+                <input
+                  type="text"
+                  {...register("listingOtp", { required: "OTP is required" })}
+                  name="listingOtp"
+                  placeholder="Enter OTP"
+                  maxLength={4}
+                  className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+                />
+              </div>
+              <div className="flex justify-end w-full">
+                <button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  disabled={otpLoading}
+                  className="bg-green-500 text-white px-1 py-0.5 text-sm rounded ml-2"
+                >
+                  {otpLoading ? "Verifying..." : "Verify OTP"}
+                </button>
+              </div>
+
+            </div>
+          )}
+          {errors.listingOtp && <span className="text-red-500 text-sm">{String(errors.listingOtp?.message)}</span>}
+          {otpError && <span className="text-red-500 text-sm">{otpError}</span>}
+          {/* Contact Name */}
           <div className="flex items-center gap-4">
             <label htmlFor="careTaker" className="text-sm w-1/3 sm:text-xl">Contact Name</label>
             <input
@@ -174,8 +281,6 @@ export default function FlatListingForm() {
             />
             {errors.careTaker && <span className="text-red-500 text-sm">{String(errors.careTaker?.message)}</span>}
           </div>
-
-          {/* BHK Select */}
           <div className="flex items-center gap-4">
             <label htmlFor="Bhk" className="text-sm w-1/3 sm:text-xl">BHK</label>
             <select
@@ -184,16 +289,16 @@ export default function FlatListingForm() {
               name="Bhk"
               className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base text-gray-500 placeholder-gray-500"
             >
-              <option value="" className="text-gray-500">Select BHK</option>
-              {[1, 2, 3, 4, 5].map((bhk) => (
+                <option value="" className="text-gray-500">Select BHK</option>
+                {["1 RK", "2 RK", "1", "2", "3", "4", "5"].map((bhk) => (
                 <option key={bhk} value={bhk} className="text-black">
-                  {bhk} BHK
+                  {typeof bhk === "string" && bhk.endsWith("RK") ? bhk : `${bhk} Bhk`}
                 </option>
-              ))}
+                ))}
+            
             </select>
             {errors.Bhk && <span className="text-red-500 text-sm">{String(errors.Bhk?.message)}</span>}
           </div>
-
           {/* Full Address Textarea */}
           <div className="flex items-center gap-4">
             <label className="text-sm w-1/3 sm:text-xl" htmlFor="adress">Full Address</label>
@@ -208,7 +313,6 @@ export default function FlatListingForm() {
             {errors.adress && <span className="text-red-500 text-sm">{String(errors.adress?.message)}</span>}
           </div>
         </div>
-
         {/* Radio Buttons */}
         {[
           {
@@ -251,7 +355,6 @@ export default function FlatListingForm() {
             {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
           </div>
         ))}
-
         {/* Checkboxes */}
         {[
           {
@@ -286,7 +389,7 @@ export default function FlatListingForm() {
                 <div key={option} className="flex items-center gap-2 text-sm sm:text-base font-medium text-blue-400">
                   <input
                     {...register(name as keyof FormData)}
-                    type={isMultiple ? "checkbox" : "radio"} // Adjust type for multiple selections
+                    type={isMultiple ? "checkbox" : "radio"}
                     value={option}
                   />
                   {option}
@@ -296,7 +399,6 @@ export default function FlatListingForm() {
             {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
           </div>
         ))}
-
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
           <button
@@ -307,6 +409,7 @@ export default function FlatListingForm() {
             {isSubmitting ? "Next..." : "Next"}
           </button>
           <button
+            type="button"
             onClick={() => router.push("/owner/dashboard")}
             className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
           >

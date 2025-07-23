@@ -123,7 +123,7 @@ export default function Verify() {
                 {isSubmitting ? "Verifying..." : "Verify"}
               </button>
             </form>
-            <div className="mt-6 flex items-center flex-col">
+            <div className="mt-6 flex items-center flex-col text-sm">
               <p className="font-normal">
                 Create an Account{" "}
                 <Link
@@ -133,7 +133,7 @@ export default function Verify() {
                   Sign Up
                 </Link>
               </p>
-              <p className="font-normal">
+              <p className="font-normal text-sm">
                 Didn't receive OTP?{" "}
                 <button
                   type="button"

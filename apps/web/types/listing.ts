@@ -71,7 +71,7 @@ export interface ListingItem {
     location: string;
     townSector: string;
     city: string;
-    BHK: number;
+    BHK: number | string;
     security: number;
     MinPrice: number;
     MaxPrice: number;

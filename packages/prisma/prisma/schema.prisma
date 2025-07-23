@@ -105,12 +105,10 @@ model FlatInfo {
     flatType            String
     careTaker           String
     listingShowNo       String
-
     latitude            Decimal
     longitude           Decimal
     AdressByAPI         String 
     isLiveLocation      Boolean   @default(false)
-
     flatInside          String[]
     flatOutside         String[]
     isVerified          Boolean   @default(false)
@@ -157,14 +155,11 @@ model PgInfo {
     PGInside          String[]
     PGOutside         String[]
     careTaker           String
-    listingShowNo       String
-
-    
+    listingShowNo       String   
     latitude            Decimal
     longitude           Decimal
     AdressByAPI         String 
     isLiveLocation      Boolean   @default(false)
-
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
     paymentDone         Boolean   @default(false)
@@ -207,14 +202,10 @@ model RoomInfo {
     roomOutside         String[]
     careTaker           String
     listingShowNo       String
-
-    
     latitude            Decimal
     longitude           Decimal
     AdressByAPI         String 
     isLiveLocation      Boolean   @default(false)
-
-
     RoomAvailable       String
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
@@ -259,9 +250,7 @@ model hourlyInfo {
     longitude           Decimal   @default(0)
     AdressByAPI         String    @default("")
     isLiveLocation      Boolean   @default(false)
-
-
-    luxury          String
+    luxury              String
     owner               Owner      @relation(fields: [ownerId], references: [id])  
     isVerified          Boolean   @default(false)
     verificationPending Boolean   @default(true)
@@ -377,4 +366,14 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+}
+
+
+model TempMobileVerification {
+  id        Int      @id @default(autoincrement())
+  mobile    String   @unique
+  otp       Int
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
 }

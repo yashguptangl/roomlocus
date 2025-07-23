@@ -353,6 +353,9 @@ ownerRouter.post("/flat", authenticate, async (req: AuthenticatedRequest, res: R
                 isLiveLocation: false,
             },
         });
+        await prisma.tempMobileVerification.delete({
+            where: { mobile: listingShowNo, verified: true },
+        });
         res.status(201).json({ message: "Flat listing uploaded successfully", flat });
     } catch (err) {
         console.error("Error during Flat upload:", err);
@@ -413,6 +416,10 @@ ownerRouter.post("/room", authenticate, async (req: AuthenticatedRequest, res: R
                 isLiveLocation: false,
             },
         });
+        await prisma.tempMobileVerification.delete({
+            where: { mobile: listingShowNo, verified: true },
+        });
+
         res.status(201).json({ message: "Room listing uploaded successfully", room });
     } catch (err) {
         console.error("Error during Room upload:", err);
@@ -476,6 +483,9 @@ ownerRouter.post("/pg", authenticate, async (req: AuthenticatedRequest, res: Res
 
             },
         });
+        await prisma.tempMobileVerification.delete({
+            where: { mobile: listingShowNo, verified: true },
+        });
         res.status(201).json({ message: "PG listing uploaded successfully", pg });
     } catch (err) {
         console.error("Error during PG upload:", err);
@@ -533,7 +543,9 @@ ownerRouter.post("/hourlyroom", authenticate, async (req: AuthenticatedRequest, 
                 isLiveLocation: false,
             }
         })
-
+        await prisma.tempMobileVerification.delete({
+            where: { mobile: listingShowNo, verified: true },
+        });
         res.status(200).json({ message: "Hourly Room uploaded successfully", hourlyroom });
     } catch (err) {
         console.error("Error during Hourly Room upload:", err);

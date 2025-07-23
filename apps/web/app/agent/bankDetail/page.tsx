@@ -6,9 +6,12 @@ import { useRouter } from "next/navigation";
 interface BankDetailsFormValues {
   bankName: string;
   accountHolderName: string;
+  upi: string;
+  confirmUpi: string;
   accountNumber: string;
   confirmAccountNumber: string;
   ifscCode: string;
+  confirmIfscCode: string;
 }
 
 export default function BankDetails() {
@@ -16,7 +19,7 @@ export default function BankDetails() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     watch,
   } = useForm<BankDetailsFormValues>();
   const [token, setToken] = useState("");
@@ -27,7 +30,7 @@ export default function BankDetails() {
     const storedAgentId = localStorage.getItem("agentId");
     if (storedToken) setToken(storedToken);
     if (storedAgentId) setAgentId(storedAgentId);
-  }, []); // Ensure this runs only on the client side
+  }, []);
 
   const onSubmit = async (data: BankDetailsFormValues) => {
     try {
@@ -74,54 +77,98 @@ export default function BankDetails() {
             {errors.accountHolderName && <span className="text-red-500">{String(errors.accountHolderName.message)}</span>}
           </div>
 
+          {/* UPI ID */}
+          <div>
+            <label className="block font-normal">UPI ID</label>
+            <input
+              {...register("upi", {
+                required: "UPI ID is required",
+                pattern: {
+                  value: /^[\w.-]+@[\w.-]+$/,
+                  message: "Invalid UPI ID format",
+                },
+              })}
+              placeholder="Enter UPI ID"
+              className="border p-2 w-full rounded border-gray-600 placeholder-gray-500"
+            />
+            {errors.upi && <span className="text-red-500">{String(errors.upi.message)}</span>}
+          </div>
+          <div>
+            <label className="block font-normal">Confirm UPI ID</label>
+            <input
+              {...register("confirmUpi", {
+                required: "Confirm UPI ID is required",
+                validate: (value) => value === watch("upi") || "UPI IDs do not match",
+              })}
+              placeholder="Re-enter UPI ID"
+              className="border p-2 w-full rounded border-gray-600 placeholder-gray-500"
+            />
+            {errors.confirmUpi && <span className="text-red-500">{String(errors.confirmUpi.message)}</span>}
+          </div>
+
           {/* Account Number */}
-            <div>
+          <div>
             <label className="block font-normal">Account Number</label>
             <input
               {...register("accountNumber", {
-              required: "Account Number is required",
+                required: "Account Number is required",
               })}
               type="number"
               placeholder="Enter account number"
               className="border p-2 w-full rounded border-gray-600 placeholder-gray-500"
             />
             {errors.accountNumber && <span className="text-red-500">{String(errors.accountNumber.message)}</span>}
-            </div>
-
-            {/* Confirm Account Number */}
-            <div>
+          </div>
+          <div>
             <label className="block font-normal">Confirm Account Number</label>
             <input
               {...register("confirmAccountNumber", {
-              required: "Confirm Account Number is required",
-              validate: (value) => value === watch("accountNumber") || "Account numbers do not match",
+                required: "Confirm Account Number is required",
+                validate: (value) => value === watch("accountNumber") || "Account numbers do not match",
               })}
               type="number"
               placeholder="Re-enter account number"
               className="border p-2 w-full rounded border-gray-600 placeholder-gray-500"
             />
             {errors.confirmAccountNumber && <span className="text-red-500">{String(errors.confirmAccountNumber.message)}</span>}
-            </div>
+          </div>
+
           {/* IFSC Code */}
           <div>
             <label className="block font-normal">IFSC Code</label>
             <input
               {...register("ifscCode", {
                 required: "IFSC Code is required",
-                pattern: { value: /^[A-Z]{4}0[A-Z0-9]{6}$/, message: "Invalid IFSC Code format" },
+                pattern: {
+                  value: /^[A-Z]{4}0[A-Z0-9]{6}$/,
+                  message: "Invalid IFSC Code format",
+                },
               })}
               placeholder="Enter IFSC Code"
-              className="border p-2 w-full rounded uppercase border-gray-600 placeholder-gray-500"
+              className="border p-2 w-full rounded  border-gray-600 placeholder-gray-500"
             />
             {errors.ifscCode && <span className="text-red-500">{String(errors.ifscCode.message)}</span>}
           </div>
+          <div>
+            <label className="block font-normal">Confirm IFSC Code</label>
+            <input
+              {...register("confirmIfscCode", {
+                required: "Confirm IFSC Code is required",
+                validate: (value) => value === watch("ifscCode") || "IFSC codes do not match",
+              })}
+              placeholder="Re-enter IFSC Code"
+              className="border p-2 w-full rounded  border-gray-600 placeholder-gray-500"
+            />
+            {errors.confirmIfscCode && <span className="text-red-500">{String(errors.confirmIfscCode.message)}</span>}
+          </div>
 
           {/* Submit Button */}
-          <button 
-          onClick={handleSubmit(onSubmit)}
-           
-          type="submit" className="bg-blue-500 text-white p-2 rounded">
-            Submit
+          <button
+            disabled={isSubmitting}
+            type="submit"
+            className="bg-blue-500 text-white p-2 rounded"
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </form>

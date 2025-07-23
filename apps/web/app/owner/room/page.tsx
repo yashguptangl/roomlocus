@@ -6,43 +6,106 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { FormData } from "../../../types/formData";
-import Sample from "../../../assets/sample.jpg"
-import Image from "next/image"; 
+import Sample from "../../../assets/sample.jpg";
+import Image from "next/image";
 
 export default function RoomListingForm() {
   const router = useRouter();
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    getValues,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting },
   } = useForm<FormData>();
   const [selectedCity, setSelectedCity] = useState("");
   const [selectedTown, setSelectedTown] = useState("");
   const [token, setToken] = useState<string | null>(null);
   const [showSample, setShowSample] = useState(false);
 
-  const handleTownChange = (town: React.SetStateAction<string>) => {
-    setSelectedTown(town);
-  };
+  // OTP states
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpVerified, setOtpVerified] = useState(false);
 
-  const handleCityChange = (city: React.SetStateAction<string>) => {
-    setSelectedCity(city);
-    setSelectedTown(""); // Reset town/sector when city changes
-  };
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
   useEffect(() => {
     const token = localStorage.getItem("token");
     setToken(token);
-    console.log(token?.toString());
   }, []);
 
+  const handleTownChange = (town: string) => setSelectedTown(town);
+  const handleCityChange = (city: string) => {
+    setSelectedCity(city);
+    setSelectedTown("");
+  };
 
+  // Send OTP for listingShowNo
+  const handleSendOtp = async () => {
+    clearErrors("listingShowNo");
+    setOtpError(null);
+    setOtpVerified(false);
+    const mobile = getValues("listingShowNo");
+    if (!mobile || mobile.length !== 10 || !/^\d{10}$/.test(mobile)) {
+      setError("listingShowNo", { message: "Enter valid 10-digit contact number" });
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing-no-check/preverify/send-otp`,
+        { mobile }
+      );
+      setOtpSent(true);
+      alert(response.data.message || "OTP sent successfully to registered Whatsapp number");
+    } catch (error) {
+      setOtpError("Failed to send OTP. Try again.");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Verify OTP for listingShowNo
+  const handleVerifyOtp = async () => {
+    clearErrors("listingOtp");
+    setOtpError(null);
+    const mobile = getValues("listingShowNo");
+    const otp = getValues("listingOtp");
+    if (!otp || otp.length !== 4 || !/^\d{4}$/.test(otp)) {
+      setError("listingOtp", { message: "Enter 4-digit OTP" });
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing-no-check/preverify/verify-otp`,
+        { mobile, otp }
+      );
+      setOtpVerified(true);
+      alert(response.data.message || "Mobile verified successfully");
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        setOtpError(error.response.data?.message || "OTP verification failed");
+      } else {
+        setOtpError("OTP verification failed");
+      }
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  // Prevent form submission if OTP not verified
   const onSubmit = async (data: FormData): Promise<void> => {
-    setIsSubmitting(true);
+    if (!otpVerified) {
+      setError("listingShowNo", { message: "Please verify contact number with OTP before submitting." });
+      return;
+    }
     try {
       const formData = {
-        ...data, city: selectedCity, townSector: selectedTown,
+        ...data,
+        city: selectedCity,
+        townSector: selectedTown,
         maxprice: data.maxprice ? parseInt(data.maxprice) : undefined,
         minprice: data.minprice ? parseInt(data.minprice) : undefined,
         ageOfProperty: data.ageOfProperty ? parseInt(data.ageOfProperty) : undefined,
@@ -54,28 +117,23 @@ export default function RoomListingForm() {
         security: data.security ? parseInt(data.security) : undefined,
         maintenance: data.maintenance ? parseInt(data.maintenance) : undefined,
       };
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/room`,
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/room`,
         formData,
         {
           headers: {
-            'token': token,
+            token: token || "",
           },
-        },
+        }
       );
-      console.log(response);
       if (response.status === 201) {
         localStorage.setItem("roomId", response.data.room.id);
         router.push("/owner/room/images");
       }
     } catch (error) {
-      console.error("Error:", error);
       alert("Failed to list Room. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
-
-
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
@@ -95,30 +153,28 @@ export default function RoomListingForm() {
       {showSample && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
           <div className="bg-white rounded shadow-lg p-4 relative max-w-xs sm:max-w-md">
-        <button
-          type="button"
-          className="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl"
-          onClick={() => setShowSample(false)}
-          aria-label="Close"
-        >
-          &times;
-        </button>
-        <Image src={Sample.src} alt="Sample Listing" className="max-w-full max-h-[70vh] rounded" 
-        height={500}
-        width={500}
-        />
+            <button
+              type="button"
+              className="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl"
+              onClick={() => setShowSample(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+            <Image src={Sample.src} alt="Sample Listing" className="max-w-full max-h-[70vh] rounded"
+              height={500}
+              width={500}
+            />
           </div>
         </div>
       )}
-     
-      {/* Location and Details */}
-      <form onSubmit={handleSubmit(onSubmit)} >
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col gap-4 mt-2">
           {/* City ComboBox */}
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
             <label className="text-sm sm:text-xl">City</label>
             <ComboBox
-              options={Object.keys(citiesData)} // City options from citiesData (keys)
+              options={Object.keys(citiesData)}
               placeholder="City"
               onChange={handleCityChange}
             />
@@ -128,17 +184,16 @@ export default function RoomListingForm() {
           <div className="flex flex-col sm:flex-row sm:justify-between gap-2 sm:gap-4">
             <label className="text-sm sm:text-xl">Town & Sector</label>
             <ComboBox
-              options={citiesData[selectedCity] || []} // Filtered town/sector options based on selected city
+              options={citiesData[selectedCity] || []}
               placeholder="Town & Sector"
               onChange={handleTownChange}
             />
-            {errors.city && <span className="text-red-500 text-sm">Town & Sector is required</span>}
+            {errors.townSector && <span className="text-red-500 text-sm">Town & Sector is required</span>}
           </div>
         </div>
-
         <div className="flex flex-col gap-4 mt-4">
           {[
-            { label: "Area/Colony", name: "location", type: "text" },   // Area/Colony
+            { label: "Area/Colony", name: "location", type: "text" },
             { label: "Landmark", name: "landmark", type: "text" },
             { label: "Min Price Per Month", name: "minprice", type: "number" },
             { label: "Max Price Per Month", name: "maxprice", type: "number" },
@@ -150,12 +205,8 @@ export default function RoomListingForm() {
             { label: "Power Backup in hr", name: "powerBackup", type: "number" },
             { label: "Notice Period", name: "noticePeriod", type: "text" },
             { label: "Offer if any", name: "offer", type: "text" },
-            { label: "Contact Number", name: "listingShowNo", type: "text" },
           ].map(({ label, name, type }) => (
-            <div
-              key={name}
-              className="flex items-center gap-4"
-            >
+            <div key={name} className="flex items-center gap-4">
               <label htmlFor={name} className="text-sm w-1/3 sm:text-xl">
                 {label}
               </label>
@@ -170,18 +221,72 @@ export default function RoomListingForm() {
               {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
             </div>
           ))}
+          {/* Contact Number + OTP */}
+          <div className="flex items-center gap-2 flex-col justify-between ">
+            <div className="flex items-center gap-4 w-full">
+              <label htmlFor="listingShowNo" className="text-sm w-1/3 sm:text-xl">Whatsapp No</label>
+              <input
+                id="listingShowNo"
+                {...register("listingShowNo", { required: "Whatsapp Number is required" })}
+                name="listingShowNo"
+                className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+                placeholder="Enter Whatsapp number"
+                maxLength={10}
+              />
+            </div>
+
+            <div className="flex justify-end w-full">
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={otpLoading || otpVerified}
+                className="bg-blue-500 text-white px-2 py-1 text-xs rounded"
+              >
+                {otpLoading ? "Sending..." : otpVerified ? "Verified" : "Send OTP"}
+              </button>
+            </div>
+
+          </div>
+          {errors.listingShowNo && <span className="text-red-500 text-sm">{String(errors.listingShowNo?.message)}</span>}
+          {otpSent && !otpVerified && (
+            <div className="flex items-center justify-end gap-2 mt-2 flex-col">
+              <div className="flex justify-end w-full">
+                <input
+                  type="text"
+                  {...register("listingOtp", { required: "OTP is required" })}
+                  name="listingOtp"
+                  placeholder="Enter OTP"
+                  maxLength={4}
+                  className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+                />
+              </div>
+              <div className="flex justify-end w-full">
+                <button
+                  type="button"
+                  onClick={handleVerifyOtp}
+                  disabled={otpLoading}
+                  className="bg-green-500 text-white px-1 py-0.5 text-sm rounded ml-2"
+                >
+                  {otpLoading ? "Verifying..." : "Verify OTP"}
+                </button>
+              </div>
+
+            </div>
+          )}
+          {errors.listingOtp && <span className="text-red-500 text-sm">{String(errors.listingOtp?.message)}</span>}
+          {otpError && <span className="text-red-500 text-sm">{otpError}</span>}
+          {/* Contact Name */}
           <div className="flex items-center gap-4">
             <label htmlFor="careTaker" className="text-sm w-1/3 sm:text-xl">Contact Name</label>
             <input
               id="careTaker"
               {...register("careTaker", { required: "Contact Name is required" })}
               name="careTaker"
-              className="w-2/3  sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base resize-none placeholder-gray-500"
+              className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base resize-none placeholder-gray-500"
               placeholder="Contact Name"
             />
             {errors.careTaker && <span className="text-red-500 text-sm">{String(errors.careTaker?.message)}</span>}
           </div>
-
           {/* BHK Select */}
           <div className="flex items-center gap-4">
             <label htmlFor="Bhk" className="text-sm w-1/3 sm:text-xl">BHK</label>
@@ -192,18 +297,17 @@ export default function RoomListingForm() {
               className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base text-gray-500 placeholder-gray-500"
             >
               <option value="" className="text-gray-500">Select BHK</option>
-              {[1, 2, 3, 4, 5].map((bhk) => (
+                {["1 RK", "2 RK", "1", "2", "3", "4", "5"].map((bhk) => (
                 <option key={bhk} value={bhk} className="text-black">
-                  {bhk} BHK
+                  {typeof bhk === "string" && bhk.endsWith("RK") ? bhk : `${bhk} Bhk`}
                 </option>
               ))}
             </select>
             {errors.Bhk && <span className="text-red-500 text-sm">{String(errors.Bhk?.message)}</span>}
           </div>
-
           {/* Full Address Textarea */}
           <div className="flex items-center gap-4">
-            <label className="text-sm w-1/3 sm:text-xl" htmlFor="text-fill" >Full Address</label>
+            <label className="text-sm w-1/3 sm:text-xl" htmlFor="text-fill">Full Address</label>
             <textarea
               id="text-fill"
               {...register("adress")}
@@ -215,8 +319,6 @@ export default function RoomListingForm() {
             {errors.adress && <span className="text-red-500 text-sm">{String(errors.adress?.message)}</span>}
           </div>
         </div>
-
-
         {/* Radio Buttons */}
         {[
           {
@@ -258,7 +360,8 @@ export default function RoomListingForm() {
                     {...register(name as keyof FormData, { required: `${title} is required` })}
                     type="radio"
                     name={name}
-                    value={option} />
+                    value={option}
+                  />
                   {option}
                 </label>
               ))}
@@ -266,7 +369,7 @@ export default function RoomListingForm() {
             {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
           </div>
         ))}
-
+        {/* Checkboxes */}
         {[
           {
             title: "Parking",
@@ -303,7 +406,7 @@ export default function RoomListingForm() {
                 >
                   <input
                     {...register(name as keyof FormData)}
-                    type={isMultiple ? "checkbox" : "radio"} // Adjust type for multiple selections
+                    type={isMultiple ? "checkbox" : "radio"}
                     value={option}
                   />
                   {option}
@@ -315,20 +418,17 @@ export default function RoomListingForm() {
             )}
           </div>
         ))}
-
-
-
         {/* Submit and Cancel buttons */}
         <div className="flex justify-center sm:justify-start gap-4 mt-6">
           <button
             disabled={isSubmitting}
             type="submit"
             className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded"
-            onClick={handleSubmit(onSubmit)}
           >
             {isSubmitting ? "Next..." : "Next"}
           </button>
           <button
+            type="button"
             onClick={() => router.push("/owner/dashboard")}
             className="bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded"
           >
