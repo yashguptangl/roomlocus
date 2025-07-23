@@ -183,4 +183,11 @@ function Listing() {
   );
 }
 
-export default Listing;
+
+export default function NearMePage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
+      <Listing />
+    </Suspense>
+  );
+}

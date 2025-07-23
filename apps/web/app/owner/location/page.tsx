@@ -1,10 +1,9 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState , Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
 
-
-export default function LocationPage() {
+function LocationPage() {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
@@ -151,5 +150,14 @@ export default function LocationPage() {
         </>
       )}
     </main>
+  );
+}
+
+
+export default function LocationPageWrapper() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
+      <LocationPage />
+    </Suspense>
   );
 }
