@@ -346,6 +346,8 @@ enum Role {
 model Payment {
   id          String  @id @default(cuid())
   orderId     String  @unique
+  razorpayOrderId   String?  @unique
+  razorpayPaymentId String?  @unique
   listingId   String
   listingType String
   email       String
@@ -359,6 +361,8 @@ model Payment {
   listingShowNo String?
   leadCount   Int?
   leadPrice   Float?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 
