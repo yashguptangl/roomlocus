@@ -13,6 +13,7 @@ export interface ListingData {
     adress : string; 
     MinPrice: string,
     MaxPrice: string;
+    verificationPending: boolean;
     isLiveLocation: boolean;
     security: string;
     address: string;

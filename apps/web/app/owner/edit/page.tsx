@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -14,106 +14,128 @@ interface FormData {
   bedCount?: number;
   noOfGuests?: number;
   manager?: string;
-  otp?: string;
 }
 
 function EditFormContent() {
   const [token, setToken] = useState<string | null>(null);
-  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
-  const [originalShowNo, setOriginalShowNo] = useState<string | undefined>();
-  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
-  const [pendingData, setPendingData] = useState<FormData | null>(null);
+  const [otpVerified, setOtpVerified] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
 
   const router = useRouter();
-  const { register, handleSubmit, setValue, formState: { isSubmitting } } = useForm<FormData>();
+  const { register, handleSubmit, watch, formState: { isSubmitting } } = useForm<FormData>();
   const searchParams = useSearchParams();
 
   const listingType = searchParams.get("listingType");
   const listingId = searchParams.get("listingId");
 
-  // Fetch current listing details for last update and original contact number
+  // Set token on mount
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) setToken(token);
+    const t = localStorage.getItem("token");
+    if (t) setToken(t);
+  }, []);
 
-    if (listingId && listingType && token) {
-      fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/owner/get-listing?listingId=${listingId}&listingType=${listingType}`, {
-        headers: { token }
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.listing) {
-            setLastUpdate(data.listing.updatedByOwner || data.listing.updatedAt || null);
-            setOriginalShowNo(data.listing.listingShowNo);
-            // Pre-fill form fields
-            Object.keys(data.listing).forEach((key) => {
-              setValue(key as keyof FormData, data.listing[key]);
-            });
-          }
-        });
-    }
-  }, [listingId, listingType, setValue]);
+  // Watch listingShowNo field
+  const listingShowNo = watch("listingShowNo");
 
   // Send OTP via backend
-  const sendOtp = async (mobile: string) => {
+  const sendOtp = async () => {
     setSendingOtp(true);
+    setOtpError(null);
+    setOtp("");
+    setOtpVerified(false);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing-no-check/preverify/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile }),
+        body: JSON.stringify({ mobile: listingShowNo }),
       });
       const data = await res.json();
       if (res.ok) {
-        alert("OTP sent to your WhatsApp number.");
+        setOtpSent(true);
       } else {
-        alert(data.message || "Failed to send OTP");
-        setShowOtpModal(false);
+        setOtpError(data.message || "Failed to send OTP");
       }
     } catch (err) {
-      alert("Failed to send OTP");
-      setShowOtpModal(false);
+      setOtpError("Failed to send OTP");
     }
     setSendingOtp(false);
   };
 
   // Verify OTP via backend
-  const verifyOtp = async (mobile: string, otp: string) => {
+  const verifyOtp = async () => {
     setVerifyingOtp(true);
+    setOtpError(null);
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/v1/listing-no-check/preverify/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mobile, otp }),
+        body: JSON.stringify({ mobile: listingShowNo, otp }),
       });
       const data = await res.json();
       if (res.ok) {
-        return true;
+        setOtpVerified(true);
+        setOtpError(null);
       } else {
-        alert(data.message || "Invalid OTP");
-        return false;
+        setOtpVerified(false);
+        setOtpError(data.message || "Invalid OTP");
       }
     } catch (err) {
-      alert("Failed to verify OTP");
-      return false;
-    } finally {
-      setVerifyingOtp(false);
+      setOtpVerified(false);
+      setOtpError("Failed to verify OTP");
     }
+    setVerifyingOtp(false);
   };
+
+  function mapToDbFields(data: any) {
+    const mapping: Record<string, string> = {
+      minPrice: "MinPrice",
+      maxPrice: "MaxPrice",
+      offer: "Offer",
+      security: "security",
+      maintenance: "maintenance",
+      listingShowNo: "listingShowNo",
+      careTaker: "careTaker",
+      bedCount: "bedCount",
+      noOfGuests: "noOfGuests",
+      manager: "manager",
+      // add more if needed
+    };
+    const mapped: any = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined) {
+        mapped[mapping[key] || key] = value;
+      }
+    });
+    return mapped;
+  }
+
+  function cleanFormData(data: FormData) {
+    const cleaned: any = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (
+        ["security", "maintenance", "minPrice", "maxPrice", "bedCount", "noOfGuests"].includes(key)
+      ) {
+        cleaned[key] = value === "" || value === undefined ? undefined : Number(value);
+      } else {
+        cleaned[key] = value === "" ? undefined : value;
+      }
+    });
+    return cleaned;
+  }
 
   // Main submit handler
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    // If contact number is changed, require OTP
-    if (data.listingShowNo && data.listingShowNo !== originalShowNo) {
-      setPendingData(data);
-      setShowOtpModal(true);
-      await sendOtp(data.listingShowNo);
+    if (listingShowNo && otpSent && !otpVerified) {
+      setOtpError("Please verify your contact number with OTP before submitting.");
       return;
     }
-    await updateListing(data);
+    const cleanedData = cleanFormData(data);
+    const mappedData = mapToDbFields(cleanedData);
+    await updateListing(mappedData);
   };
 
   // Update listing API call
@@ -133,14 +155,7 @@ function EditFormContent() {
       });
 
       if (response.status === 200) {
-        const result = await response.json();
-        alert(
-          "Listing updated successfully." +
-            (result.lastUpdated
-              ? "\nLast updated: " +
-                new Date(result.lastUpdated).toLocaleString()
-              : "")
-        );
+        alert("Listing updated successfully.");
         router.push("/owner/dashboard");
       } else if (response.status === 403) {
         alert("You can only update listing once in 30 days");
@@ -150,209 +165,471 @@ function EditFormContent() {
         alert(result.message || "Update failed");
       }
     } catch (error) {
-      console.error("Error updating listing:", error);
+      alert("Server error");
     }
   };
 
-  // OTP modal submit
-  const handleOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!pendingData || !pendingData.listingShowNo) return;
-    const ok = await verifyOtp(pendingData.listingShowNo, otp);
-    if (ok) {
-      setShowOtpModal(false);
-      await updateListing({ ...pendingData, otp });
-    }
-  };
+  // --- Field blocks for each listing type ---
+  const flatFields = (
+    <>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Security</label>
+        <input
+          {...register("security")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Security"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Maintenance</label>
+        <input
+          {...register("maintenance")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Maintenance"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Offer</label>
+        <input
+          {...register("offer")}
+          type="text"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Offer"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Min Price Per Month</label>
+        <input
+          {...register("minPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Min Price"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Max Price Per Month</label>
+        <input
+          {...register("maxPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Max Price"
+        />
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm w-1/3 sm:text-xl">Contact Number</label>
+          <input
+            {...register("listingShowNo")}
+            type="text"
+            className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+            placeholder="Contact Number"
+            disabled={otpVerified}
+            autoComplete="off"
+          />
+        </div>
+        <div className="flex justify-end w-full">
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 bg-blue-500 text-white rounded text-xs"
+            disabled={sendingOtp || !listingShowNo || otpVerified}
+            onClick={sendOtp}
+          >
+            {sendingOtp ? "Sending..." : otpSent && !otpVerified ? "Resend OTP" : "Send OTP"}
+          </button>
+        </div>
+      </div>
+      {otpSent && !otpVerified && (
+        <div className="flex items-center justify-evenly gap-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+              placeholder="Enter OTP"
+              maxLength={6}
+              autoComplete="off"
+            />
+          </div>
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 text-xs bg-green-600 text-white rounded"
+            disabled={verifyingOtp || !otp}
+            onClick={verifyOtp}
+          >
+            {verifyingOtp ? "Verifying..." : "Verify"}
+          </button>
+        </div>
+      )}
+      {otpVerified && (
+        <div className="text-green-600 text-sm mt-1">Number verified ✔</div>
+      )}
+      {otpError && (
+        <div className="text-red-600 text-sm mt-1">{otpError}</div>
+      )}
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Name</label>
+        <input
+          {...register("careTaker")}
+          type="text"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Name"
+        />
+      </div>
+    </>
+  );
+  // --- PG fields ---
+  const pgFields = (
+    <>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Security</label>
+        <input
+          {...register("security")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Security"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Maintenance</label>
+        <input
+          {...register("maintenance")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Maintenance"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Min Price Per Month</label>
+        <input
+          {...register("minPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Min Price"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Max Price Per Month</label>
+        <input
+          {...register("maxPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Max Price"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Offer</label>
+        <input
+          {...register("offer")}
+          type="text"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Offer"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Bed Count</label>
+        <input
+          {...register("bedCount")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Bed Count"
+        />
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm w-1/3 sm:text-xl">Contact Number</label>
+          <input
+            {...register("listingShowNo")}
+            type="text"
+            className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+            placeholder="Contact Number"
+            disabled={otpVerified}
+            autoComplete="off"
+          />
+        </div>
+        <div className="flex justify-end w-full">
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 bg-blue-500 text-white rounded text-xs"
+            disabled={sendingOtp || !listingShowNo || otpVerified}
+            onClick={sendOtp}
+          >
+            {sendingOtp ? "Sending..." : otpSent && !otpVerified ? "Resend OTP" : "Send OTP"}
+          </button>
+        </div>
+      </div>
+      {otpSent && !otpVerified && (
+        <div className="flex items-center justify-evenly gap-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+              placeholder="Enter OTP"
+              maxLength={6}
+              autoComplete="off"
+            />
+          </div>
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 text-xs bg-green-600 text-white rounded"
+            disabled={verifyingOtp || !otp}
+            onClick={verifyOtp}
+          >
+            {verifyingOtp ? "Verifying..." : "Verify"}
+          </button>
+        </div>
+      )}
+      {otpVerified && (
+        <div className="text-green-600 text-sm mt-1">Number verified ✔</div>
+      )}
+      {otpError && (
+        <div className="text-red-600 text-sm mt-1">{otpError}</div>
+      )}
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Name</label>
+        <input
+          {...register("careTaker")}
+          type="text"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Name"
+        />
+      </div>
+    </>
+  );
+
+  // --- Room fields ---
+  const roomFields = (
+    <>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Security</label>
+        <input
+          {...register("security")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Security"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Maintenance</label>
+        <input
+          {...register("maintenance")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Maintenance"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Min Price Per Month</label>
+        <input
+          {...register("minPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Min Price"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Max Price Per Month</label>
+        <input
+          {...register("maxPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Max Price"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Offer</label>
+        <input
+          {...register("offer")}
+          type="text"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Offer"
+        />
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm w-1/3 sm:text-xl">Contact Number</label>
+          <input
+            {...register("listingShowNo")}
+            type="text"
+            className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+            placeholder="Contact Number"
+            disabled={otpVerified}
+            autoComplete="off"
+          />
+        </div>
+        <div className="flex justify-end w-full">
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 bg-blue-500 text-white rounded text-xs"
+            disabled={sendingOtp || !listingShowNo || otpVerified}
+            onClick={sendOtp}
+          >
+            {sendingOtp ? "Sending..." : otpSent && !otpVerified ? "Resend OTP" : "Send OTP"}
+          </button>
+        </div>
+      </div>
+      {otpSent && !otpVerified && (
+        <div className="flex items-center justify-evenly gap-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+              placeholder="Enter OTP"
+              maxLength={6}
+              autoComplete="off"
+            />
+          </div>
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 text-xs bg-green-600 text-white rounded"
+            disabled={verifyingOtp || !otp}
+            onClick={verifyOtp}
+          >
+            {verifyingOtp ? "Verifying..." : "Verify"}
+          </button>
+        </div>
+      )}
+      {otpVerified && (
+        <div className="text-green-600 text-sm mt-1">Number verified ✔</div>
+      )}
+      {otpError && (
+        <div className="text-red-600 text-sm mt-1">{otpError}</div>
+      )}
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Name</label>
+        <input
+          {...register("careTaker")}
+          type="text"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Name"
+        />
+      </div>
+    </>
+  );
+
+  // --- Hourly Room fields ---
+  const hourlyFields = (
+    <>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Min Price Per Night</label>
+        <input
+          {...register("minPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Min Price"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Max Price Per Night</label>
+        <input
+          {...register("maxPrice")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Max Price"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Number of Guests</label>
+        <input
+          {...register("noOfGuests")}
+          type="number"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Guests"
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="text-sm w-1/3 sm:text-xl">Manager Name</label>
+        <input
+          {...register("manager")}
+          type="text"
+          className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+          placeholder="Manager Name"
+        />
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm w-1/3 sm:text-xl">Manager Contact</label>
+          <input
+            {...register("listingShowNo")}
+            type="text"
+            className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+            placeholder="Manager Contact"
+            disabled={otpVerified}
+            autoComplete="off"
+          />
+        </div>
+        <div className="flex justify-end w-full">
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 bg-blue-500 text-white rounded text-xs"
+            disabled={sendingOtp || !listingShowNo || otpVerified}
+            onClick={sendOtp}
+          >
+            {sendingOtp ? "Sending..." : otpSent && !otpVerified ? "Resend OTP" : "Send OTP"}
+          </button>
+        </div>
+      </div>
+      {otpSent && !otpVerified && (
+        <div className="flex items-center justify-evenly gap-2">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              className="w-2/3 sm:w-[18rem] border border-gray-600 rounded p-1.5 placeholder-gray-500"
+              placeholder="Enter OTP"
+              maxLength={6}
+              autoComplete="off"
+            />
+          </div>
+          <button
+            type="button"
+            className="ml-2 px-1 py-0.5 text-xs bg-green-600 text-white rounded"
+            disabled={verifyingOtp || !otp}
+            onClick={verifyOtp}
+          >
+            {verifyingOtp ? "Verifying..." : "Verify"}
+          </button>
+        </div>
+      )}
+      {otpVerified && (
+        <div className="text-green-600 text-sm mt-1">Number verified ✔</div>
+      )}
+      {otpError && (
+        <div className="text-red-600 text-sm mt-1">{otpError}</div>
+      )}
+    </>
+  );
 
   return (
     <div className="max-w-2xl mx-auto p-4 sm:p-6 md:p-8 lg:p-10">
       <h2 className="text-xl sm:text-3xl font-semibold text-blue-500 mb-4 text-center">
-        Edit {listingType?.toString()} Details
+        Edit {listingType ? listingType.charAt(0).toUpperCase() + listingType.slice(1).toLowerCase() : " "} Details
       </h2>
-      {lastUpdate && (
-        <div className="text-center text-gray-600 mb-2">
-          Last updated: {new Date(lastUpdate).toLocaleString()}
-        </div>
-      )}
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Conditional Fields based on listingType */}
-        {listingType === "flat" && (
-          <div className="flex flex-col gap-4 mt-4">
-            {[
-              { label: "Security", name: "security", type: "number" },
-              { label: "Maintenance", name: "maintenance", type: "number" },
-              { label: "Offer if any", name: "offer", type: "text" },
-              { label: "Min Price Per Month", name: "minPrice", type: "number" },
-              { label: "Max Price Per Month", name: "maxPrice", type: "number" },
-              { label: "Contact Number", name: "listingShowNo", type: "text" },
-            ].map(({ label, name, type }) => (
-              <div key={name} className="flex items-center gap-4">
-                <label className="text-sm w-1/3 sm:text-xl">{label}</label>
-                <input
-                  {...register(name as keyof FormData)}
-                  type={type}
-                  className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base"
-                />
-              </div>
-            ))}
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-1/3 sm:text-xl">Care Taker</label>
-              <input
-                {...register("careTaker")}
-                className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base"
-                placeholder="Name if any"
-              />
-            </div>
-          </div>
-        )}
-
-        {listingType === "pg" && (
-          <div className="flex flex-col gap-4 mt-4">
-            {[
-              { label: "Security", name: "security", type: "number" },
-              { label: "Maintenance", name: "maintenance", type: "number" },
-              { label: "Min Price Per Month", name: "minPrice", type: "number" },
-              { label: "Max Price Per Month", name: "maxPrice", type: "number" },
-              { label: "Offer if any", name: "offer", type: "text" },
-              { label: "Bed Count", name: "bedCount", type: "number" },
-              { label: "Contact Number", name: "listingShowNo", type: "text" },
-            ].map(({ label, name, type }) => (
-              <div key={name} className="flex items-center gap-4">
-                <label className="text-sm w-1/3 sm:text-xl">{label}</label>
-                <input
-                  {...register(name as keyof FormData)}
-                  type={type}
-                  className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base"
-                />
-              </div>
-            ))}
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-1/3 sm:text-xl">Care Taker</label>
-              <input
-                {...register("careTaker")}
-                className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base"
-                placeholder="Name if any"
-              />
-            </div>
-          </div>
-        )}
-
-        {listingType === "room" && (
-          <div className="flex flex-col gap-4 mt-4">
-            {[
-              { label: "Security", name: "security", type: "number" },
-              { label: "Maintenance", name: "maintenance", type: "number" },
-              { label: "Min Price Per Month", name: "minPrice", type: "number" },
-              { label: "Max Price Per Month", name: "maxPrice", type: "number" },
-              { label: "Offer if any", name: "offer", type: "text" },
-              { label: "Contact Number", name: "listingShowNo", type: "text" },
-            ].map(({ label, name, type }) => (
-              <div key={name} className="flex items-center gap-4">
-                <label className="text-sm w-1/3 sm:text-xl">{label}</label>
-                <input
-                  {...register(name as keyof FormData)}
-                  type={type}
-                  className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base"
-                />
-              </div>
-            ))}
-            <div className="flex items-center gap-4">
-              <label className="text-sm w-1/3 sm:text-xl">Care Taker</label>
-              <input
-                {...register("careTaker")}
-                className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base"
-                placeholder="Name if any"
-              />
-            </div>
-          </div>
-        )}
-
-        {listingType === "hourlyroom" && (
-          <div className="flex flex-col gap-4 mt-4">
-            {[
-              { label: "Min Price Per Night", name: "minPrice", type: "number" },
-              { label: "Max Price Per Night", name: "maxPrice", type: "number" },
-              { label: "Number of Guests", name: "noOfGuests", type: "number" },
-              { label: "Manager Name", name: "manager", type: "text" },
-              { label: "Manager Contact", name: "listingShowNo", type: "text" },
-            ].map(({ label, name, type }) => (
-              <div key={name} className="flex items-center gap-4">
-                <label className="text-sm w-1/3 sm:text-xl">{label}</label>
-                <input
-                  {...register(name as keyof FormData)}
-                  type={type}
-                  className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base"
-                />
-              </div>
-            ))}
-          </div>
-        )}
+        {listingType === "flat" && <div className="flex flex-col gap-4 mt-4">{flatFields}</div>}
+        {listingType === "pg" && <div className="flex flex-col gap-4 mt-4">{pgFields}</div>}
+        {listingType === "room" && <div className="flex flex-col gap-4 mt-4">{roomFields}</div>}
+        {listingType === "hourlyroom" && <div className="flex flex-col gap-4 mt-4">{hourlyFields}</div>}
 
         <div className="flex justify-center mt-6">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || (!!listingShowNo && otpSent && !otpVerified)}
             className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded"
           >
             {isSubmitting ? "Updating..." : "Update"}
           </button>
         </div>
-      </form>
 
-      {/* OTP Modal */}
-      {showOtpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <form
-            onSubmit={handleOtpSubmit}
-            className="bg-white rounded-lg shadow-lg p-6 w-80 flex flex-col items-center relative"
-          >
-            <h2 className="text-xl font-semibold mb-2 text-center text-blue-600">OTP Verification</h2>
-            <p className="text-gray-700 text-sm mb-4 text-center">
-              Enter the OTP sent to your WhatsApp number.
-            </p>
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              className="w-full border border-gray-400 rounded p-2 mb-4"
-              placeholder="Enter OTP"
-              maxLength={6}
-              required
-            />
-            <button
-              type="submit"
-              disabled={verifyingOtp}
-              className="bg-green-600 text-white px-6 py-2 rounded"
-            >
-              {verifyingOtp ? "Verifying..." : "Verify & Update"}
-            </button>
-            <button
-              type="button"
-              disabled={sendingOtp}
-              className="mt-2 text-blue-500 underline"
-              onClick={() => pendingData?.listingShowNo && sendOtp(pendingData.listingShowNo)}
-            >
-              {sendingOtp ? "Resending..." : "Resend OTP"}
-            </button>
-            <button
-              type="button"
-              className="absolute top-2 right-4 text-gray-600 text-2xl"
-              onClick={() => setShowOtpModal(false)}
-            >
-              ×
-            </button>
-          </form>
-        </div>
-      )}
+      </form>
     </div>
   );
 }
-
-export default function Edit() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EditFormContent />
-    </Suspense>
-  );
-}
+export default EditFormContent;

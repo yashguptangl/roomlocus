@@ -130,8 +130,8 @@ function Listing() {
                           <Image
                             src={listing.isVerified ? Verified : Unverified}
                             alt={listing.isVerified ? "Verified" : "Not Verified"}
-                            width={120}
-                            height={120}
+                            width={100}
+                            height={100}
                             className="rounded-full "
                           />
                         </div>

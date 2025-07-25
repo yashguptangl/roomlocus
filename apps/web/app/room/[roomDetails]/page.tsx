@@ -256,8 +256,8 @@ export default function ListingDetail() {
                     <Image
                       src={listing.isVerified ? Verified : Unverified}
                       alt={listing.isVerified ? "Verified" : "Not Verified"}
-                      width={150}
-                      height={150}
+                      width={120}
+                      height={120}
                       className="inline-block mr-2"
                     />
                   </div>

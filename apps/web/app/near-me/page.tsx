@@ -88,20 +88,21 @@ function Listing() {
               
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {listings
-              .filter((listing) => {
-                  const text = searchText.toLowerCase();
-                  return (
-                    listing.location.toLowerCase().includes(text) ||
-                    listing.landmark.toLowerCase().includes(text) ||
-                    listing.city.toLowerCase().includes(text) ||
-                    listing.townSector.toLowerCase().includes(text)
-                  );
-                })
+              .filter(
+                (listing) =>
+                !listing.verificationPending && // Only show if verificationPending is false
+                (
+                  listing.location.toLowerCase().includes(searchText.toLowerCase()) ||
+                  listing.landmark.toLowerCase().includes(searchText.toLowerCase()) ||
+                  listing.city.toLowerCase().includes(searchText.toLowerCase()) ||
+                  listing.townSector.toLowerCase().includes(searchText.toLowerCase())
+                )
+              )
               .map((listing) => (
                 <div
-                  key={listing.id}
-                  onClick={() => handleListingClick(listing)}
-                  className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer mt-2"
+                key={listing.id}
+                onClick={() => handleListingClick(listing)}
+                className="relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer mt-2"
                 >
                   <div className="relative w-full h-40">
                     <Image
@@ -120,8 +121,8 @@ function Listing() {
                             alt={
                               listing.isVerified ? "Verified" : "Not Verified"
                             }
-                            width={120}
-                            height={120}
+                            width={100}
+                            height={100}
                             className="rounded-full "
                           />
                     </div>

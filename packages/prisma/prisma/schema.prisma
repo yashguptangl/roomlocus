@@ -244,7 +244,7 @@ model hourlyInfo {
     roomType        String
     roomInside      String[]
     roomOutside     String[]
-    manager         String
+    manager         String?
     listingShowNo   String
     latitude            Decimal   @default(0)
     longitude           Decimal   @default(0)
