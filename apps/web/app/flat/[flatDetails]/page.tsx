@@ -349,7 +349,9 @@ export default function ListingDetail() {
                   </div>
                   <div>
                     <p className="text-blue-300 font-semibold">Type</p>
-                    <p className="font-normal">{listing.BHK} BHK {listing.Type}</p>
+                    {listing.BHK === "1 RK" || listing.BHK === "2 RK"
+                              ? `${listing.BHK} | ${listing.Type} `
+                              : `${listing.BHK} BHK | ${listing.Type}`}
                   </div>
                   <div>
                     <p className="text-blue-300 font-semibold">Furnishing</p>

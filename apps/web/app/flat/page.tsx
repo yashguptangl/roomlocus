@@ -145,7 +145,9 @@ function Listing() {
                         </h3>
                         <div className="mt-0.5 flex justify-start gap-8 md:gap-16 items-center">
                           <p className="text-xs md:text-sm text-gray-600">
-                            {listing.BHK} BHK
+                            {listing.BHK === "1 RK" || listing.BHK === "2 RK"
+                              ? `${listing.BHK} | ${listing.Type} `
+                              : `${listing.BHK} BHK | ${listing.Type}`}
                           </p>
                           <p className="text-lg font-semibold text-green-600 text-center">
                             ₹{listing.MinPrice.toLocaleString()} - ₹

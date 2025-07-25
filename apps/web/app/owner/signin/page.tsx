@@ -102,7 +102,7 @@ export default function LoginSignUp() {
                                         type="text"
                                         id="mobile"
                                         {...register("mobile")}
-                                        placeholder="Whatsapp No."
+                                        placeholder="Number"
                                         className="w-full pl-8 p-2 border border-gray-600 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-600"
                                     />
                                 </div>

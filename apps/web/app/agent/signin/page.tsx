@@ -81,7 +81,7 @@ export default function LoginSignup() {
                 <input
                   type="text"
                   id="mobile"
-                  placeholder="Whatsapp No."
+                  placeholder="Number"
                   {...register("mobile")}
                   className={`w-full pl-8 p-2 border border-gray-600 rounded mt-1 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500`}
                 />
