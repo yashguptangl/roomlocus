@@ -385,7 +385,7 @@ export default function Dashboard() {
             <p className="text-lg">Lead Left: {points}</p>
             <button
               onClick={() => setShowModal(true)}
-              className="p-2 bg-green-600 rounded-md ssm:p-1 ssm:text-xs md:p-2 md:text-sm"
+              className="p-2 bg-green-600 text-white rounded-md ssm:p-1 ssm:text-xs md:p-2 md:text-sm"
             >
               Buy Lead
             </button>

@@ -140,7 +140,7 @@ function Listing() {
                       {/* Text Part */}
                       <div className="px-4 py-1">
                         <h3 className="text-base text-center font-normal text-gray-800 line-clamp-2">
-                          {listing.location}, {listing.landmark}
+                          {`${listing.location}, ${listing.landmark}`.replace(/\b\w/g, (char) => char.toUpperCase())}
                         </h3>
                         <div className="mt-0.5 flex justify-start gap-8 md:gap-16 items-center">
                           <p className="text-xs md:text-sm text-gray-600">

@@ -137,13 +137,13 @@ function Listing() {
                       {/* Text Part */}
                       <div className="px-4 py-1">
                         <h3 className="text-base text-center font-normal text-gray-800 line-clamp-2">
-                          {listing.location}, {listing.landmark}
+                          {`${listing.location}, ${listing.landmark}`.replace(/\b\w/g, (char) => char.toUpperCase())}
                         </h3>
                         <div className="mt-0.5 flex justify-start gap-8 md:gap-16 items-center">
                           <p className="text-xs md:text-sm text-gray-600">
                             {listing.BHK === "1 RK" || listing.BHK === "2 RK"
                               ? `${listing.BHK} | ${listing.Type} `
-                              : `${listing.BHK} BHK | ${listing.Type}`}
+                              : `${listing.BHK} BHK`}
                           </p>
                           <p className="text-lg font-semibold text-green-600 text-center">
                             ₹{listing.MinPrice.toLocaleString()} - ₹

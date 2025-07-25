@@ -342,7 +342,7 @@ export default function ListingDetail() {
           <div className="flex-1 p-4 space-y-4">
             <div>
               <h1 className="text-xl font-semibold text-gray-800">
-                {listing.adress}
+                {listing.adress.replace(/\b\w/g, char => char.toUpperCase())}
               </h1>
 
               <h2 className="text-xl font-semibold text-center text-green-600 my-2">

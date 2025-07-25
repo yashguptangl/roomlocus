@@ -31,8 +31,10 @@ export default function OwnerGuide() {
                         <li className="text-sm sm:text-base text-blue-400 text-justify">
                             Property verification is an annual process and will be renewed every year. After one year, a verified property will automatically become not verified. Upon annual fee payment, the property will be re-verified by the agent and become verified again.
                         </li>
-                        <li>The commission shown in the agent's wallet is transferred to their UPI or bank account once a week.</li>
-                        <li>
+                        <li className="text-sm sm:text-base text-blue-400 text-justify">
+                            The commission shown in the agent's wallet is transferred to their UPI or bank account once a week.
+                        </li>
+                        <li className="text-sm sm:text-base text-blue-400 text-justify">
                             A 5% charge is deducted from the commission amount shown in the wallet during withdrawal.
                         </li>
                         <h3 className="font-semibold text-black">How to talk to the owner while verifying their property:</h3> 
@@ -54,8 +56,10 @@ export default function OwnerGuide() {
                         <li className="text-sm sm:text-base text-blue-400 text-justify">
                             प्रॉपर्टी वेरिफिकेशन एक वार्षिक प्रक्रिया है, जो प्रति वर्ष रिन्यू की जाएगी। एक वर्ष बाद Verified प्रॉपर्टी अपने आप Not Verified हो जाएगी। वार्षिक फीस पेमेंट करने पर Agent द्वारा वेरिफिकेशन करके पुनः verified हो जाएगी।
                         </li>
-                         <li>एजेंट के वॉलेट में दर्शाया गया कमिशन हफ्ते में एक बार उसके यूपीआई या अकाउंट में ट्रांसफर किया जाता है</li>
-                        <li>
+                         <li className="text-sm sm:text-base text-blue-400 text-justify">
+                            एजेंट के वॉलेट में दर्शाया गया कमिशन हफ्ते में एक बार उसके यूपीआई या अकाउंट में ट्रांसफर किया जाता है
+                        </li>
+                        <li className="text-sm sm:text-base text-blue-400 text-justify">
                             वॉलेट में दिखाए गए कमीशन अमाउंट से निकासी के समय 5% चार्ज काटा जाता है।
                         </li>
 

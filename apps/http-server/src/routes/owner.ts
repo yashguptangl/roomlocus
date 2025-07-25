@@ -201,7 +201,6 @@ ownerRouter.post("/login", async (req: Request, res: Response) => {
     }
 });
 
-
 //FORGOT PASSWORD ROUTE
 ownerRouter.post("/forgot-password", async (req: Request, res: Response) => {
     try {

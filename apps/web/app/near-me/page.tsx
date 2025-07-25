@@ -145,7 +145,9 @@ function Listing() {
                         </>
                     ) : (
                         <p className="text-xs md:text-sm text-gray-600">
-                            {listing.BHK} Bhk {listing.Type.charAt(0).toUpperCase() + listing.Type.slice(1)}
+                            {listing.BHK === "1 RK" || listing.BHK === "2 RK"
+                              ? `${listing.BHK} | ${listing.Type} `
+                              : `${listing.BHK} BHK | ${listing.Type}`}
                         </p>
                         
                     )}

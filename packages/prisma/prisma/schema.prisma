@@ -348,8 +348,8 @@ model Payment {
   orderId     String  @unique
   razorpayOrderId   String?  @unique
   razorpayPaymentId String?  @unique
-  listingId   String
-  listingType String
+  listingId   String?
+  listingType String?
   email       String
   phone       String
   amount      Float
