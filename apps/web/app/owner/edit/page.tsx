@@ -632,4 +632,11 @@ function EditFormContent() {
     </div>
   );
 }
-export default EditFormContent;
+
+export default function EditPage() {
+  return (
+    <Suspense>
+      <EditFormContent />
+    </Suspense>
+  );
+}
