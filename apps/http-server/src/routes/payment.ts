@@ -14,7 +14,7 @@ const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_SECRET!;
 const SUCCESS_URL = process.env.SUCCESS_URL!;
 const OWNER_DASHBOARD_URL = process.env.OWNER_DASHBOARD_URL!;
 const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET!;
-console.log("Razorpay Key ID:", RAZORPAY_WEBHOOK_SECRET);
+
 const razorpay = new Razorpay({
   key_id: RAZORPAY_KEY_ID,
   key_secret: RAZORPAY_KEY_SECRET,
@@ -262,15 +262,7 @@ paymentRouter.post(
       const expectedSignature = crypto
         .createHmac("sha256", RAZORPAY_WEBHOOK_SECRET)
         .update(body)
-        .digest("base64");
-
-      // Check if the signature matches
-      console.log("Received signature:", signature);
-      console.log("Expected signature:", expectedSignature);
-
-      console.log("env:", process.env.RAZORPAY_WEBHOOK_SECRET);
-      console.log("used in HMAC:", RAZORPAY_WEBHOOK_SECRET);
-      
+        .digest("base64");      
 
 
       if (expectedSignature !== signature) {
