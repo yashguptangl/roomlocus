@@ -234,6 +234,8 @@ export default function PGListingForm() {
                 className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
                 placeholder="Enter Whatsapp number"
                 maxLength={10}
+                disabled={otpVerified}
+                readOnly={otpVerified}
               />
             </div>
 
@@ -241,7 +243,7 @@ export default function PGListingForm() {
               <button
                 type="button"
                 onClick={handleSendOtp}
-                disabled={otpLoading || otpVerified}
+                disabled={otpVerified || otpLoading}
                 className="bg-blue-500 text-white px-2 py-1 text-xs rounded"
               >
                 {otpLoading ? "Sending..." : otpVerified ? "Verified" : "Send OTP"}
@@ -260,13 +262,15 @@ export default function PGListingForm() {
                   placeholder="Enter OTP"
                   maxLength={4}
                   className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+                  disabled={otpVerified}
+                  readOnly={otpVerified}
                 />
               </div>
               <div className="flex justify-end w-full">
                 <button
                   type="button"
                   onClick={handleVerifyOtp}
-                  disabled={otpLoading}
+                  disabled={otpLoading || otpVerified}
                   className="bg-green-500 text-white px-1 py-0.5 text-sm rounded ml-2"
                 >
                   {otpLoading ? "Verifying..." : "Verify OTP"}

@@ -130,7 +130,7 @@ ownerDashboard.post("/publish", authenticate, async (req: AuthenticatedRequest, 
             return;
         }
 
-        res.status(200).json({ message: `Property is visible to customers : ${!isVisible}` });
+        res.status(200).json({ message: `Property is ${isVisible ? "on" : "off"}` });
         return;
     } catch (error) {
         console.error("Error updating listing visibility:", error);

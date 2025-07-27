@@ -227,6 +227,7 @@ function EditFormContent() {
             placeholder="Contact Number"
             disabled={otpVerified}
             autoComplete="off"
+            readOnly={otpVerified}
           />
         </div>
         <div className="flex justify-end w-full">
@@ -347,6 +348,7 @@ function EditFormContent() {
             placeholder="Contact Number"
             disabled={otpVerified}
             autoComplete="off"
+            readOnly={otpVerified}
           />
         </div>
         <div className="flex justify-end w-full">
@@ -459,6 +461,7 @@ function EditFormContent() {
             placeholder="Contact Number"
             disabled={otpVerified}
             autoComplete="off"
+            readOnly={otpVerified}
           />
         </div>
         <div className="flex justify-end w-full">
@@ -562,6 +565,7 @@ function EditFormContent() {
             placeholder="Manager Contact"
             disabled={otpVerified}
             autoComplete="off"
+            readOnly={otpVerified}
           />
         </div>
         <div className="flex justify-end w-full">

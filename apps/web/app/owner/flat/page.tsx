@@ -216,60 +216,62 @@ export default function FlatListingForm() {
               />
               {errors[name as keyof FormData] && <span className="text-red-500 text-sm">{String(errors[name as keyof FormData]?.message)}</span>}
             </div>
-          ))}<div className="flex items-center gap-2 flex-col justify-between ">
+          ))}
+            <div className="flex items-center gap-2 flex-col justify-between ">
             <div className="flex items-center gap-4 w-full">
-              <label htmlFor="listingShowNo" className="text-sm w-1/3 sm:text-xl">Whatsapp No</label>
+              <label htmlFor="listingShowNo" className="text-sm w-1/3 sm:text-xl">WhatsApp No</label>
               <input
-                id="listingShowNo"
-                {...register("listingShowNo", { required: "Whatsapp Number is required" })}
-                name="listingShowNo"
-                className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
-                placeholder="Enter Whatsapp number"
-                maxLength={10}
+              id="listingShowNo"
+              {...register("listingShowNo", { required: "WhatsApp Number is required" })}
+              name="listingShowNo"
+              className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+              placeholder="Enter Whatsapp number"
+              maxLength={10}
+              disabled={otpVerified}
+              readOnly={otpVerified}
               />
             </div>
 
             <div className="flex justify-end w-full">
               <button
-                type="button"
-                onClick={handleSendOtp}
-                disabled={otpLoading || otpVerified}
-                className="bg-blue-500 text-white px-2 py-1 text-xs rounded"
+              type="button"
+              onClick={handleSendOtp}
+              disabled={otpLoading || otpVerified}
+              className="bg-blue-500 text-white px-2 py-1 text-xs rounded"
               >
-                {otpLoading ? "Sending..." : otpVerified ? "Verified" : "Send OTP"}
+              {otpLoading ? "Sending..." : otpVerified ? "Verified" : "Send OTP"}
               </button>
             </div>
-
-          </div>
-          {errors.listingShowNo && <span className="text-red-500 text-sm">{String(errors.listingShowNo?.message)}</span>}
-          {otpSent && !otpVerified && (
+            </div>
+            {errors.listingShowNo && <span className="text-red-500 text-sm">{String(errors.listingShowNo?.message)}</span>}
+            {otpSent && !otpVerified && (
             <div className="flex items-center justify-end gap-2 mt-2 flex-col">
               <div className="flex justify-end w-full">
-                <input
-                  type="text"
-                  {...register("listingOtp", { required: "OTP is required" })}
-                  name="listingOtp"
-                  placeholder="Enter OTP"
-                  maxLength={4}
-                  className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
-                />
+              <input
+                type="text"
+                {...register("listingOtp", { required: "OTP is required" })}
+                name="listingOtp"
+                placeholder="Enter OTP"
+                maxLength={4}
+                className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+                disabled={otpVerified}
+                readOnly={otpVerified}
+              />
               </div>
               <div className="flex justify-end w-full">
-                <button
-                  type="button"
-                  onClick={handleVerifyOtp}
-                  disabled={otpLoading}
-                  className="bg-green-500 text-white px-1 py-0.5 text-sm rounded ml-2"
-                >
-                  {otpLoading ? "Verifying..." : "Verify OTP"}
-                </button>
+              <button
+                type="button"
+                onClick={handleVerifyOtp}
+                disabled={otpLoading || otpVerified}
+                className="bg-green-500 text-white px-1 py-0.5 text-sm rounded ml-2"
+              >
+                {otpLoading ? "Verifying..." : "Verify OTP"}
+              </button>
               </div>
-
             </div>
-          )}
-          {errors.listingOtp && <span className="text-red-500 text-sm">{String(errors.listingOtp?.message)}</span>}
-          {otpError && <span className="text-red-500 text-sm">{otpError}</span>}
-          {/* Contact Name */}
+            )}
+            {errors.listingOtp && <span className="text-red-500 text-sm">{String(errors.listingOtp?.message)}</span>}
+            {otpError && <span className="text-red-500 text-sm">{otpError}</span>}{/* Contact Name */}
           <div className="flex items-center gap-4">
             <label htmlFor="careTaker" className="text-sm w-1/3 sm:text-xl">Contact Name</label>
             <input
@@ -281,6 +283,7 @@ export default function FlatListingForm() {
             />
             {errors.careTaker && <span className="text-red-500 text-sm">{String(errors.careTaker?.message)}</span>}
           </div>
+
           <div className="flex items-center gap-4">
             <label htmlFor="Bhk" className="text-sm w-1/3 sm:text-xl">BHK</label>
             <select

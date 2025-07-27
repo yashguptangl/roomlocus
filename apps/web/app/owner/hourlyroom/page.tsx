@@ -218,7 +218,7 @@ export default function RoomDayNightForm() {
           ))}
           <div className="flex items-center gap-2 flex-col justify-between ">
             <div className="flex items-center gap-4 w-full">
-              <label htmlFor="listingShowNo" className="text-sm w-1/3 sm:text-xl">Whatsapp No</label>
+              <label htmlFor="listingShowNo" className="text-sm w-1/3 sm:text-xl">WhatsApp No</label>
               <input
                 id="listingShowNo"
                 {...register("listingShowNo", { required: "Whatsapp Number is required" })}
@@ -226,6 +226,8 @@ export default function RoomDayNightForm() {
                 className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
                 placeholder="Enter Whatsapp number"
                 maxLength={10}
+                disabled={otpVerified}
+                readOnly={otpVerified}
               />
             </div>
 
@@ -252,13 +254,15 @@ export default function RoomDayNightForm() {
                   placeholder="Enter OTP"
                   maxLength={4}
                   className="w-2/3 sm:w-[24rem] border border-gray-600 rounded p-1.5 text-sm sm:text-base placeholder-gray-500"
+                  disabled={otpVerified}
+                  readOnly={otpVerified}
                 />
               </div>
               <div className="flex justify-end w-full">
                 <button
                   type="button"
                   onClick={handleVerifyOtp}
-                  disabled={otpLoading}
+                  disabled={otpLoading || otpVerified}
                   className="bg-green-500 text-white px-1 py-0.5 text-sm rounded ml-2"
                 >
                   {otpLoading ? "Verifying..." : "Verify OTP"}

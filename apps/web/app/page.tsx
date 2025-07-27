@@ -39,6 +39,10 @@ export default function Home() {
   };
 
   const handleSearch = () => {
+    if(!lookingFor || !selectedCity || !selectedTownSector) {
+      alert("Please select all fields");
+      return;
+    }
     router.push(`/${lookingFor}?look=${lookingFor}&city=${selectedCity}&townSector=${selectedTownSector}`);
   };
 

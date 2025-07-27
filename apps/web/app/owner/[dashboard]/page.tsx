@@ -370,6 +370,13 @@ export default function Dashboard() {
       alert("An error occurred while deleting the listing");
     }
   };
+  const toTitleCase = (str : string) => {
+  return str
+    .trim()                              // Remove leading/trailing spaces
+    .replace(/\s+/g, ' ')                // Replace multiple spaces with single space
+    .toLowerCase()                       // Convert everything to lowercase first (optional)
+    .replace(/\b\w/g, char => char.toUpperCase());  // Capitalize first letter of each word
+};
 
   return (
     <>
@@ -563,7 +570,7 @@ export default function Dashboard() {
                     </div>
                     <div className="flex justify-between items-center px-3 py-1">
                       <p className="ssm:text-base md:text-base ">
-                        {listing.location}, {listing.townSector}, {listing.city}
+                        {toTitleCase(`${listing.location}, ${listing.townSector}, ${listing.city}`)}
                       </p>
                       <Menu as="div" className="relative inline-block text-left">
                         <Menu.Button className="inline-flex justify-center w-full rounded-md bg-gray-200 px-2 py-1 text-sm font-medium text-gray-700 hover:bg-gray-300">
@@ -669,8 +676,8 @@ export default function Dashboard() {
                       </p>
                       <p className="text-sm ">
                         {listing.isVisible
-                          ? "Property is visible to customers"
-                          : "Property is not visible to customers"}
+                          ? "Property is on"
+                          : "Property is off"}
                       </p>
 
                       <button

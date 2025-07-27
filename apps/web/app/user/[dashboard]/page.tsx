@@ -127,6 +127,14 @@ export default function UserDashboard() {
     );
   }
 
+  const toTitleCase = (str : string) => {
+  return str
+    .trim()                              // Remove leading/trailing spaces
+    .replace(/\s+/g, ' ')                // Replace multiple spaces with single space
+    .toLowerCase()                       // Convert everything to lowercase first (optional)
+    .replace(/\b\w/g, char => char.toUpperCase());  // Capitalize first letter of each word
+};
+
   return (
     <div className="container mx-auto px-1 py-4">
       <h1 className="text-lg text-center font-medium">My Dashboard</h1>
@@ -198,12 +206,12 @@ export default function UserDashboard() {
                 </div>
                 <div className="px-3 py-1">
                   <p className="ssm:text-base md:text-base text-center ">
-                    {item.listing.location} , {item.listing.city}
+                    {toTitleCase(`${item.listing.location} , ${item.listing.city}`)}
                   </p>
                   <div className="text-xl font-medium ssm:text-xs mod:text-base">
                     {item.type === "hourlyroom" ? (
                       <h2 className="text-xl font-medium ssm:text-xs mod:text-base">
-                        {item.listing.palaceName} | Hourly Room
+                        {toTitleCase(item.listing.palaceName)} | Hourly Room
                       </h2>
                     ) : (
                       <h2 className="text-xl font-medium ssm:text-xs mod:text-base">

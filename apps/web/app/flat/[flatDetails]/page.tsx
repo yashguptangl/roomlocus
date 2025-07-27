@@ -235,7 +235,13 @@ export default function ListingDetail() {
   if (!listing) {
     return <div className="text-center text-xl">Loading...</div>;
   }
-
+  const toTitleCase = (str: string) => {
+    return str
+      .trim()                              // Remove leading/trailing spaces
+      .replace(/\s+/g, ' ')                // Replace multiple spaces with single space
+      .toLowerCase()                       // Convert everything to lowercase first (optional)
+    .replace(/\b\w/g, char => char.toUpperCase());  // Capitalize first letter of each word
+};
   const isSaved = wishlistItems.some((item) => item.listingId === listing.id);
 
   return (
@@ -253,8 +259,8 @@ export default function ListingDetail() {
                       <Image
                       src={listing.isVerified ? Verified : Unverified}
                       alt={listing.isVerified ? "Verified" : "Not Verified"}
-                      width={120}
-                      height={120}
+                      width={100}
+                      height={100}
                       className="inline-block mr-2"
                       />
                     </div>
@@ -331,7 +337,7 @@ export default function ListingDetail() {
             <div className="flex-1 p-4 space-y-4">
               <div>
                 <h1 className="text-xl font-semibold text-gray-800">
-                  {listing.Adress.replace(/\b\w/g, char => char.toUpperCase())}
+                  {toTitleCase(listing.Adress)}
                 </h1>
                 <h2 className="text-xl font-semibold text-center text-green-600 my-2">
                   ₹{listing.MinPrice} - ₹{listing.MaxPrice} Per Month

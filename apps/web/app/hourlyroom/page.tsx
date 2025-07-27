@@ -49,6 +49,14 @@ function Listing() {
   const handleListingClick = (listing: ListingData) => {
     router.push(`/hourlyroom/${listing.id}`);
   };
+  
+  const toTitleCase = (str : string) => {
+  return str
+    .trim()                              // Remove leading/trailing spaces
+    .replace(/\s+/g, ' ')                // Replace multiple spaces with single space
+    .toLowerCase()                       // Convert everything to lowercase first (optional)
+    .replace(/\b\w/g, char => char.toUpperCase());  // Capitalize first letter of each word
+};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -134,13 +142,13 @@ function Listing() {
                       {/* Text Part */}
                       <div className="px-4 py-1">
                         <h3 className="text-base text-center font-normal text-gray-800 line-clamp-2">
-                          {`${listing.location}, ${listing.landmark}`.replace(/\b\w/g, (char) => char.toUpperCase())}
+                          {toTitleCase(`${listing.location}, ${listing.landmark}`)}
                         </h3>
                         <div className="mt-0.5 flex justify-evenly gap-8 md:gap-16 items-center">
                           <p className="text-xs md:text-sm text-gray-600">
-                            {listing.palaceName}
+                            {toTitleCase(listing.palaceName)}
                           </p>
-                          <p className="text-sm  text-yellow-500 font-medium">
+                          <p className="text-sm font-semibold text-green-600">
                             {listing.luxury}
                           </p>
                         </div>

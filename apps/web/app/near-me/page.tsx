@@ -61,6 +61,13 @@ function Listing() {
       </div>
     );
   }
+  const toTitleCase = (str : string) => {
+  return str
+    .trim()                              // Remove leading/trailing spaces
+    .replace(/\s+/g, ' ')                // Replace multiple spaces with single space
+    .toLowerCase()                       // Convert everything to lowercase first (optional)
+    .replace(/\b\w/g, char => char.toUpperCase());  // Capitalize first letter of each word
+};
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,7 +75,6 @@ function Listing() {
       <div className="container mx-auto px-4 py-6">
         {listings.length > 0 ? (
           <>
-          <div className=" flex justify-between items-center gap-1 sticky top-0 bg-white z-30 "></div>
             <div className=" flex justify-between items-center gap-1 sticky top-0 bg-white z-30 ">
               <div>
                 <p className="text-black font-normal text-xs mb-3 ">
@@ -130,14 +136,14 @@ function Listing() {
                   </div>
                   <div className="px-4 py-1">
                     <h3 className="text-base text-center font-normal text-gray-800 line-clamp-2">
-                      {listing.location}, {listing.landmark}, {listing.townSector}
+                      {toTitleCase(`${listing.location}, ${listing.landmark}, ${listing.townSector}`)}
                     </h3>
                     
                     {listing.Type === "hourlyroom" ? (
                         <>
                         <div className="mt-0.5 flex justify-evenly gap-8 md:gap-16 items-center">
                             <p className="text-xs md:text-sm text-gray-600">
-                                {listing.palaceName}
+                                {toTitleCase(listing.palaceName)}
                             </p>
                             <p className="text-sm  text-yellow-500 font-medium">
                                 {listing.luxury}
