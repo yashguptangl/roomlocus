@@ -12,7 +12,7 @@ const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID!;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_SECRET!;
 const SUCCESS_URL = process.env.SUCCESS_URL!;
 const OWNER_DASHBOARD_URL = process.env.OWNER_DASHBOARD_URL!;
-const RAZORPAY_WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET!;
+
 
 const razorpay = new Razorpay({
   key_id: RAZORPAY_KEY_ID,
