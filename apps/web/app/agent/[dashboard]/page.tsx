@@ -205,7 +205,11 @@ export default function Dashboard() {
         <div className="flex flex-col gap-0.5 items-center mt-0.5">
           <p className="md:text-base ssm:text-sm">Agent Id : {decodedToken?.agentId || "N/A"}</p>
           <p className="md:text-base ssm:text-sm">Wallet : {agentData ? agentData.walletRs : "N/A"}</p>
-          <button className="bg-green-600 text-white md:text-sm ssm:text-xs py-0.5 px-2 rounded">Withdraw</button>
+          <button className="bg-green-600 text-white md:text-sm ssm:text-xs py-0.5 px-2 rounded"
+          onClick={() => {
+            alert("Payouts from the wallet are automatically sent to the agent's account once a week");
+          }}
+          >Withdraw</button>
         </div>
         <div className="absolute right-4 top-16 md:right-4 md:top-14 ssm:right-1 ssm:top-12 z-10">
           <span

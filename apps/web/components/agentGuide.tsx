@@ -37,7 +37,10 @@ export default function OwnerGuide() {
                         <li className="text-sm sm:text-base text-blue-400 text-justify">
                             A 5% charge is deducted from the commission amount shown in the wallet during withdrawal.
                         </li>
-                        <h3 className="font-semibold text-black">How to talk to the owner while verifying their property:</h3> 
+                        <li className="text-sm sm:text-base text-blue-400 text-justify">
+                            If the property verification is done incorrectly, you will not get commission for that property and its commission will be rejected by the admin team.
+                        </li>
+                        <h3 className="font-semibold text-black">How to talk to the owner while verifying their property:</h3>
                         <p className="text-sm sm:text-base text-blue-400 text-justify">Sir, if you get your property verified by an agent, your property will be instantly verified. We will also advertise your property so that more and more customers can reach you.</p>
 
                         <h3 className="font-semibold text-black">Our Future Plan</h3>
@@ -62,7 +65,9 @@ export default function OwnerGuide() {
                         <li className="text-sm sm:text-base text-blue-400 text-justify">
                             वॉलेट में दिखाए गए कमीशन अमाउंट से निकासी के समय 5% चार्ज काटा जाता है।
                         </li>
-
+                        <li className="text-sm sm:text-base text-blue-400 text-justify">
+                            अगर प्रॉपर्टी वेरिफिकेशन गलत तरीके से किया गया तो उस प्रॉपर्टी के लिए आपको कमीशन नहीं मिलेगा और उसका कमीशन एडमिन टीम द्वारा रिजेक्ट कर दिया जाएगा।
+                        </li>
                         <h3 className="font-semibold text-black">OWNER की PROPERTY VERIFY करते समय owner से कैसे बात करें:</h3>
                         <p className="text-sm sm:text-base text-blue-400 text-justify">सर, अगर आप एजेंट के द्वारा अपनी प्रॉपर्टी वेरीफाई कराते हैं तो आपकी प्रॉपर्टी तुरंत वेरीफाई हो जाएगी। हम आपकी प्रॉपर्टी की विज्ञापन भी करेंगे जिससे ज्यादा से ज्यादा ग्राहक आप तक पहुंच सकें।</p>
 
