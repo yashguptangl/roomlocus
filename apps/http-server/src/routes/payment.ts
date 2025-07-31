@@ -3,7 +3,6 @@ import Razorpay from "razorpay";
 import crypto from "crypto";
 import dotenv from "dotenv";
 import { prisma } from "@repo/db/prisma";
-import bodyParser from "body-parser";
 
 dotenv.config();
 
@@ -27,7 +26,7 @@ paymentRouter.use((req, res, next) => {
 });
 
 // Create Razorpay Order
-paymentRouter.post("/razorpay", async (req, res) => {
+paymentRouter.post("/razorpay", express.json(), async (req, res) => {
   try {
     const {
       firstname,
@@ -46,7 +45,6 @@ paymentRouter.post("/razorpay", async (req, res) => {
       leadPrice,
     } = req.body;
 
-    // Validate required fields
     if (!paymentFor || !email || !phone) {
       res.status(400).json({ error: "Missing required fields" });
       return;
@@ -73,7 +71,7 @@ paymentRouter.post("/razorpay", async (req, res) => {
       if (existingPayment) {
         res.status(400).json({
           error: "Payment already completed for this listing",
-          paymentId: existingPayment.id
+          paymentId: existingPayment.id,
         });
         return;
       }
@@ -95,7 +93,7 @@ paymentRouter.post("/razorpay", async (req, res) => {
         address: address || null,
         location: location || null,
         townSector: townSector || null,
-        listingShowNo: listingShowNo || null
+        listingShowNo: listingShowNo || null,
       },
     });
 
@@ -131,27 +129,26 @@ paymentRouter.post("/razorpay", async (req, res) => {
       amount: razorpayOrder.amount,
       currency: razorpayOrder.currency,
       name: paymentFor === "lead" ? "Lead Purchase" : "Listing Verification",
-      description: paymentFor === "lead"
-        ? `Purchase of ${leadCount} leads`
-        : "Listing verification fee",
+      description:
+        paymentFor === "lead"
+          ? `Purchase of ${leadCount} leads`
+          : "Listing verification fee",
       prefill: { name: firstname, email, contact: phone },
       notes: options.notes,
       backendOrderId: orderId,
       paymentFor,
     });
-    return;
   } catch (error) {
     console.error("Order creation error:", error);
     res.status(500).json({
       error: "Order creation failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
     });
-    return;
   }
 });
 
 // Payment Verification
-paymentRouter.post("/razorpay/verify", async (req, res) => {
+paymentRouter.post("/razorpay/verify", express.json(), async (req, res) => {
   try {
     const {
       razorpay_order_id,
@@ -172,7 +169,7 @@ paymentRouter.post("/razorpay/verify", async (req, res) => {
     if (generatedSignature !== razorpay_signature) {
       console.error("Signature verification failed");
       res.status(400).json({ error: "Invalid payment signature" });
-      return
+      return;
     }
 
     // Update payment status
@@ -217,7 +214,7 @@ paymentRouter.post("/razorpay/verify", async (req, res) => {
 
       res.json({
         success: true,
-        redirect: redirectUrl.toString()
+        redirect: redirectUrl.toString(),
       });
       return;
     }
@@ -231,131 +228,20 @@ paymentRouter.post("/razorpay/verify", async (req, res) => {
 
       res.json({
         success: true,
-        redirect: OWNER_DASHBOARD_URL
+        redirect: OWNER_DASHBOARD_URL,
       });
       return;
     }
 
     res.status(400).json({ error: "Invalid payment type" });
-    return;
-
   } catch (error) {
     console.error("Payment verification error:", error);
     res.status(500).json({
       error: "Payment verification failed",
-      details: error instanceof Error ? error.message : "Unknown error"
+      details: error instanceof Error ? error.message : "Unknown error",
     });
-    return;
   }
 });
 
-// Webhook Handler
-paymentRouter.post(
-  "/razorpay/webhook",
-  bodyParser.raw({ type: "application/json" }),
-  async (req, res) => {
-    const signature = req.headers["x-razorpay-signature"] as string;
-    const body = req.body.toString('utf-8');
-
-    try {
-      // Verify webhook signature
-      const expectedSignature = crypto
-        .createHmac("sha256", RAZORPAY_WEBHOOK_SECRET)
-        .update(body)
-        .digest("base64");      
-
-
-      if (expectedSignature !== signature) {
-        console.error("Webhook signature mismatch");
-        res.status(400).send("Invalid signature");
-        return;
-      }
-
-      const event = JSON.parse(body);
-      console.log("Webhook event received:", event.event);
-
-      // Handle payment captured event
-      if (event.event === "payment.captured") {
-        const paymentData = event.payload.payment.entity;
-        const razorpayOrderId = paymentData.order_id;
-        const razorpayPaymentId = paymentData.id;
-
-        // Find payment record
-        const payment = await prisma.payment.findFirst({
-          where: { razorpayOrderId },
-        });
-
-        if (!payment) {
-          console.error("Payment record not found for order:", razorpayOrderId);
-          res.status(404).send("Payment not found");
-          return;
-        }
-
-        // Skip if already processed
-        if (payment.status === "SUCCESS") {
-          res.status(200).send("Already processed");
-          return;
-        }
-
-        // Update payment status
-        await prisma.payment.update({
-          where: { id: payment.id },
-          data: {
-            status: "SUCCESS",
-            razorpayPaymentId,
-          },
-        });
-
-        // Update listing status if applicable
-        if (payment.listingId && payment.listingType) {
-          const updateData = { paymentDone: true };
-          const listingId = Number(payment.listingId);
-
-          switch (payment.listingType) {
-            case "flat":
-              await prisma.flatInfo.update({ where: { id: listingId }, data: updateData });
-              break;
-            case "pg":
-              await prisma.pgInfo.update({ where: { id: listingId }, data: updateData });
-              break;
-            case "room":
-              await prisma.roomInfo.update({ where: { id: listingId }, data: updateData });
-              break;
-            case "hourlyroom":
-              await prisma.hourlyInfo.update({ where: { id: listingId }, data: updateData });
-              break;
-          }
-        }
-
-        console.log("Payment successfully processed via webhook");
-        res.status(200).send("Webhook processed");
-        return;
-      }
-
-      // Handle payment failed event
-      if (event.event === "payment.failed") {
-        const paymentData = event.payload.payment.entity;
-        const razorpayOrderId = paymentData.order_id;
-
-        await prisma.payment.updateMany({
-          where: { razorpayOrderId, status: "PENDING" },
-          data: { status: "FAILED" },
-        });
-
-        console.log("Payment marked as failed via webhook");
-        res.status(200).send("Webhook processed");
-        return;
-      }
-
-      res.status(200).send("Event not handled");
-      return;
-
-    } catch (error) {
-      console.error("Webhook processing error:", error);
-      res.status(500).send("Internal server error");
-      return;
-    }
-  }
-);
 
 export default paymentRouter;

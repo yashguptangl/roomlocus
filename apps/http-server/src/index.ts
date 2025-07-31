@@ -1,4 +1,4 @@
-import express from "express"
+import express from "express";
 import { userRouter } from "./routes/user.auth";
 import { ownerRouter } from "./routes/owner";
 import { listingRouter } from "./routes/listing";
@@ -14,25 +14,28 @@ import paymentRouter from "./routes/payment";
 import locationRouter from "./routes/location";
 import nearmeRouter from "./routes/nearme";
 import listingNoCheck from "./routes/listingVerifyNo";
-import bodyParser from "body-parser";
+import { RazorpayWebhookHandler } from "./routes/razorpay.webhook";
+
 const app = express();
 
 app.options('*', cors()); // Handle preflight requests for all routes
 
-// Apply body parsers and cors globally **before** routers
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(bodyParser.json()); // body-parser.json() is similar to express.json(), you may only need one
+
+// 1. RAW body for Razorpay webhook (must be before json parser and before paymentRouter)
+app.post("/api/v1/payment/razorpay/webhook",express.raw({ type: "application/json" }), RazorpayWebhookHandler);
+
+// 2. CORS and JSON parser for all other routes
 app.use(cors({
     origin: ["https://www.roomlocus.com", "http://localhost:3000", "https://roomlocus.com"],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
 }));
 
-// ---- Register paymentRouter (webhook) FIRST ----
+app.use(express.json());
+
+// 3. Register paymentRouter (webhook route is NOT inside this)
 app.use("/api/v1/payment", paymentRouter);
 
-
-// ---- Rest of your routes ----
+// 4. Rest of your routes
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/owner", ownerRouter);
 app.use("/api/v1/listing", listingRouter);
@@ -48,7 +51,7 @@ app.use("/api/v1/listing-no-check", listingNoCheck);
 
 app.get("/api/health", (req, res) => {
     res.send("Hello World");
-})
+});
 
 app.listen(3001, () => {
     console.log("Server is running on port 3001");
